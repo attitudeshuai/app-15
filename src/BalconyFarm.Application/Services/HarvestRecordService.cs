@@ -127,12 +127,23 @@ public class HarvestRecordService : IHarvestRecordService
             return ApiResponse<HarvestRecordDto>.Error("无权为此作物创建收获记录", 403);
         }
 
+        if (crop.Status == CropStatus.Finished)
+        {
+            return ApiResponse<HarvestRecordDto>.Error("已结束的作物无法创建收获记录", 400);
+        }
+
         var harvestRecord = dto.Adapt<HarvestRecord>();
         harvestRecord.Id = Guid.NewGuid();
 
         await _unitOfWork.HarvestRecords.AddAsync(harvestRecord, cancellationToken);
 
-        if (crop.Status == CropStatus.Growing)
+        if (dto.IsFinalHarvest)
+        {
+            crop.Status = CropStatus.Finished;
+            await _unitOfWork.Crops.UpdateAsync(crop, cancellationToken);
+            _logger.LogInformation("作物状态自动更新为已结束: CropId={CropId}", crop.Id);
+        }
+        else if (crop.Status == CropStatus.Growing)
         {
             crop.Status = CropStatus.Harvesting;
             await _unitOfWork.Crops.UpdateAsync(crop, cancellationToken);

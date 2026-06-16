@@ -22,6 +22,7 @@ public class CreateHarvestRecordRequestDto
     public string Unit { get; set; } = string.Empty;
     public string? QualityNote { get; set; }
     public string? PhotoUrl { get; set; }
+    public bool IsFinalHarvest { get; set; }
 }
 
 public class UpdateHarvestRecordRequestDto
