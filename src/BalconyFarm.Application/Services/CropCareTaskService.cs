@@ -6,6 +6,7 @@ using BalconyFarm.Domain.Interfaces;
 using Mapster;
 using Microsoft.Extensions.Logging;
 using TaskStatus = BalconyFarm.Domain.Enums.TaskStatus;
+using CropStatus = BalconyFarm.Domain.Enums.CropStatus;
 
 namespace BalconyFarm.Application.Services;
 
@@ -189,6 +190,12 @@ public class CropCareTaskService : ICropCareTaskService
             task.Note = dto.Note;
 
         await _unitOfWork.CropCareTasks.UpdateAsync(task, cancellationToken);
+
+        if (dto.Status.HasValue)
+        {
+            await CheckAndUpdateCropFinishedStatusAsync(task.CropId, cancellationToken);
+        }
+
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
         _logger.LogInformation("作物护理任务更新成功: TaskId={TaskId}", id);
@@ -214,7 +221,11 @@ public class CropCareTaskService : ICropCareTaskService
             return ApiResponse.Error("无权删除此任务", 403);
         }
 
+        var cropId = task.CropId;
         await _unitOfWork.CropCareTasks.DeleteAsync(task, cancellationToken);
+
+        await CheckAndUpdateCropFinishedStatusAsync(cropId, cancellationToken);
+
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
         _logger.LogInformation("作物护理任务删除成功: TaskId={TaskId}", id);
@@ -245,6 +256,9 @@ public class CropCareTaskService : ICropCareTaskService
         }
 
         await _unitOfWork.CropCareTasks.UpdateAsync(task, cancellationToken);
+
+        await CheckAndUpdateCropFinishedStatusAsync(task.CropId, cancellationToken);
+
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
         _logger.LogInformation("任务状态更新成功: TaskId={TaskId}", id);
@@ -252,6 +266,30 @@ public class CropCareTaskService : ICropCareTaskService
         var taskDto = task.Adapt<CropCareTaskDto>();
         taskDto.CropName = crop.Name;
         return ApiResponse<CropCareTaskDto>.Success(taskDto, "状态更新成功");
+    }
+
+    private async Task CheckAndUpdateCropFinishedStatusAsync(Guid cropId, CancellationToken cancellationToken)
+    {
+        var allTasks = await _unitOfWork.CropCareTasks.FindAsync(t => t.CropId == cropId, cancellationToken);
+        var taskList = allTasks.ToList();
+
+        if (taskList.Count == 0)
+        {
+            return;
+        }
+
+        var allTasksCompleted = taskList.All(t => t.Status == TaskStatus.Completed || t.Status == TaskStatus.Cancelled);
+
+        if (allTasksCompleted)
+        {
+            var crop = await _unitOfWork.Crops.GetByIdAsync(cropId, cancellationToken);
+            if (crop != null && crop.Status != CropStatus.Finished)
+            {
+                crop.Status = CropStatus.Finished;
+                await _unitOfWork.Crops.UpdateAsync(crop, cancellationToken);
+                _logger.LogInformation("所有任务已完成，作物状态自动更新为已完成: CropId={CropId}", cropId);
+            }
+        }
     }
 
     private static System.Linq.Expressions.Expression<Func<CropCareTask, object>> GetSortProperty(string sortBy)

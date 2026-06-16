@@ -1,6 +1,7 @@
 using BalconyFarm.Application.DTOs;
 using BalconyFarm.Application.Models;
 using BalconyFarm.Domain.Entities;
+using BalconyFarm.Domain.Enums;
 using BalconyFarm.Domain.Interfaces;
 using Mapster;
 using Microsoft.Extensions.Logging;
@@ -130,6 +131,14 @@ public class HarvestRecordService : IHarvestRecordService
         harvestRecord.Id = Guid.NewGuid();
 
         await _unitOfWork.HarvestRecords.AddAsync(harvestRecord, cancellationToken);
+
+        if (crop.Status == CropStatus.Growing)
+        {
+            crop.Status = CropStatus.Harvesting;
+            await _unitOfWork.Crops.UpdateAsync(crop, cancellationToken);
+            _logger.LogInformation("作物状态自动更新为可收获: CropId={CropId}", crop.Id);
+        }
+
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
         _logger.LogInformation("收获记录创建成功: {HarvestRecordId}", harvestRecord.Id);
