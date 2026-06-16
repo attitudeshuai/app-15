@@ -37,6 +37,15 @@ public class StatisticsService : IStatisticsService
             .Where(p => cropIds.Contains(p.CropId))
             .ToList();
 
+        var now = DateTime.UtcNow;
+        var currentPeriod = GetMonthToDateRange(now);
+        var lastMonthPeriod = GetSamePeriodLastMonth(now);
+        var lastYearPeriod = GetSamePeriodLastYear(now);
+
+        var currentStats = CalculatePeriodStats(crops, tasks, harvestRecords, currentPeriod.start, currentPeriod.end);
+        var lastMonthStats = CalculatePeriodStats(crops, tasks, harvestRecords, lastMonthPeriod.start, lastMonthPeriod.end);
+        var lastYearStats = CalculatePeriodStats(crops, tasks, harvestRecords, lastYearPeriod.start, lastYearPeriod.end);
+
         var stats = new OverviewStats
         {
             TotalCrops = crops.Count,
@@ -49,10 +58,99 @@ public class StatisticsService : IStatisticsService
             OverdueTaskCount = tasks.Count(t => (t.Status == TaskStatus.Pending || t.Status == TaskStatus.InProgress) && t.ScheduledDate.Date < DateTime.UtcNow.Date),
             TotalHarvestRecords = harvestRecords.Count,
             TotalHarvestQuantity = harvestRecords.Sum(h => h.Quantity),
-            ActivePestIssues = pestRecords.Count(p => p.Status != PestStatus.Resolved)
+            ActivePestIssues = pestRecords.Count(p => p.Status != PestStatus.Resolved),
+            ComparedToLastMonth = BuildComparison(currentStats, lastMonthStats),
+            ComparedToLastYear = BuildComparison(currentStats, lastYearStats)
         };
 
         return ApiResponse<OverviewStats>.Success(stats);
+    }
+
+    private static (DateTime start, DateTime end) GetMonthToDateRange(DateTime now)
+    {
+        var start = new DateTime(now.Year, now.Month, 1, 0, 0, 0, DateTimeKind.Utc);
+        var end = now.Date.AddDays(1).AddTicks(-1);
+        return (start, end);
+    }
+
+    private static (DateTime start, DateTime end) GetSamePeriodLastMonth(DateTime now)
+    {
+        var lastMonth = now.AddMonths(-1);
+        var start = new DateTime(lastMonth.Year, lastMonth.Month, 1, 0, 0, 0, DateTimeKind.Utc);
+        var day = Math.Min(now.Day, DateTime.DaysInMonth(lastMonth.Year, lastMonth.Month));
+        var end = new DateTime(lastMonth.Year, lastMonth.Month, day, 23, 59, 59, DateTimeKind.Utc);
+        return (start, end);
+    }
+
+    private static (DateTime start, DateTime end) GetSamePeriodLastYear(DateTime now)
+    {
+        var lastYear = now.AddYears(-1);
+        var start = new DateTime(lastYear.Year, lastYear.Month, 1, 0, 0, 0, DateTimeKind.Utc);
+        var day = Math.Min(now.Day, DateTime.DaysInMonth(lastYear.Year, lastYear.Month));
+        var end = new DateTime(lastYear.Year, lastYear.Month, day, 23, 59, 59, DateTimeKind.Utc);
+        return (start, end);
+    }
+
+    private class PeriodStats
+    {
+        public int NewCrops { get; set; }
+        public decimal HarvestQuantity { get; set; }
+        public decimal TaskCompletionRate { get; set; }
+    }
+
+    private static PeriodStats CalculatePeriodStats(List<Crop> crops, List<CropCareTask> tasks, List<HarvestRecord> harvestRecords, DateTime start, DateTime end)
+    {
+        var newCrops = crops.Count(c => c.CreatedAt >= start && c.CreatedAt <= end);
+        var harvestQuantity = harvestRecords.Where(h => h.HarvestDate >= start && h.HarvestDate <= end).Sum(h => h.Quantity);
+
+        var periodTasks = tasks.Where(t => t.ScheduledDate >= start && t.ScheduledDate <= end).ToList();
+        var effectiveTasks = periodTasks.Where(t => t.Status != TaskStatus.Cancelled).ToList();
+        var totalTasks = effectiveTasks.Count;
+        var completedTasks = effectiveTasks.Count(t => t.Status == TaskStatus.Completed);
+        var completionRate = totalTasks > 0 ? Math.Round((decimal)completedTasks / totalTasks * 100, 1) : 0m;
+
+        return new PeriodStats
+        {
+            NewCrops = newCrops,
+            HarvestQuantity = harvestQuantity,
+            TaskCompletionRate = completionRate
+        };
+    }
+
+    private static OverviewComparison BuildComparison(PeriodStats current, PeriodStats previous)
+    {
+        return new OverviewComparison
+        {
+            NewCrops = BuildIntComparison(current.NewCrops, previous.NewCrops),
+            HarvestQuantity = BuildDecimalComparison(current.HarvestQuantity, previous.HarvestQuantity),
+            TaskCompletionRate = BuildDecimalComparison(current.TaskCompletionRate, previous.TaskCompletionRate)
+        };
+    }
+
+    private static PeriodComparison<int> BuildIntComparison(int current, int previous)
+    {
+        var change = current - previous;
+        decimal? percentage = previous > 0 ? Math.Round((decimal)change / previous * 100, 1) : null;
+        return new PeriodComparison<int>
+        {
+            CurrentValue = current,
+            PreviousValue = previous,
+            Change = change,
+            ChangePercentage = percentage
+        };
+    }
+
+    private static PeriodComparison<decimal> BuildDecimalComparison(decimal current, decimal previous)
+    {
+        var change = Math.Round(current - previous, 1);
+        decimal? percentage = previous > 0 ? Math.Round(change / previous * 100, 1) : null;
+        return new PeriodComparison<decimal>
+        {
+            CurrentValue = Math.Round(current, 1),
+            PreviousValue = Math.Round(previous, 1),
+            Change = change,
+            ChangePercentage = percentage
+        };
     }
 
     public async Task<ApiResponse<IEnumerable<TrendData>>> GetTrendStatsAsync(DateTime startDate, DateTime endDate, Guid userId, CancellationToken cancellationToken = default)

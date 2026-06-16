@@ -1,5 +1,20 @@
 namespace BalconyFarm.Application.Models;
 
+public class PeriodComparison<T>
+{
+    public T CurrentValue { get; set; } = default!;
+    public T PreviousValue { get; set; } = default!;
+    public T Change { get; set; } = default!;
+    public decimal? ChangePercentage { get; set; }
+}
+
+public class OverviewComparison
+{
+    public PeriodComparison<int> NewCrops { get; set; } = new();
+    public PeriodComparison<decimal> HarvestQuantity { get; set; } = new();
+    public PeriodComparison<decimal> TaskCompletionRate { get; set; } = new();
+}
+
 public class OverviewStats
 {
     public int TotalCrops { get; set; }
@@ -13,6 +28,8 @@ public class OverviewStats
     public int TotalHarvestRecords { get; set; }
     public decimal TotalHarvestQuantity { get; set; }
     public int ActivePestIssues { get; set; }
+    public OverviewComparison ComparedToLastMonth { get; set; } = new();
+    public OverviewComparison ComparedToLastYear { get; set; } = new();
 }
 
 public class TrendData
