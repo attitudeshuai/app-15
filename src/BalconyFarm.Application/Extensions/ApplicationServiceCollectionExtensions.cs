@@ -1,4 +1,5 @@
 using System.Reflection;
+using BalconyFarm.Application.Data;
 using FluentValidation;
 using FluentValidation.AspNetCore;
 using Mapster;
@@ -25,6 +26,8 @@ public static class ApplicationServiceCollectionExtensions
             .AddClasses(classes => classes.Where(type => type.Name.EndsWith("Service")))
             .AsImplementedInterfaces()
             .WithScopedLifetime());
+
+        services.AddSingleton<IPlantingCalendarDataProvider, JsonPlantingCalendarDataProvider>();
 
         return services;
     }

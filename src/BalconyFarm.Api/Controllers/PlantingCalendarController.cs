@@ -53,6 +53,6 @@ public class PlantingCalendarController : ControllerBase
         {
             return BadRequest(result);
         }
-        return CreatedAtAction(nameof(GetRecommendations), new { city = request.CropName }, result);
+        return CreatedAtAction(nameof(GetRecommendations), new { city = request.City, month = request.Month }, result);
     }
 }

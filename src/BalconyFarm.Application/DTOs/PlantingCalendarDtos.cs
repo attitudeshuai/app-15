@@ -37,10 +37,10 @@ public class PlantingCalendarResponseDto
 
 public class CreateCropFromRecommendationRequestDto
 {
+    public string City { get; set; } = string.Empty;
+    public int Month { get; set; }
     public string CropName { get; set; } = string.Empty;
     public string Variety { get; set; } = string.Empty;
-    public string Location { get; set; } = string.Empty;
-    public string ContainerType { get; set; } = string.Empty;
     public DateTime? PlantingDate { get; set; }
     public string? PhotoUrl { get; set; }
 }

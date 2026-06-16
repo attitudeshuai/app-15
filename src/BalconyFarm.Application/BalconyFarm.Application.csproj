@@ -23,4 +23,10 @@
     <ProjectReference Include="..\BalconyFarm.Domain\BalconyFarm.Domain.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Include="Data\cities.json" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="Data\crops.json" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="Data\solar_terms.json" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
 </Project>
