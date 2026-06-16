@@ -14,6 +14,27 @@ public class PestRecordDto
     public DateTime? ResolvedDate { get; set; }
     public PestStatus Status { get; set; }
     public string? CropName { get; set; }
+    public List<TreatmentLogDto> TreatmentLogs { get; set; } = new();
+}
+
+public class TreatmentLogDto
+{
+    public Guid Id { get; set; }
+    public Guid PestRecordId { get; set; }
+    public string Medication { get; set; } = string.Empty;
+    public string Dosage { get; set; } = string.Empty;
+    public string SymptomChange { get; set; } = string.Empty;
+    public DateTime TreatmentDate { get; set; }
+    public string? Note { get; set; }
+}
+
+public class CreateTreatmentLogRequestDto
+{
+    public string Medication { get; set; } = string.Empty;
+    public string Dosage { get; set; } = string.Empty;
+    public string SymptomChange { get; set; } = string.Empty;
+    public DateTime TreatmentDate { get; set; }
+    public string? Note { get; set; }
 }
 
 public class CreatePestRecordRequestDto

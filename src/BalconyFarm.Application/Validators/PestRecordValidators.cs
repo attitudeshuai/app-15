@@ -56,3 +56,29 @@ public class UpdatePestRecordRequestDtoValidator : AbstractValidator<UpdatePestR
             .WithMessage("状态无效");
     }
 }
+
+public class CreateTreatmentLogRequestDtoValidator : AbstractValidator<CreateTreatmentLogRequestDto>
+{
+    public CreateTreatmentLogRequestDtoValidator()
+    {
+        RuleFor(x => x.Medication)
+            .NotEmpty().WithMessage("用药名称不能为空")
+            .MaximumLength(200).WithMessage("用药名称长度不能超过200个字符");
+
+        RuleFor(x => x.Dosage)
+            .NotEmpty().WithMessage("用药量不能为空")
+            .MaximumLength(100).WithMessage("用药量长度不能超过100个字符");
+
+        RuleFor(x => x.SymptomChange)
+            .NotEmpty().WithMessage("症状变化不能为空")
+            .MaximumLength(1000).WithMessage("症状变化长度不能超过1000个字符");
+
+        RuleFor(x => x.TreatmentDate)
+            .NotEmpty().WithMessage("治疗日期不能为空")
+            .LessThanOrEqualTo(DateTime.UtcNow).WithMessage("治疗日期不能晚于当前日期");
+
+        RuleFor(x => x.Note)
+            .MaximumLength(500).When(x => !string.IsNullOrEmpty(x.Note))
+            .WithMessage("备注长度不能超过500个字符");
+    }
+}

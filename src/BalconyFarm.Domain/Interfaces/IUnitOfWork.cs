@@ -9,5 +9,6 @@ public interface IUnitOfWork
     IRepository<CropCareTask> CropCareTasks { get; }
     IRepository<HarvestRecord> HarvestRecords { get; }
     IRepository<PestRecord> PestRecords { get; }
+    IRepository<TreatmentLog> TreatmentLogs { get; }
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }

@@ -64,5 +64,12 @@ public static class MappingConfig
 
         TypeAdapterConfig<PestRecord, PestRecordDto>.NewConfig()
             .Map(dest => dest.CropName, src => src.Crop != null ? src.Crop.Name : null);
+
+        TypeAdapterConfig<CreateTreatmentLogRequestDto, TreatmentLog>.NewConfig()
+            .Map(dest => dest.Medication, src => src.Medication)
+            .Map(dest => dest.Dosage, src => src.Dosage)
+            .Map(dest => dest.SymptomChange, src => src.SymptomChange)
+            .Map(dest => dest.TreatmentDate, src => src.TreatmentDate)
+            .Map(dest => dest.Note, src => src.Note);
     }
 }

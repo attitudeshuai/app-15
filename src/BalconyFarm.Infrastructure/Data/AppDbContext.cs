@@ -14,6 +14,7 @@ public class AppDbContext : DbContext
     public DbSet<CropCareTask> CropCareTasks => Set<CropCareTask>();
     public DbSet<HarvestRecord> HarvestRecords => Set<HarvestRecord>();
     public DbSet<PestRecord> PestRecords => Set<PestRecord>();
+    public DbSet<TreatmentLog> TreatmentLogs => Set<TreatmentLog>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -90,6 +91,22 @@ public class AppDbContext : DbContext
                   .WithMany(c => c.PestRecords)
                   .HasForeignKey(p => p.CropId)
                   .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasMany(p => p.TreatmentLogs)
+                  .WithOne(t => t.PestRecord)
+                  .HasForeignKey(t => t.PestRecordId)
+                  .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<TreatmentLog>(entity =>
+        {
+            entity.HasKey(t => t.Id);
+            entity.Property(t => t.PestRecordId).IsRequired();
+            entity.Property(t => t.Medication).IsRequired().HasMaxLength(200);
+            entity.Property(t => t.Dosage).IsRequired().HasMaxLength(100);
+            entity.Property(t => t.SymptomChange).IsRequired().HasMaxLength(1000);
+            entity.Property(t => t.TreatmentDate).IsRequired();
+            entity.Property(t => t.Note).HasMaxLength(500);
         });
     }
 

@@ -126,4 +126,61 @@ public class PestRecordsController : ControllerBase
         }
         return Ok(result);
     }
+
+    [HttpPost("{pestRecordId}/treatmentlogs")]
+    [Authorize]
+    public async Task<ActionResult<ApiResponse<PestRecordDto>>> AddTreatmentLog([FromRoute] Guid pestRecordId, [FromBody] CreateTreatmentLogRequestDto dto, CancellationToken cancellationToken)
+    {
+        var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (userIdClaim == null || !Guid.TryParse(userIdClaim, out var userId))
+        {
+            return Unauthorized(ApiResponse.Error("用户未认证", 401));
+        }
+
+        var result = await _pestRecordService.AddTreatmentLogAsync(pestRecordId, dto, userId, cancellationToken);
+        if (result.Code != 200)
+        {
+            if (result.Code == 404) return NotFound(result);
+            return BadRequest(result);
+        }
+        return Ok(result);
+    }
+
+    [HttpGet("{pestRecordId}/treatmentlogs")]
+    [Authorize]
+    public async Task<ActionResult<ApiResponse<IEnumerable<TreatmentLogDto>>>> GetTreatmentLogs([FromRoute] Guid pestRecordId, CancellationToken cancellationToken)
+    {
+        var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (userIdClaim == null || !Guid.TryParse(userIdClaim, out var userId))
+        {
+            return Unauthorized(ApiResponse.Error("用户未认证", 401));
+        }
+
+        var result = await _pestRecordService.GetTreatmentLogsAsync(pestRecordId, userId, cancellationToken);
+        if (result.Code != 200)
+        {
+            if (result.Code == 404) return NotFound(result);
+            return BadRequest(result);
+        }
+        return Ok(result);
+    }
+
+    [HttpDelete("{pestRecordId}/treatmentlogs/{treatmentLogId}")]
+    [Authorize]
+    public async Task<ActionResult<ApiResponse>> DeleteTreatmentLog([FromRoute] Guid pestRecordId, [FromRoute] Guid treatmentLogId, CancellationToken cancellationToken)
+    {
+        var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (userIdClaim == null || !Guid.TryParse(userIdClaim, out var userId))
+        {
+            return Unauthorized(ApiResponse.Error("用户未认证", 401));
+        }
+
+        var result = await _pestRecordService.DeleteTreatmentLogAsync(pestRecordId, treatmentLogId, userId, cancellationToken);
+        if (result.Code != 200)
+        {
+            if (result.Code == 404) return NotFound(result);
+            return BadRequest(result);
+        }
+        return Ok(result);
+    }
 }

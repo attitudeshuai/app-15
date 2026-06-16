@@ -79,6 +79,8 @@ public class PestRecordService : IPestRecordService
             pestRecordsQuery = pestRecordsQuery.OrderByDescending(p => p.DetectedDate);
         }
 
+        var allTreatmentLogs = (await _unitOfWork.TreatmentLogs.GetAllAsync(cancellationToken)).ToList();
+
         var items = pestRecordsQuery
             .Skip((query.PageNumber - 1) * query.PageSize)
             .Take(query.PageSize)
@@ -87,6 +89,11 @@ public class PestRecordService : IPestRecordService
                 var dto = p.Adapt<PestRecordDto>();
                 var crop = crops.FirstOrDefault(c => c.Id == p.CropId);
                 dto.CropName = crop?.Name;
+                dto.TreatmentLogs = allTreatmentLogs
+                    .Where(t => t.PestRecordId == p.Id)
+                    .OrderByDescending(t => t.TreatmentDate)
+                    .Select(t => t.Adapt<TreatmentLogDto>())
+                    .ToList();
                 return dto;
             })
             .ToList();
@@ -120,8 +127,14 @@ public class PestRecordService : IPestRecordService
             return ApiResponse<PestRecordDto>.Error("无权访问此病虫害记录", 403);
         }
 
+        var treatmentLogs = (await _unitOfWork.TreatmentLogs.GetAllAsync(cancellationToken))
+            .Where(t => t.PestRecordId == id)
+            .OrderByDescending(t => t.TreatmentDate)
+            .ToList();
+
         var pestRecordDto = pestRecord.Adapt<PestRecordDto>();
         pestRecordDto.CropName = crop?.Name;
+        pestRecordDto.TreatmentLogs = treatmentLogs.Select(t => t.Adapt<TreatmentLogDto>()).ToList();
         return ApiResponse<PestRecordDto>.Success(pestRecordDto);
     }
 
@@ -258,6 +271,107 @@ public class PestRecordService : IPestRecordService
         var pestRecordDto = pestRecord.Adapt<PestRecordDto>();
         pestRecordDto.CropName = crop?.Name;
         return ApiResponse<PestRecordDto>.Success(pestRecordDto, "状态更新成功");
+    }
+
+    public async Task<ApiResponse<PestRecordDto>> AddTreatmentLogAsync(Guid pestRecordId, CreateTreatmentLogRequestDto dto, Guid userId, CancellationToken cancellationToken = default)
+    {
+        _logger.LogInformation("追加治疗记录: {PestRecordId}, 用户: {UserId}", pestRecordId, userId);
+
+        var pestRecord = (await _unitOfWork.PestRecords.GetAllAsync(cancellationToken))
+            .FirstOrDefault(p => p.Id == pestRecordId);
+
+        if (pestRecord == null)
+        {
+            return ApiResponse<PestRecordDto>.Error("病虫害记录不存在", 404);
+        }
+
+        var crop = await _unitOfWork.Crops.GetByIdAsync(pestRecord.CropId, cancellationToken);
+        if (crop != null && crop.UserId != userId)
+        {
+            return ApiResponse<PestRecordDto>.Error("无权修改此病虫害记录", 403);
+        }
+
+        if (pestRecord.Status == PestStatus.Resolved)
+        {
+            return ApiResponse<PestRecordDto>.Error("病虫害已解决，无法追加治疗记录", 400);
+        }
+
+        var treatmentLog = dto.Adapt<TreatmentLog>();
+        treatmentLog.Id = Guid.NewGuid();
+        treatmentLog.PestRecordId = pestRecordId;
+
+        await _unitOfWork.TreatmentLogs.AddAsync(treatmentLog, cancellationToken);
+
+        if (pestRecord.Status == PestStatus.Detected)
+        {
+            pestRecord.Status = PestStatus.Treating;
+            await _unitOfWork.PestRecords.UpdateAsync(pestRecord, cancellationToken);
+        }
+
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+        _logger.LogInformation("治疗记录追加成功: {TreatmentLogId}, 病虫害: {PestRecordId}", treatmentLog.Id, pestRecordId);
+
+        return await GetPestRecordByIdAsync(pestRecordId, userId, cancellationToken);
+    }
+
+    public async Task<ApiResponse<IEnumerable<TreatmentLogDto>>> GetTreatmentLogsAsync(Guid pestRecordId, Guid? userId = null, CancellationToken cancellationToken = default)
+    {
+        var pestRecord = (await _unitOfWork.PestRecords.GetAllAsync(cancellationToken))
+            .FirstOrDefault(p => p.Id == pestRecordId);
+
+        if (pestRecord == null)
+        {
+            return ApiResponse<IEnumerable<TreatmentLogDto>>.Error("病虫害记录不存在", 404);
+        }
+
+        var crop = await _unitOfWork.Crops.GetByIdAsync(pestRecord.CropId, cancellationToken);
+        if (userId.HasValue && crop != null && crop.UserId != userId.Value)
+        {
+            return ApiResponse<IEnumerable<TreatmentLogDto>>.Error("无权访问此病虫害记录", 403);
+        }
+
+        var treatmentLogs = (await _unitOfWork.TreatmentLogs.GetAllAsync(cancellationToken))
+            .Where(t => t.PestRecordId == pestRecordId)
+            .OrderByDescending(t => t.TreatmentDate)
+            .Select(t => t.Adapt<TreatmentLogDto>())
+            .ToList();
+
+        return ApiResponse<IEnumerable<TreatmentLogDto>>.Success(treatmentLogs);
+    }
+
+    public async Task<ApiResponse> DeleteTreatmentLogAsync(Guid pestRecordId, Guid treatmentLogId, Guid userId, CancellationToken cancellationToken = default)
+    {
+        _logger.LogInformation("删除治疗记录: {TreatmentLogId}, 病虫害: {PestRecordId}, 用户: {UserId}", treatmentLogId, pestRecordId, userId);
+
+        var pestRecord = (await _unitOfWork.PestRecords.GetAllAsync(cancellationToken))
+            .FirstOrDefault(p => p.Id == pestRecordId);
+
+        if (pestRecord == null)
+        {
+            return ApiResponse.Error("病虫害记录不存在", 404);
+        }
+
+        var crop = await _unitOfWork.Crops.GetByIdAsync(pestRecord.CropId, cancellationToken);
+        if (crop != null && crop.UserId != userId)
+        {
+            return ApiResponse.Error("无权修改此病虫害记录", 403);
+        }
+
+        var treatmentLog = (await _unitOfWork.TreatmentLogs.GetAllAsync(cancellationToken))
+            .FirstOrDefault(t => t.Id == treatmentLogId && t.PestRecordId == pestRecordId);
+
+        if (treatmentLog == null)
+        {
+            return ApiResponse.Error("治疗记录不存在", 404);
+        }
+
+        await _unitOfWork.TreatmentLogs.DeleteAsync(treatmentLog, cancellationToken);
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+        _logger.LogInformation("治疗记录删除成功: {TreatmentLogId}", treatmentLogId);
+
+        return ApiResponse.Success(null, "删除成功");
     }
 
     private static System.Linq.Expressions.Expression<Func<PestRecord, object>> GetSortProperty(string sortBy)

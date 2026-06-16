@@ -11,4 +11,7 @@ public interface IPestRecordService
     Task<ApiResponse<PestRecordDto>> UpdatePestRecordAsync(Guid id, UpdatePestRecordRequestDto dto, Guid userId, CancellationToken cancellationToken = default);
     Task<ApiResponse> DeletePestRecordAsync(Guid id, Guid userId, CancellationToken cancellationToken = default);
     Task<ApiResponse<PestRecordDto>> UpdatePestStatusAsync(Guid id, UpdatePestStatusRequestDto dto, Guid userId, CancellationToken cancellationToken = default);
+    Task<ApiResponse<PestRecordDto>> AddTreatmentLogAsync(Guid pestRecordId, CreateTreatmentLogRequestDto dto, Guid userId, CancellationToken cancellationToken = default);
+    Task<ApiResponse<IEnumerable<TreatmentLogDto>>> GetTreatmentLogsAsync(Guid pestRecordId, Guid? userId = null, CancellationToken cancellationToken = default);
+    Task<ApiResponse> DeleteTreatmentLogAsync(Guid pestRecordId, Guid treatmentLogId, Guid userId, CancellationToken cancellationToken = default);
 }

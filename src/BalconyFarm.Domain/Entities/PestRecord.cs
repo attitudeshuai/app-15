@@ -14,4 +14,5 @@ public class PestRecord
     public PestStatus Status { get; set; } = PestStatus.Detected;
 
     public Crop? Crop { get; set; }
+    public ICollection<TreatmentLog> TreatmentLogs { get; set; } = new List<TreatmentLog>();
 }
