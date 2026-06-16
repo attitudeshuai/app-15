@@ -78,7 +78,8 @@ public class StatisticsService : IStatisticsService
         var lastMonth = now.AddMonths(-1);
         var start = new DateTime(lastMonth.Year, lastMonth.Month, 1, 0, 0, 0, DateTimeKind.Utc);
         var day = Math.Min(now.Day, DateTime.DaysInMonth(lastMonth.Year, lastMonth.Month));
-        var end = new DateTime(lastMonth.Year, lastMonth.Month, day, 23, 59, 59, DateTimeKind.Utc);
+        var endDate = new DateTime(lastMonth.Year, lastMonth.Month, day, 0, 0, 0, DateTimeKind.Utc);
+        var end = endDate.AddDays(1).AddTicks(-1);
         return (start, end);
     }
 
@@ -87,7 +88,8 @@ public class StatisticsService : IStatisticsService
         var lastYear = now.AddYears(-1);
         var start = new DateTime(lastYear.Year, lastYear.Month, 1, 0, 0, 0, DateTimeKind.Utc);
         var day = Math.Min(now.Day, DateTime.DaysInMonth(lastYear.Year, lastYear.Month));
-        var end = new DateTime(lastYear.Year, lastYear.Month, day, 23, 59, 59, DateTimeKind.Utc);
+        var endDate = new DateTime(lastYear.Year, lastYear.Month, day, 0, 0, 0, DateTimeKind.Utc);
+        var end = endDate.AddDays(1).AddTicks(-1);
         return (start, end);
     }
 
