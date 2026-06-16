@@ -86,6 +86,7 @@ public class CropCareTaskService : ICropCareTaskService
                 {
                     t.CropName = cropName;
                 }
+                SetOverdueInfo(t);
                 return t;
             })
             .ToList();
@@ -125,6 +126,7 @@ public class CropCareTaskService : ICropCareTaskService
         {
             taskDto.CropName = taskCrop.Name;
         }
+        SetOverdueInfo(taskDto);
 
         return ApiResponse<CropCareTaskDto>.Success(taskDto);
     }
@@ -155,6 +157,7 @@ public class CropCareTaskService : ICropCareTaskService
 
         var taskDto = task.Adapt<CropCareTaskDto>();
         taskDto.CropName = crop.Name;
+        SetOverdueInfo(taskDto);
         return ApiResponse<CropCareTaskDto>.Success(taskDto, "创建成功");
     }
 
@@ -202,6 +205,7 @@ public class CropCareTaskService : ICropCareTaskService
 
         var taskDto = task.Adapt<CropCareTaskDto>();
         taskDto.CropName = crop.Name;
+        SetOverdueInfo(taskDto);
         return ApiResponse<CropCareTaskDto>.Success(taskDto, "更新成功");
     }
 
@@ -265,6 +269,7 @@ public class CropCareTaskService : ICropCareTaskService
 
         var taskDto = task.Adapt<CropCareTaskDto>();
         taskDto.CropName = crop.Name;
+        SetOverdueInfo(taskDto);
         return ApiResponse<CropCareTaskDto>.Success(taskDto, "状态更新成功");
     }
 
@@ -302,5 +307,20 @@ public class CropCareTaskService : ICropCareTaskService
             "status" => task => task.Status,
             _ => task => task.ScheduledDate
         };
+    }
+
+    private static void SetOverdueInfo(CropCareTaskDto dto)
+    {
+        var isPending = dto.Status == TaskStatus.Pending || dto.Status == TaskStatus.InProgress;
+        if (isPending && dto.ScheduledDate.Date < DateTime.UtcNow.Date)
+        {
+            dto.IsOverdue = true;
+            dto.OverdueDays = (int)(DateTime.UtcNow.Date - dto.ScheduledDate.Date).TotalDays;
+        }
+        else
+        {
+            dto.IsOverdue = false;
+            dto.OverdueDays = null;
+        }
     }
 }

@@ -46,6 +46,7 @@ public class StatisticsService : IStatisticsService
             TotalTasks = tasks.Count,
             PendingTasks = tasks.Count(t => t.Status == TaskStatus.Pending || t.Status == TaskStatus.InProgress),
             CompletedTasks = tasks.Count(t => t.Status == TaskStatus.Completed),
+            OverdueTaskCount = tasks.Count(t => (t.Status == TaskStatus.Pending || t.Status == TaskStatus.InProgress) && t.ScheduledDate.Date < DateTime.UtcNow.Date),
             TotalHarvestRecords = harvestRecords.Count,
             TotalHarvestQuantity = harvestRecords.Sum(h => h.Quantity),
             ActivePestIssues = pestRecords.Count(p => p.Status != PestStatus.Resolved)
@@ -128,6 +129,52 @@ public class StatisticsService : IStatisticsService
         }
 
         return ApiResponse<IEnumerable<TrendData>>.Success(trendData);
+    }
+
+    public async Task<ApiResponse<IEnumerable<CropTaskCompletionItem>>> GetCropTaskCompletionStatsAsync(Guid userId, CancellationToken cancellationToken = default)
+    {
+        _logger.LogInformation("获取作物任务完成率统计: {UserId}", userId);
+
+        var crops = (await _unitOfWork.Crops.FindAsync(c => c.UserId == userId, cancellationToken)).ToList();
+        if (!crops.Any())
+        {
+            return ApiResponse<IEnumerable<CropTaskCompletionItem>>.Success(Enumerable.Empty<CropTaskCompletionItem>());
+        }
+
+        var cropIds = crops.Select(c => c.Id).ToList();
+        var allTasks = (await _unitOfWork.CropCareTasks.GetAllAsync(cancellationToken))
+            .Where(t => cropIds.Contains(t.CropId))
+            .ToList();
+
+        var result = crops.Select(crop =>
+        {
+            var cropTasks = allTasks.Where(t => t.CropId == crop.Id).ToList();
+            var effectiveTasks = cropTasks.Where(t => t.Status != TaskStatus.Cancelled).ToList();
+            var completed = effectiveTasks.Count(t => t.Status == TaskStatus.Completed);
+            var onTimeCompleted = effectiveTasks.Count(t =>
+                t.Status == TaskStatus.Completed &&
+                t.CompletedDate.HasValue &&
+                t.CompletedDate.Value.Date <= t.ScheduledDate.Date);
+            var overdue = effectiveTasks.Count(t =>
+                (t.Status == TaskStatus.Pending || t.Status == TaskStatus.InProgress) &&
+                t.ScheduledDate.Date < DateTime.UtcNow.Date);
+
+            var total = effectiveTasks.Count;
+
+            return new CropTaskCompletionItem
+            {
+                CropId = crop.Id,
+                CropName = crop.Name,
+                TotalTasks = total,
+                CompletedTasks = completed,
+                OnTimeCompletedTasks = onTimeCompleted,
+                OverdueTasks = overdue,
+                CompletionRate = total > 0 ? Math.Round((decimal)completed / total * 100, 1) : 0,
+                OnTimeRate = total > 0 ? Math.Round((decimal)onTimeCompleted / total * 100, 1) : 0
+            };
+        }).ToList();
+
+        return ApiResponse<IEnumerable<CropTaskCompletionItem>>.Success(result);
     }
 
     private static DateTime StartOfWeek(DateTime date, DayOfWeek startOfWeek)

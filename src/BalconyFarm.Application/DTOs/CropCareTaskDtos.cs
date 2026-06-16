@@ -13,6 +13,8 @@ public class CropCareTaskDto
     public Domain.Enums.TaskStatus Status { get; set; }
     public string? Note { get; set; }
     public string? CropName { get; set; }
+    public bool IsOverdue { get; set; }
+    public int? OverdueDays { get; set; }
 }
 
 public class CreateCropCareTaskRequestDto
