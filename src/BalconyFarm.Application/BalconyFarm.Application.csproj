@@ -27,6 +27,7 @@
     <None Include="Data\cities.json" CopyToOutputDirectory="PreserveNewest" />
     <None Include="Data\crops.json" CopyToOutputDirectory="PreserveNewest" />
     <None Include="Data\solar_terms.json" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="Data\care-rules.json" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
 </Project>

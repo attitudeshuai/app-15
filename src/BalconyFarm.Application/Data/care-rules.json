@@ -1,0 +1,871 @@
+[
+  {
+    "CropName": "小番茄",
+    "Aliases": ["番茄", "千禧樱桃番茄", "圣女果"],
+    "TotalGrowthDays": 105,
+    "StageRules": [
+      {
+        "Stage": "Seedling",
+        "StartDay": 0,
+        "EndDay": 14,
+        "Tasks": [
+          { "TaskType": "Water", "IntervalDays": 2, "DefaultNote": "幼苗期保持土壤微湿，浇水避免冲倒幼苗" },
+          { "TaskType": "Fertilize", "IntervalDays": 10, "DefaultNote": "幼苗期施用稀薄氮肥，促进根系生长" }
+        ]
+      },
+      {
+        "Stage": "Vegetative",
+        "StartDay": 15,
+        "EndDay": 45,
+        "Tasks": [
+          { "TaskType": "Water", "IntervalDays": 1, "DefaultNote": "生长期每日浇水，保持土壤湿润但不积水" },
+          { "TaskType": "Fertilize", "IntervalDays": 7, "DefaultNote": "生长期每7天施用均衡复合肥" },
+          { "TaskType": "Prune", "IntervalDays": 10, "DefaultNote": "及时摘除侧芽，保留主枝生长" }
+        ]
+      },
+      {
+        "Stage": "Flowering",
+        "StartDay": 46,
+        "EndDay": 70,
+        "Tasks": [
+          { "TaskType": "Water", "IntervalDays": 1, "DefaultNote": "开花期保持充足水分，避免干旱落花" },
+          { "TaskType": "Fertilize", "IntervalDays": 7, "DefaultNote": "开花期增施磷钾肥，促进开花坐果" },
+          { "TaskType": "Prune", "IntervalDays": 7, "DefaultNote": "疏花疏蕾，每穗保留4-6朵花" }
+        ]
+      },
+      {
+        "Stage": "Fruiting",
+        "StartDay": 71,
+        "EndDay": 95,
+        "Tasks": [
+          { "TaskType": "Water", "IntervalDays": 1, "DefaultNote": "结果期充足供水，防止裂果" },
+          { "TaskType": "Fertilize", "IntervalDays": 5, "DefaultNote": "结果期追施高钾肥，促进果实膨大" },
+          { "TaskType": "Prune", "IntervalDays": 10, "DefaultNote": "摘除下部老叶，改善通风透光" }
+        ]
+      },
+      {
+        "Stage": "Mature",
+        "StartDay": 96,
+        "EndDay": 120,
+        "Tasks": [
+          { "TaskType": "Water", "IntervalDays": 2, "DefaultNote": "成熟期适当控水，提升果实甜度" },
+          { "TaskType": "Fertilize", "IntervalDays": 10, "DefaultNote": "成熟期减少施肥，避免果实品质下降" }
+        ]
+      }
+    ]
+  },
+  {
+    "CropName": "生菜",
+    "Aliases": ["奶油生菜", "叶用莴苣"],
+    "TotalGrowthDays": 50,
+    "StageRules": [
+      {
+        "Stage": "Seedling",
+        "StartDay": 0,
+        "EndDay": 10,
+        "Tasks": [
+          { "TaskType": "Water", "IntervalDays": 1, "DefaultNote": "幼苗期保持土壤湿润，小水勤浇" }
+        ]
+      },
+      {
+        "Stage": "Vegetative",
+        "StartDay": 11,
+        "EndDay": 35,
+        "Tasks": [
+          { "TaskType": "Water", "IntervalDays": 1, "DefaultNote": "生长期每日浇水，保持土壤湿润" },
+          { "TaskType": "Fertilize", "IntervalDays": 7, "DefaultNote": "生长期施用氮肥为主，促进叶片生长" }
+        ]
+      },
+      {
+        "Stage": "Mature",
+        "StartDay": 36,
+        "EndDay": 60,
+        "Tasks": [
+          { "TaskType": "Water", "IntervalDays": 1, "DefaultNote": "成熟期保持水分供应，防止叶片老化" },
+          { "TaskType": "Fertilize", "IntervalDays": 10, "DefaultNote": "成熟期可减少施肥，避免烧叶" }
+        ]
+      }
+    ]
+  },
+  {
+    "CropName": "小白菜",
+    "Aliases": ["上海青", "青菜"],
+    "TotalGrowthDays": 38,
+    "StageRules": [
+      {
+        "Stage": "Seedling",
+        "StartDay": 0,
+        "EndDay": 7,
+        "Tasks": [
+          { "TaskType": "Water", "IntervalDays": 1, "DefaultNote": "幼苗期小水勤浇，保持土壤湿润" }
+        ]
+      },
+      {
+        "Stage": "Vegetative",
+        "StartDay": 8,
+        "EndDay": 25,
+        "Tasks": [
+          { "TaskType": "Water", "IntervalDays": 1, "DefaultNote": "生长期充足供水，促进快速生长" },
+          { "TaskType": "Fertilize", "IntervalDays": 5, "DefaultNote": "生长期勤施薄肥，氮肥为主" }
+        ]
+      },
+      {
+        "Stage": "Mature",
+        "StartDay": 26,
+        "EndDay": 45,
+        "Tasks": [
+          { "TaskType": "Water", "IntervalDays": 1, "DefaultNote": "成熟期保持土壤湿润" },
+          { "TaskType": "Fertilize", "IntervalDays": 7, "DefaultNote": "采收前一周停止施肥" }
+        ]
+      }
+    ]
+  },
+  {
+    "CropName": "辣椒",
+    "Aliases": ["小米椒", "青椒", "朝天椒"],
+    "TotalGrowthDays": 120,
+    "StageRules": [
+      {
+        "Stage": "Seedling",
+        "StartDay": 0,
+        "EndDay": 20,
+        "Tasks": [
+          { "TaskType": "Water", "IntervalDays": 2, "DefaultNote": "幼苗期控制浇水，防止徒长" },
+          { "TaskType": "Fertilize", "IntervalDays": 14, "DefaultNote": "幼苗期施用稀薄液肥" }
+        ]
+      },
+      {
+        "Stage": "Vegetative",
+        "StartDay": 21,
+        "EndDay": 50,
+        "Tasks": [
+          { "TaskType": "Water", "IntervalDays": 2, "DefaultNote": "生长期见干见湿，促进根系深扎" },
+          { "TaskType": "Fertilize", "IntervalDays": 7, "DefaultNote": "生长期施用均衡复合肥" },
+          { "TaskType": "Prune", "IntervalDays": 14, "DefaultNote": "摘除门椒以下侧枝，集中养分供应" }
+        ]
+      },
+      {
+        "Stage": "Flowering",
+        "StartDay": 51,
+        "EndDay": 80,
+        "Tasks": [
+          { "TaskType": "Water", "IntervalDays": 2, "DefaultNote": "开花期适当控水，防止落花" },
+          { "TaskType": "Fertilize", "IntervalDays": 7, "DefaultNote": "开花期增施磷钾肥" },
+          { "TaskType": "Prune", "IntervalDays": 10, "DefaultNote": "疏除过密枝条，改善通风" }
+        ]
+      },
+      {
+        "Stage": "Fruiting",
+        "StartDay": 81,
+        "EndDay": 110,
+        "Tasks": [
+          { "TaskType": "Water", "IntervalDays": 1, "DefaultNote": "结果期充足供水，防止果实畸形" },
+          { "TaskType": "Fertilize", "IntervalDays": 5, "DefaultNote": "结果期追施高钾肥，促进果实发育" }
+        ]
+      },
+      {
+        "Stage": "Mature",
+        "StartDay": 111,
+        "EndDay": 150,
+        "Tasks": [
+          { "TaskType": "Water", "IntervalDays": 2, "DefaultNote": "成熟期适当控水" },
+          { "TaskType": "Fertilize", "IntervalDays": 10, "DefaultNote": "成熟期减少施肥" }
+        ]
+      }
+    ]
+  },
+  {
+    "CropName": "黄瓜",
+    "Aliases": ["水果黄瓜", "青瓜"],
+    "TotalGrowthDays": 62,
+    "StageRules": [
+      {
+        "Stage": "Seedling",
+        "StartDay": 0,
+        "EndDay": 10,
+        "Tasks": [
+          { "TaskType": "Water", "IntervalDays": 2, "DefaultNote": "幼苗期保持土壤微湿，防止沤根" },
+          { "TaskType": "Fertilize", "IntervalDays": 10, "DefaultNote": "幼苗期施用稀薄氮肥" }
+        ]
+      },
+      {
+        "Stage": "Vegetative",
+        "StartDay": 11,
+        "EndDay": 30,
+        "Tasks": [
+          { "TaskType": "Water", "IntervalDays": 1, "DefaultNote": "生长期每日浇水，黄瓜喜湿润" },
+          { "TaskType": "Fertilize", "IntervalDays": 5, "DefaultNote": "生长期勤施薄肥，氮肥为主" },
+          { "TaskType": "Prune", "IntervalDays": 7, "DefaultNote": "摘除卷须和侧枝，及时搭架引蔓" }
+        ]
+      },
+      {
+        "Stage": "Flowering",
+        "StartDay": 31,
+        "EndDay": 45,
+        "Tasks": [
+          { "TaskType": "Water", "IntervalDays": 1, "DefaultNote": "开花期保持充足水分" },
+          { "TaskType": "Fertilize", "IntervalDays": 5, "DefaultNote": "开花期增施磷钾肥，促进坐果" },
+          { "TaskType": "Prune", "IntervalDays": 5, "DefaultNote": "摘除雄花过多部分，人工辅助授粉" }
+        ]
+      },
+      {
+        "Stage": "Fruiting",
+        "StartDay": 46,
+        "EndDay": 60,
+        "Tasks": [
+          { "TaskType": "Water", "IntervalDays": 1, "DefaultNote": "结果期大量供水，早晚各浇一次" },
+          { "TaskType": "Fertilize", "IntervalDays": 3, "DefaultNote": "结果期追施高钾肥，每次采收后追肥" },
+          { "TaskType": "Prune", "IntervalDays": 7, "DefaultNote": "摘除老叶病叶，改善通风" }
+        ]
+      },
+      {
+        "Stage": "Mature",
+        "StartDay": 61,
+        "EndDay": 75,
+        "Tasks": [
+          { "TaskType": "Water", "IntervalDays": 2, "DefaultNote": "生长后期减少浇水" },
+          { "TaskType": "Fertilize", "IntervalDays": 10, "DefaultNote": "生长后期减少施肥" }
+        ]
+      }
+    ]
+  },
+  {
+    "CropName": "香菜",
+    "Aliases": ["大叶香菜", "芫荽"],
+    "TotalGrowthDays": 50,
+    "StageRules": [
+      {
+        "Stage": "Seedling",
+        "StartDay": 0,
+        "EndDay": 14,
+        "Tasks": [
+          { "TaskType": "Water", "IntervalDays": 1, "DefaultNote": "幼苗期保持土壤湿润" }
+        ]
+      },
+      {
+        "Stage": "Vegetative",
+        "StartDay": 15,
+        "EndDay": 35,
+        "Tasks": [
+          { "TaskType": "Water", "IntervalDays": 1, "DefaultNote": "生长期保持土壤湿润，避免干旱" },
+          { "TaskType": "Fertilize", "IntervalDays": 10, "DefaultNote": "生长期施用氮肥，促进叶片生长" }
+        ]
+      },
+      {
+        "Stage": "Mature",
+        "StartDay": 36,
+        "EndDay": 60,
+        "Tasks": [
+          { "TaskType": "Water", "IntervalDays": 1, "DefaultNote": "成熟期保持水分供应" },
+          { "TaskType": "Fertilize", "IntervalDays": 14, "DefaultNote": "成熟期减少施肥" }
+        ]
+      }
+    ]
+  },
+  {
+    "CropName": "小葱",
+    "Aliases": ["四季小葱", "香葱"],
+    "TotalGrowthDays": 60,
+    "StageRules": [
+      {
+        "Stage": "Seedling",
+        "StartDay": 0,
+        "EndDay": 15,
+        "Tasks": [
+          { "TaskType": "Water", "IntervalDays": 2, "DefaultNote": "幼苗期保持土壤湿润" },
+          { "TaskType": "Fertilize", "IntervalDays": 14, "DefaultNote": "幼苗期施用稀薄氮肥" }
+        ]
+      },
+      {
+        "Stage": "Vegetative",
+        "StartDay": 16,
+        "EndDay": 45,
+        "Tasks": [
+          { "TaskType": "Water", "IntervalDays": 2, "DefaultNote": "生长期保持土壤湿润" },
+          { "TaskType": "Fertilize", "IntervalDays": 7, "DefaultNote": "生长期追施氮肥，促进叶片生长" },
+          { "TaskType": "Prune", "IntervalDays": 14, "DefaultNote": "采收时从根部以上2cm处剪断，促进再生" }
+        ]
+      },
+      {
+        "Stage": "Mature",
+        "StartDay": 46,
+        "EndDay": 70,
+        "Tasks": [
+          { "TaskType": "Water", "IntervalDays": 3, "DefaultNote": "成熟期适当控水" },
+          { "TaskType": "Fertilize", "IntervalDays": 14, "DefaultNote": "每次采收后追施一次氮肥" }
+        ]
+      }
+    ]
+  },
+  {
+    "CropName": "大蒜",
+    "Aliases": ["紫皮大蒜"],
+    "TotalGrowthDays": 105,
+    "StageRules": [
+      {
+        "Stage": "Seedling",
+        "StartDay": 0,
+        "EndDay": 30,
+        "Tasks": [
+          { "TaskType": "Water", "IntervalDays": 3, "DefaultNote": "幼苗期控制浇水，促进根系发育" },
+          { "TaskType": "Fertilize", "IntervalDays": 20, "DefaultNote": "幼苗期施用稀薄氮肥" }
+        ]
+      },
+      {
+        "Stage": "Vegetative",
+        "StartDay": 31,
+        "EndDay": 70,
+        "Tasks": [
+          { "TaskType": "Water", "IntervalDays": 3, "DefaultNote": "生长期保持土壤微湿" },
+          { "TaskType": "Fertilize", "IntervalDays": 14, "DefaultNote": "生长期追施氮肥和钾肥" }
+        ]
+      },
+      {
+        "Stage": "Fruiting",
+        "StartDay": 71,
+        "EndDay": 95,
+        "Tasks": [
+          { "TaskType": "Water", "IntervalDays": 4, "DefaultNote": "鳞茎膨大期适当控水" },
+          { "TaskType": "Fertilize", "IntervalDays": 14, "DefaultNote": "追施磷钾肥促进蒜头膨大" },
+          { "TaskType": "Prune", "IntervalDays": 7, "DefaultNote": "及时摘除蒜薹，促进蒜头膨大" }
+        ]
+      },
+      {
+        "Stage": "Mature",
+        "StartDay": 96,
+        "EndDay": 120,
+        "Tasks": [
+          { "TaskType": "Water", "IntervalDays": 7, "DefaultNote": "收获前一周停止浇水" }
+        ]
+      }
+    ]
+  },
+  {
+    "CropName": "菠菜",
+    "Aliases": ["大叶菠菜"],
+    "TotalGrowthDays": 50,
+    "StageRules": [
+      {
+        "Stage": "Seedling",
+        "StartDay": 0,
+        "EndDay": 10,
+        "Tasks": [
+          { "TaskType": "Water", "IntervalDays": 1, "DefaultNote": "幼苗期保持土壤湿润" }
+        ]
+      },
+      {
+        "Stage": "Vegetative",
+        "StartDay": 11,
+        "EndDay": 35,
+        "Tasks": [
+          { "TaskType": "Water", "IntervalDays": 1, "DefaultNote": "生长期充足供水，避免干旱抽薹" },
+          { "TaskType": "Fertilize", "IntervalDays": 7, "DefaultNote": "生长期施用氮肥，促进叶片生长" }
+        ]
+      },
+      {
+        "Stage": "Mature",
+        "StartDay": 36,
+        "EndDay": 60,
+        "Tasks": [
+          { "TaskType": "Water", "IntervalDays": 1, "DefaultNote": "成熟期保持水分供应" },
+          { "TaskType": "Fertilize", "IntervalDays": 10, "DefaultNote": "采收前一周停止施肥" }
+        ]
+      }
+    ]
+  },
+  {
+    "CropName": "韭菜",
+    "Aliases": ["宽叶韭菜"],
+    "TotalGrowthDays": 75,
+    "StageRules": [
+      {
+        "Stage": "Seedling",
+        "StartDay": 0,
+        "EndDay": 20,
+        "Tasks": [
+          { "TaskType": "Water", "IntervalDays": 2, "DefaultNote": "幼苗期保持土壤湿润" },
+          { "TaskType": "Fertilize", "IntervalDays": 14, "DefaultNote": "幼苗期施用稀薄氮肥" }
+        ]
+      },
+      {
+        "Stage": "Vegetative",
+        "StartDay": 21,
+        "EndDay": 55,
+        "Tasks": [
+          { "TaskType": "Water", "IntervalDays": 2, "DefaultNote": "生长期保持土壤湿润" },
+          { "TaskType": "Fertilize", "IntervalDays": 7, "DefaultNote": "生长期追施氮肥，促进叶片生长" },
+          { "TaskType": "Prune", "IntervalDays": 25, "DefaultNote": "苗高20cm以上可采收，留茬3cm左右" }
+        ]
+      },
+      {
+        "Stage": "Mature",
+        "StartDay": 56,
+        "EndDay": 90,
+        "Tasks": [
+          { "TaskType": "Water", "IntervalDays": 3, "DefaultNote": "每次采收后及时浇水" },
+          { "TaskType": "Fertilize", "IntervalDays": 10, "DefaultNote": "每次采收后追施氮肥促进再生" },
+          { "TaskType": "Prune", "IntervalDays": 25, "DefaultNote": "定期采收，促进分蘖" }
+        ]
+      }
+    ]
+  },
+  {
+    "CropName": "茄子",
+    "Aliases": ["紫长茄"],
+    "TotalGrowthDays": 125,
+    "StageRules": [
+      {
+        "Stage": "Seedling",
+        "StartDay": 0,
+        "EndDay": 25,
+        "Tasks": [
+          { "TaskType": "Water", "IntervalDays": 3, "DefaultNote": "幼苗期控制浇水，防止徒长" },
+          { "TaskType": "Fertilize", "IntervalDays": 14, "DefaultNote": "幼苗期施用稀薄液肥" }
+        ]
+      },
+      {
+        "Stage": "Vegetative",
+        "StartDay": 26,
+        "EndDay": 60,
+        "Tasks": [
+          { "TaskType": "Water", "IntervalDays": 2, "DefaultNote": "生长期见干见湿" },
+          { "TaskType": "Fertilize", "IntervalDays": 7, "DefaultNote": "生长期施用均衡复合肥" },
+          { "TaskType": "Prune", "IntervalDays": 14, "DefaultNote": "保留门茄，摘除以下侧枝" }
+        ]
+      },
+      {
+        "Stage": "Flowering",
+        "StartDay": 61,
+        "EndDay": 90,
+        "Tasks": [
+          { "TaskType": "Water", "IntervalDays": 2, "DefaultNote": "开花期适当控水防落花" },
+          { "TaskType": "Fertilize", "IntervalDays": 7, "DefaultNote": "开花期增施磷钾肥" },
+          { "TaskType": "Prune", "IntervalDays": 10, "DefaultNote": "疏花，每花序留1-2朵花" }
+        ]
+      },
+      {
+        "Stage": "Fruiting",
+        "StartDay": 91,
+        "EndDay": 115,
+        "Tasks": [
+          { "TaskType": "Water", "IntervalDays": 1, "DefaultNote": "结果期充足供水" },
+          { "TaskType": "Fertilize", "IntervalDays": 5, "DefaultNote": "结果期追施高钾肥" }
+        ]
+      },
+      {
+        "Stage": "Mature",
+        "StartDay": 116,
+        "EndDay": 150,
+        "Tasks": [
+          { "TaskType": "Water", "IntervalDays": 2, "DefaultNote": "成熟期适当控水" },
+          { "TaskType": "Fertilize", "IntervalDays": 10, "DefaultNote": "成熟期减少施肥" }
+        ]
+      }
+    ]
+  },
+  {
+    "CropName": "空心菜",
+    "Aliases": ["青梗空心菜", "蕹菜"],
+    "TotalGrowthDays": 42,
+    "StageRules": [
+      {
+        "Stage": "Seedling",
+        "StartDay": 0,
+        "EndDay": 7,
+        "Tasks": [
+          { "TaskType": "Water", "IntervalDays": 1, "DefaultNote": "幼苗期保持充足水分" }
+        ]
+      },
+      {
+        "Stage": "Vegetative",
+        "StartDay": 8,
+        "EndDay": 30,
+        "Tasks": [
+          { "TaskType": "Water", "IntervalDays": 1, "DefaultNote": "生长期每日浇水，喜高温高湿" },
+          { "TaskType": "Fertilize", "IntervalDays": 5, "DefaultNote": "生长期勤施氮肥，促进快速生长" },
+          { "TaskType": "Prune", "IntervalDays": 10, "DefaultNote": "苗高20cm可摘心，促进分枝" }
+        ]
+      },
+      {
+        "Stage": "Mature",
+        "StartDay": 31,
+        "EndDay": 50,
+        "Tasks": [
+          { "TaskType": "Water", "IntervalDays": 1, "DefaultNote": "采收期保持充足水分" },
+          { "TaskType": "Fertilize", "IntervalDays": 7, "DefaultNote": "每次采收后追施氮肥" },
+          { "TaskType": "Prune", "IntervalDays": 10, "DefaultNote": "在基部留2-3节采收，促进再生" }
+        ]
+      }
+    ]
+  },
+  {
+    "CropName": "苋菜",
+    "Aliases": ["红苋菜"],
+    "TotalGrowthDays": 42,
+    "StageRules": [
+      {
+        "Stage": "Seedling",
+        "StartDay": 0,
+        "EndDay": 7,
+        "Tasks": [
+          { "TaskType": "Water", "IntervalDays": 1, "DefaultNote": "幼苗期保持土壤湿润" }
+        ]
+      },
+      {
+        "Stage": "Vegetative",
+        "StartDay": 8,
+        "EndDay": 30,
+        "Tasks": [
+          { "TaskType": "Water", "IntervalDays": 1, "DefaultNote": "生长期充足供水，促进快速生长" },
+          { "TaskType": "Fertilize", "IntervalDays": 7, "DefaultNote": "生长期施用氮肥为主" }
+        ]
+      },
+      {
+        "Stage": "Mature",
+        "StartDay": 31,
+        "EndDay": 50,
+        "Tasks": [
+          { "TaskType": "Water", "IntervalDays": 1, "DefaultNote": "采收期保持水分供应" },
+          { "TaskType": "Fertilize", "IntervalDays": 10, "DefaultNote": "采收前一周停止施肥" }
+        ]
+      }
+    ]
+  },
+  {
+    "CropName": "茼蒿",
+    "Aliases": ["小叶茼蒿", "蓬蒿"],
+    "TotalGrowthDays": 48,
+    "StageRules": [
+      {
+        "Stage": "Seedling",
+        "StartDay": 0,
+        "EndDay": 10,
+        "Tasks": [
+          { "TaskType": "Water", "IntervalDays": 1, "DefaultNote": "幼苗期保持土壤湿润" }
+        ]
+      },
+      {
+        "Stage": "Vegetative",
+        "StartDay": 11,
+        "EndDay": 33,
+        "Tasks": [
+          { "TaskType": "Water", "IntervalDays": 1, "DefaultNote": "生长期保持土壤湿润" },
+          { "TaskType": "Fertilize", "IntervalDays": 7, "DefaultNote": "生长期施用氮肥促进生长" },
+          { "TaskType": "Prune", "IntervalDays": 14, "DefaultNote": "苗高15cm可摘心，促进侧枝萌发" }
+        ]
+      },
+      {
+        "Stage": "Mature",
+        "StartDay": 34,
+        "EndDay": 55,
+        "Tasks": [
+          { "TaskType": "Water", "IntervalDays": 1, "DefaultNote": "成熟期保持水分供应" },
+          { "TaskType": "Fertilize", "IntervalDays": 10, "DefaultNote": "采收前停止施肥" }
+        ]
+      }
+    ]
+  },
+  {
+    "CropName": "萝卜",
+    "Aliases": ["樱桃萝卜"],
+    "TotalGrowthDays": 38,
+    "StageRules": [
+      {
+        "Stage": "Seedling",
+        "StartDay": 0,
+        "EndDay": 7,
+        "Tasks": [
+          { "TaskType": "Water", "IntervalDays": 1, "DefaultNote": "幼苗期保持土壤湿润" }
+        ]
+      },
+      {
+        "Stage": "Vegetative",
+        "StartDay": 8,
+        "EndDay": 20,
+        "Tasks": [
+          { "TaskType": "Water", "IntervalDays": 1, "DefaultNote": "叶片生长期保持土壤湿润" },
+          { "TaskType": "Fertilize", "IntervalDays": 7, "DefaultNote": "叶片生长期施用氮肥" }
+        ]
+      },
+      {
+        "Stage": "Fruiting",
+        "StartDay": 21,
+        "EndDay": 33,
+        "Tasks": [
+          { "TaskType": "Water", "IntervalDays": 1, "DefaultNote": "肉质根膨大期均匀供水，防止裂根" },
+          { "TaskType": "Fertilize", "IntervalDays": 7, "DefaultNote": "膨大期增施磷钾肥" },
+          { "TaskType": "Prune", "IntervalDays": 10, "DefaultNote": "摘除过多老叶，减少养分消耗" }
+        ]
+      },
+      {
+        "Stage": "Mature",
+        "StartDay": 34,
+        "EndDay": 45,
+        "Tasks": [
+          { "TaskType": "Water", "IntervalDays": 2, "DefaultNote": "收获前适当控水" }
+        ]
+      }
+    ]
+  },
+  {
+    "CropName": "草莓",
+    "Aliases": ["红颜草莓"],
+    "TotalGrowthDays": 105,
+    "StageRules": [
+      {
+        "Stage": "Seedling",
+        "StartDay": 0,
+        "EndDay": 20,
+        "Tasks": [
+          { "TaskType": "Water", "IntervalDays": 2, "DefaultNote": "缓苗期保持土壤微湿" },
+          { "TaskType": "Fertilize", "IntervalDays": 14, "DefaultNote": "缓苗后施用稀薄液肥" }
+        ]
+      },
+      {
+        "Stage": "Vegetative",
+        "StartDay": 21,
+        "EndDay": 50,
+        "Tasks": [
+          { "TaskType": "Water", "IntervalDays": 2, "DefaultNote": "生长期见干见湿" },
+          { "TaskType": "Fertilize", "IntervalDays": 10, "DefaultNote": "生长期施用均衡复合肥" },
+          { "TaskType": "Prune", "IntervalDays": 10, "DefaultNote": "摘除匍匐茎和老叶，集中养分" }
+        ]
+      },
+      {
+        "Stage": "Flowering",
+        "StartDay": 51,
+        "EndDay": 75,
+        "Tasks": [
+          { "TaskType": "Water", "IntervalDays": 2, "DefaultNote": "开花期保持土壤湿润" },
+          { "TaskType": "Fertilize", "IntervalDays": 7, "DefaultNote": "开花期增施磷钾肥" },
+          { "TaskType": "Prune", "IntervalDays": 7, "DefaultNote": "疏花，每花序保留5-7朵花" }
+        ]
+      },
+      {
+        "Stage": "Fruiting",
+        "StartDay": 76,
+        "EndDay": 95,
+        "Tasks": [
+          { "TaskType": "Water", "IntervalDays": 1, "DefaultNote": "结果期保持均匀供水，避免干湿突变" },
+          { "TaskType": "Fertilize", "IntervalDays": 7, "DefaultNote": "结果期追施高钾肥" }
+        ]
+      },
+      {
+        "Stage": "Mature",
+        "StartDay": 96,
+        "EndDay": 120,
+        "Tasks": [
+          { "TaskType": "Water", "IntervalDays": 2, "DefaultNote": "采收期适当控水，提升果实甜度" },
+          { "TaskType": "Fertilize", "IntervalDays": 14, "DefaultNote": "采收后追施肥料恢复树势" }
+        ]
+      }
+    ]
+  },
+  {
+    "CropName": "油麦菜",
+    "Aliases": ["香油麦菜"],
+    "TotalGrowthDays": 42,
+    "StageRules": [
+      {
+        "Stage": "Seedling",
+        "StartDay": 0,
+        "EndDay": 7,
+        "Tasks": [
+          { "TaskType": "Water", "IntervalDays": 1, "DefaultNote": "幼苗期保持土壤湿润" }
+        ]
+      },
+      {
+        "Stage": "Vegetative",
+        "StartDay": 8,
+        "EndDay": 30,
+        "Tasks": [
+          { "TaskType": "Water", "IntervalDays": 1, "DefaultNote": "生长期充足供水，促进快速生长" },
+          { "TaskType": "Fertilize", "IntervalDays": 7, "DefaultNote": "生长期施用氮肥为主" }
+        ]
+      },
+      {
+        "Stage": "Mature",
+        "StartDay": 31,
+        "EndDay": 50,
+        "Tasks": [
+          { "TaskType": "Water", "IntervalDays": 1, "DefaultNote": "成熟期保持水分供应" },
+          { "TaskType": "Fertilize", "IntervalDays": 10, "DefaultNote": "采收前一周停止施肥" }
+        ]
+      }
+    ]
+  },
+  {
+    "CropName": "苦菊",
+    "Aliases": ["碎叶苦菊"],
+    "TotalGrowthDays": 50,
+    "StageRules": [
+      {
+        "Stage": "Seedling",
+        "StartDay": 0,
+        "EndDay": 10,
+        "Tasks": [
+          { "TaskType": "Water", "IntervalDays": 1, "DefaultNote": "幼苗期保持土壤湿润" }
+        ]
+      },
+      {
+        "Stage": "Vegetative",
+        "StartDay": 11,
+        "EndDay": 35,
+        "Tasks": [
+          { "TaskType": "Water", "IntervalDays": 1, "DefaultNote": "生长期保持土壤湿润" },
+          { "TaskType": "Fertilize", "IntervalDays": 7, "DefaultNote": "生长期施用氮肥促进叶片生长" }
+        ]
+      },
+      {
+        "Stage": "Mature",
+        "StartDay": 36,
+        "EndDay": 60,
+        "Tasks": [
+          { "TaskType": "Water", "IntervalDays": 1, "DefaultNote": "成熟期保持水分供应" },
+          { "TaskType": "Fertilize", "IntervalDays": 10, "DefaultNote": "采收前停止施肥" }
+        ]
+      }
+    ]
+  },
+  {
+    "CropName": "荆芥",
+    "Aliases": ["河南荆芥"],
+    "TotalGrowthDays": 52,
+    "StageRules": [
+      {
+        "Stage": "Seedling",
+        "StartDay": 0,
+        "EndDay": 10,
+        "Tasks": [
+          { "TaskType": "Water", "IntervalDays": 2, "DefaultNote": "幼苗期保持土壤微湿" }
+        ]
+      },
+      {
+        "Stage": "Vegetative",
+        "StartDay": 11,
+        "EndDay": 35,
+        "Tasks": [
+          { "TaskType": "Water", "IntervalDays": 2, "DefaultNote": "生长期耐旱，见干见湿" },
+          { "TaskType": "Fertilize", "IntervalDays": 10, "DefaultNote": "生长期施用均衡肥料" },
+          { "TaskType": "Prune", "IntervalDays": 14, "DefaultNote": "苗高15cm摘心，促进分枝" }
+        ]
+      },
+      {
+        "Stage": "Mature",
+        "StartDay": 36,
+        "EndDay": 60,
+        "Tasks": [
+          { "TaskType": "Water", "IntervalDays": 3, "DefaultNote": "成熟期适当控水" },
+          { "TaskType": "Fertilize", "IntervalDays": 14, "DefaultNote": "每次采收后追施薄肥" },
+          { "TaskType": "Prune", "IntervalDays": 14, "DefaultNote": "采收嫩梢，留基部2-3对叶" }
+        ]
+      }
+    ]
+  },
+  {
+    "CropName": "罗勒",
+    "Aliases": ["甜罗勒"],
+    "TotalGrowthDays": 60,
+    "StageRules": [
+      {
+        "Stage": "Seedling",
+        "StartDay": 0,
+        "EndDay": 14,
+        "Tasks": [
+          { "TaskType": "Water", "IntervalDays": 2, "DefaultNote": "幼苗期保持土壤微湿" },
+          { "TaskType": "Fertilize", "IntervalDays": 14, "DefaultNote": "幼苗期施用稀薄液肥" }
+        ]
+      },
+      {
+        "Stage": "Vegetative",
+        "StartDay": 15,
+        "EndDay": 45,
+        "Tasks": [
+          { "TaskType": "Water", "IntervalDays": 2, "DefaultNote": "生长期保持土壤微湿" },
+          { "TaskType": "Fertilize", "IntervalDays": 10, "DefaultNote": "生长期施用氮肥为主" },
+          { "TaskType": "Prune", "IntervalDays": 10, "DefaultNote": "长到6片真叶时掐顶，促进分枝" }
+        ]
+      },
+      {
+        "Stage": "Mature",
+        "StartDay": 46,
+        "EndDay": 70,
+        "Tasks": [
+          { "TaskType": "Water", "IntervalDays": 3, "DefaultNote": "成熟期适当控水" },
+          { "TaskType": "Fertilize", "IntervalDays": 14, "DefaultNote": "每次采收后追施薄肥" },
+          { "TaskType": "Prune", "IntervalDays": 10, "DefaultNote": "及时摘除花蕾，促进叶片生长" }
+        ]
+      }
+    ]
+  },
+  {
+    "CropName": "薄荷",
+    "Aliases": ["留兰香薄荷"],
+    "TotalGrowthDays": 60,
+    "StageRules": [
+      {
+        "Stage": "Seedling",
+        "StartDay": 0,
+        "EndDay": 14,
+        "Tasks": [
+          { "TaskType": "Water", "IntervalDays": 1, "DefaultNote": "幼苗期保持土壤湿润" }
+        ]
+      },
+      {
+        "Stage": "Vegetative",
+        "StartDay": 15,
+        "EndDay": 45,
+        "Tasks": [
+          { "TaskType": "Water", "IntervalDays": 1, "DefaultNote": "生长期保持充足水分" },
+          { "TaskType": "Fertilize", "IntervalDays": 10, "DefaultNote": "生长期施用氮肥，促进叶片生长" },
+          { "TaskType": "Prune", "IntervalDays": 14, "DefaultNote": "及时摘心打顶，促进分枝" }
+        ]
+      },
+      {
+        "Stage": "Mature",
+        "StartDay": 46,
+        "EndDay": 70,
+        "Tasks": [
+          { "TaskType": "Water", "IntervalDays": 2, "DefaultNote": "采收期保持土壤湿润" },
+          { "TaskType": "Fertilize", "IntervalDays": 14, "DefaultNote": "每次采收后追施氮肥" },
+          { "TaskType": "Prune", "IntervalDays": 14, "DefaultNote": "采收嫩梢，留基部2-3节" }
+        ]
+      }
+    ]
+  },
+  {
+    "CropName": "紫苏",
+    "Aliases": ["紫叶紫苏"],
+    "TotalGrowthDays": 60,
+    "StageRules": [
+      {
+        "Stage": "Seedling",
+        "StartDay": 0,
+        "EndDay": 14,
+        "Tasks": [
+          { "TaskType": "Water", "IntervalDays": 2, "DefaultNote": "幼苗期保持土壤微湿" }
+        ]
+      },
+      {
+        "Stage": "Vegetative",
+        "StartDay": 15,
+        "EndDay": 45,
+        "Tasks": [
+          { "TaskType": "Water", "IntervalDays": 2, "DefaultNote": "生长期见干见湿" },
+          { "TaskType": "Fertilize", "IntervalDays": 10, "DefaultNote": "生长期施用氮肥为主" },
+          { "TaskType": "Prune", "IntervalDays": 14, "DefaultNote": "及时摘心，促进分枝" }
+        ]
+      },
+      {
+        "Stage": "Mature",
+        "StartDay": 46,
+        "EndDay": 70,
+        "Tasks": [
+          { "TaskType": "Water", "IntervalDays": 3, "DefaultNote": "成熟期适当控水" },
+          { "TaskType": "Fertilize", "IntervalDays": 14, "DefaultNote": "每次采收后追施薄肥" },
+          { "TaskType": "Prune", "IntervalDays": 10, "DefaultNote": "摘除花蕾，促进叶片生长" }
+        ]
+      }
+    ]
+  }
+]

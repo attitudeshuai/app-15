@@ -46,3 +46,33 @@ public class CropCareTaskQueryRequestDto : PagedRequest
     public DateTime? ScheduledDateFrom { get; set; }
     public DateTime? ScheduledDateTo { get; set; }
 }
+
+public class GenerateCareTasksRequestDto
+{
+    public Guid CropId { get; set; }
+    public int DaysAhead { get; set; } = 30;
+    public bool OverwriteExisting { get; set; } = false;
+}
+
+public class RecommendedTaskDto
+{
+    public TaskType TaskType { get; set; }
+    public DateTime ScheduledDate { get; set; }
+    public string? Note { get; set; }
+    public GrowthStage GrowthStage { get; set; }
+    public string GrowthStageName { get; set; } = string.Empty;
+}
+
+public class GenerateCareTasksResultDto
+{
+    public Guid CropId { get; set; }
+    public string CropName { get; set; } = string.Empty;
+    public GrowthStage CurrentGrowthStage { get; set; }
+    public string CurrentGrowthStageName { get; set; } = string.Empty;
+    public int DaysSincePlanting { get; set; }
+    public int TotalGrowthDays { get; set; }
+    public int GeneratedCount { get; set; }
+    public int SkippedCount { get; set; }
+    public List<RecommendedTaskDto> RecommendedTasks { get; set; } = new();
+    public List<CropCareTaskDto> CreatedTasks { get; set; } = new();
+}

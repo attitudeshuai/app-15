@@ -13,10 +13,12 @@ namespace BalconyFarm.Api.Controllers;
 public class CropCareTasksController : ControllerBase
 {
     private readonly ICropCareTaskService _cropCareTaskService;
+    private readonly ISmartCareRecommendationService _smartCareRecommendationService;
 
-    public CropCareTasksController(ICropCareTaskService cropCareTaskService)
+    public CropCareTasksController(ICropCareTaskService cropCareTaskService, ISmartCareRecommendationService smartCareRecommendationService)
     {
         _cropCareTaskService = cropCareTaskService;
+        _smartCareRecommendationService = smartCareRecommendationService;
     }
 
     [HttpGet]
@@ -120,6 +122,42 @@ public class CropCareTasksController : ControllerBase
         }
 
         var result = await _cropCareTaskService.UpdateTaskStatusAsync(id, dto, userId, cancellationToken);
+        if (result.Code != 200)
+        {
+            return BadRequest(result);
+        }
+        return Ok(result);
+    }
+
+    [HttpPost("preview")]
+    [Authorize]
+    public async Task<ActionResult<ApiResponse<GenerateCareTasksResultDto>>> PreviewCareTasks([FromBody] GenerateCareTasksRequestDto dto, CancellationToken cancellationToken)
+    {
+        var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (userIdClaim == null || !Guid.TryParse(userIdClaim, out var userId))
+        {
+            return Unauthorized(ApiResponse.Error("用户未认证", 401));
+        }
+
+        var result = await _smartCareRecommendationService.PreviewCareTasksAsync(dto, userId, cancellationToken);
+        if (result.Code != 200)
+        {
+            return BadRequest(result);
+        }
+        return Ok(result);
+    }
+
+    [HttpPost("generate")]
+    [Authorize]
+    public async Task<ActionResult<ApiResponse<GenerateCareTasksResultDto>>> GenerateCareTasks([FromBody] GenerateCareTasksRequestDto dto, CancellationToken cancellationToken)
+    {
+        var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (userIdClaim == null || !Guid.TryParse(userIdClaim, out var userId))
+        {
+            return Unauthorized(ApiResponse.Error("用户未认证", 401));
+        }
+
+        var result = await _smartCareRecommendationService.GenerateCareTasksAsync(dto, userId, cancellationToken);
         if (result.Code != 200)
         {
             return BadRequest(result);

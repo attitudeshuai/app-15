@@ -28,6 +28,7 @@ public static class ApplicationServiceCollectionExtensions
             .WithScopedLifetime());
 
         services.AddSingleton<IPlantingCalendarDataProvider, JsonPlantingCalendarDataProvider>();
+        services.AddSingleton<ICareRuleDataProvider, JsonCareRuleDataProvider>();
 
         return services;
     }
