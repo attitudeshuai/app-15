@@ -146,4 +146,23 @@ public class CropsController : ControllerBase
         }
         return Ok(result);
     }
+
+    [HttpGet("{id}/share-card")]
+    [AllowAnonymous]
+    public async Task<ActionResult<ApiResponse<CropShareCardDto>>> GetCropShareCard([FromRoute] Guid id, CancellationToken cancellationToken)
+    {
+        Guid? userId = null;
+        var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (userIdClaim != null && Guid.TryParse(userIdClaim, out var parsedUserId))
+        {
+            userId = parsedUserId;
+        }
+
+        var result = await _cropService.GetCropShareCardAsync(id, userId, cancellationToken);
+        if (result.Code != 200)
+        {
+            return result.Code == 404 ? NotFound(result) : StatusCode(result.Code, result);
+        }
+        return Ok(result);
+    }
 }

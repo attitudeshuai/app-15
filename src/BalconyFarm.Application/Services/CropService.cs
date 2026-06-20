@@ -222,6 +222,55 @@ public class CropService : ICropService
         return await GetCropsAsync(query, userId, cancellationToken);
     }
 
+    public async Task<ApiResponse<CropShareCardDto>> GetCropShareCardAsync(Guid id, Guid? userId = null, CancellationToken cancellationToken = default)
+    {
+        var crop = await _unitOfWork.Crops.GetByIdAsync(id, cancellationToken);
+        if (crop == null)
+        {
+            return ApiResponse<CropShareCardDto>.Error("作物不存在", 404);
+        }
+
+        if (userId.HasValue && crop.UserId != userId.Value)
+        {
+            return ApiResponse<CropShareCardDto>.Error("无权访问此作物", 403);
+        }
+
+        var harvestRecords = (await _unitOfWork.HarvestRecords.GetAllAsync(cancellationToken))
+            .Where(h => h.CropId == id)
+            .OrderByDescending(h => h.HarvestDate)
+            .ToList();
+
+        var growthDays = (DateTime.UtcNow - crop.PlantingDate).Days;
+
+        string? sharePhotoUrl = crop.PhotoUrl;
+        if (sharePhotoUrl == null && harvestRecords.Count > 0)
+        {
+            sharePhotoUrl = harvestRecords.FirstOrDefault(h => !string.IsNullOrEmpty(h.PhotoUrl))?.PhotoUrl;
+        }
+
+        var harvestSummary = new HarvestSummaryDto
+        {
+            TotalHarvestCount = harvestRecords.Count,
+            TotalQuantity = harvestRecords.Sum(h => h.Quantity),
+            Unit = harvestRecords.FirstOrDefault()?.Unit ?? string.Empty,
+            LatestQualityNote = harvestRecords.FirstOrDefault()?.QualityNote
+        };
+
+        var shareCard = new CropShareCardDto
+        {
+            CropId = crop.Id,
+            CropName = crop.Name,
+            Variety = crop.Variety,
+            GrowthDays = growthDays,
+            Status = crop.Status.ToString(),
+            PhotoUrl = sharePhotoUrl,
+            OwnerUsername = crop.User?.Username,
+            HarvestSummary = harvestSummary
+        };
+
+        return ApiResponse<CropShareCardDto>.Success(shareCard);
+    }
+
     private static System.Linq.Expressions.Expression<Func<Crop, object>> GetSortProperty(string sortBy)
     {
         return sortBy.ToLower() switch

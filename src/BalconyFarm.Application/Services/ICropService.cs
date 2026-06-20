@@ -12,4 +12,5 @@ public interface ICropService
     Task<ApiResponse> DeleteCropAsync(Guid id, Guid userId, CancellationToken cancellationToken = default);
     Task<ApiResponse<CropDto>> UpdateCropStatusAsync(Guid id, UpdateCropStatusRequestDto dto, Guid userId, CancellationToken cancellationToken = default);
     Task<ApiResponse<PagedResult<CropDto>>> GetMyCropsAsync(CropQueryRequestDto query, Guid userId, CancellationToken cancellationToken = default);
+    Task<ApiResponse<CropShareCardDto>> GetCropShareCardAsync(Guid id, Guid? userId = null, CancellationToken cancellationToken = default);
 }

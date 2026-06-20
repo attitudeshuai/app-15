@@ -53,3 +53,23 @@ public class CropQueryRequestDto : PagedRequest
     public DateTime? PlantingDateFrom { get; set; }
     public DateTime? PlantingDateTo { get; set; }
 }
+
+public class CropShareCardDto
+{
+    public Guid CropId { get; set; }
+    public string CropName { get; set; } = string.Empty;
+    public string Variety { get; set; } = string.Empty;
+    public int GrowthDays { get; set; }
+    public string Status { get; set; } = string.Empty;
+    public string? PhotoUrl { get; set; }
+    public string? OwnerUsername { get; set; }
+    public HarvestSummaryDto HarvestSummary { get; set; } = new();
+}
+
+public class HarvestSummaryDto
+{
+    public int TotalHarvestCount { get; set; }
+    public decimal TotalQuantity { get; set; }
+    public string Unit { get; set; } = string.Empty;
+    public string? LatestQualityNote { get; set; }
+}
