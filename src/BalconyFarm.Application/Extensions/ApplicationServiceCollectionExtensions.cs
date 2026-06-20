@@ -29,6 +29,7 @@ public static class ApplicationServiceCollectionExtensions
 
         services.AddSingleton<IPlantingCalendarDataProvider, JsonPlantingCalendarDataProvider>();
         services.AddSingleton<ICareRuleDataProvider, JsonCareRuleDataProvider>();
+        services.AddSingleton<IPlantingPlanTemplateDataProvider, JsonPlantingPlanTemplateDataProvider>();
 
         return services;
     }

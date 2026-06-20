@@ -56,6 +56,26 @@ public class CropsController : ControllerBase
         return CreatedAtAction(nameof(GetCropById), new { id = result.Data?.Id }, result);
     }
 
+    [HttpPost("with-template")]
+    [Authorize]
+    public async Task<ActionResult<ApiResponse<CreateCropWithTemplateResultDto>>> CreateCropWithTemplate(
+        [FromBody] CreateCropRequestDto dto,
+        CancellationToken cancellationToken)
+    {
+        var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (userIdClaim == null || !Guid.TryParse(userIdClaim, out var userId))
+        {
+            return Unauthorized(ApiResponse.Error("用户未认证", 401));
+        }
+
+        var result = await _cropService.CreateCropWithTemplateAsync(dto, userId, cancellationToken);
+        if (result.Code != 200)
+        {
+            return BadRequest(result);
+        }
+        return CreatedAtAction(nameof(GetCropById), new { id = result.Data?.Crop.Id }, result);
+    }
+
     [HttpGet("{id}")]
     [AllowAnonymous]
     public async Task<ActionResult<ApiResponse<CropDto>>> GetCropById([FromRoute] Guid id, CancellationToken cancellationToken)

@@ -1,0 +1,586 @@
+[
+  {
+    "id": "tomato-cherry",
+    "cropName": "小番茄",
+    "variety": "千禧樱桃番茄",
+    "aliases": ["番茄", "西红柿", "圣女果"],
+    "difficulty": "简单",
+    "totalGrowthDays": 105,
+    "description": "樱桃番茄种植养护全周期计划，从播种到采收的标准养护节奏",
+    "tips": "喜阳光，需要充足日照，保持土壤湿润但不积水，开花期注意授粉",
+    "suitableLocation": "南阳台、东阳台",
+    "defaultContainerType": "塑料花盆",
+    "stages": [
+      {
+        "stage": "Seedling",
+        "stageName": "幼苗期",
+        "startDay": 1,
+        "endDay": 25,
+        "description": "种子发芽至长出4-6片真叶，保持湿润避免暴晒",
+        "tasks": [
+          { "taskType": "Water", "daysAfterPlanting": 2, "defaultNote": "轻浇，保持土壤微湿", "growthStage": "Seedling" },
+          { "taskType": "Water", "daysAfterPlanting": 5, "defaultNote": "轻浇，保持土壤微湿", "growthStage": "Seedling" },
+          { "taskType": "Water", "daysAfterPlanting": 8, "defaultNote": "轻浇，保持土壤微湿", "growthStage": "Seedling" },
+          { "taskType": "Water", "daysAfterPlanting": 12, "defaultNote": "轻浇，保持土壤微湿", "growthStage": "Seedling" },
+          { "taskType": "Water", "daysAfterPlanting": 16, "defaultNote": "轻浇，保持土壤微湿", "growthStage": "Seedling" },
+          { "taskType": "Water", "daysAfterPlanting": 20, "defaultNote": "轻浇，保持土壤微湿", "growthStage": "Seedling" },
+          { "taskType": "Water", "daysAfterPlanting": 24, "defaultNote": "轻浇，保持土壤微湿", "growthStage": "Seedling" }
+        ]
+      },
+      {
+        "stage": "Vegetative",
+        "stageName": "营养生长期",
+        "startDay": 26,
+        "endDay": 55,
+        "description": "快速生长阶段，需要充足水肥，注意搭架",
+        "tasks": [
+          { "taskType": "Water", "daysAfterPlanting": 28, "defaultNote": "正常浇水，见干见湿", "growthStage": "Vegetative" },
+          { "taskType": "Fertilize", "daysAfterPlanting": 30, "defaultNote": "施用氮肥为主的复合肥，促进茎叶生长", "growthStage": "Vegetative" },
+          { "taskType": "Water", "daysAfterPlanting": 32, "defaultNote": "正常浇水，见干见湿", "growthStage": "Vegetative" },
+          { "taskType": "Prune", "daysAfterPlanting": 35, "defaultNote": "搭架绑蔓，摘除侧芽", "growthStage": "Vegetative" },
+          { "taskType": "Water", "daysAfterPlanting": 36, "defaultNote": "正常浇水，见干见湿", "growthStage": "Vegetative" },
+          { "taskType": "Water", "daysAfterPlanting": 40, "defaultNote": "正常浇水，见干见湿", "growthStage": "Vegetative" },
+          { "taskType": "Fertilize", "daysAfterPlanting": 44, "defaultNote": "施用氮肥为主的复合肥", "growthStage": "Vegetative" },
+          { "taskType": "Water", "daysAfterPlanting": 44, "defaultNote": "正常浇水，见干见湿", "growthStage": "Vegetative" },
+          { "taskType": "Water", "daysAfterPlanting": 48, "defaultNote": "正常浇水，见干见湿", "growthStage": "Vegetative" },
+          { "taskType": "Prune", "daysAfterPlanting": 50, "defaultNote": "继续绑蔓，摘除下部老叶", "growthStage": "Vegetative" },
+          { "taskType": "Water", "daysAfterPlanting": 52, "defaultNote": "正常浇水，见干见湿", "growthStage": "Vegetative" }
+        ]
+      },
+      {
+        "stage": "Flowering",
+        "stageName": "开花期",
+        "startDay": 56,
+        "endDay": 75,
+        "description": "开花授粉阶段，控制水分，增施磷钾肥",
+        "tasks": [
+          { "taskType": "Fertilize", "daysAfterPlanting": 56, "defaultNote": "施用磷钾肥，促进开花结果", "growthStage": "Flowering" },
+          { "taskType": "Water", "daysAfterPlanting": 56, "defaultNote": "适当控水，避免落花", "growthStage": "Flowering" },
+          { "taskType": "Water", "daysAfterPlanting": 60, "defaultNote": "适当控水，避免落花", "growthStage": "Flowering" },
+          { "taskType": "Prune", "daysAfterPlanting": 62, "defaultNote": "轻摇植株辅助授粉，摘除多余侧枝", "growthStage": "Flowering" },
+          { "taskType": "Water", "daysAfterPlanting": 64, "defaultNote": "适当控水，避免落花", "growthStage": "Flowering" },
+          { "taskType": "Fertilize", "daysAfterPlanting": 68, "defaultNote": "追施磷钾肥", "growthStage": "Flowering" },
+          { "taskType": "Water", "daysAfterPlanting": 68, "defaultNote": "适当控水，避免落花", "growthStage": "Flowering" },
+          { "taskType": "Water", "daysAfterPlanting": 72, "defaultNote": "适当控水，避免落花", "growthStage": "Flowering" }
+        ]
+      },
+      {
+        "stage": "Fruiting",
+        "stageName": "结果期",
+        "startDay": 76,
+        "endDay": 105,
+        "description": "果实膨大成熟阶段，需要充足水肥",
+        "tasks": [
+          { "taskType": "Water", "daysAfterPlanting": 76, "defaultNote": "充足浇水，保持土壤湿润", "growthStage": "Fruiting" },
+          { "taskType": "Fertilize", "daysAfterPlanting": 78, "defaultNote": "追施磷钾肥，促进果实膨大", "growthStage": "Fruiting" },
+          { "taskType": "Water", "daysAfterPlanting": 80, "defaultNote": "充足浇水，保持土壤湿润", "growthStage": "Fruiting" },
+          { "taskType": "Water", "daysAfterPlanting": 84, "defaultNote": "充足浇水，保持土壤湿润", "growthStage": "Fruiting" },
+          { "taskType": "Prune", "daysAfterPlanting": 86, "defaultNote": "摘除下部老黄叶，改善通风", "growthStage": "Fruiting" },
+          { "taskType": "Fertilize", "daysAfterPlanting": 88, "defaultNote": "追施磷钾肥", "growthStage": "Fruiting" },
+          { "taskType": "Water", "daysAfterPlanting": 88, "defaultNote": "充足浇水，保持土壤湿润", "growthStage": "Fruiting" },
+          { "taskType": "Water", "daysAfterPlanting": 92, "defaultNote": "充足浇水，保持土壤湿润", "growthStage": "Fruiting" },
+          { "taskType": "Water", "daysAfterPlanting": 96, "defaultNote": "充足浇水，保持土壤湿润", "growthStage": "Fruiting" },
+          { "taskType": "Fertilize", "daysAfterPlanting": 98, "defaultNote": "最后一次追施磷钾肥", "growthStage": "Fruiting" },
+          { "taskType": "Water", "daysAfterPlanting": 100, "defaultNote": "充足浇水，保持土壤湿润", "growthStage": "Fruiting" },
+          { "taskType": "Water", "daysAfterPlanting": 104, "defaultNote": "充足浇水，保持土壤湿润", "growthStage": "Fruiting" }
+        ]
+      }
+    ],
+    "tasks": []
+  },
+  {
+    "id": "lettuce-cream",
+    "cropName": "生菜",
+    "variety": "奶油生菜",
+    "aliases": ["叶用莴苣"],
+    "difficulty": "简单",
+    "totalGrowthDays": 50,
+    "description": "奶油生菜种植养护全周期计划，生长速度快，管理简单",
+    "tips": "喜凉爽，避免高温暴晒，保持土壤湿润，可多次采收外围叶片",
+    "suitableLocation": "东阳台、西阳台、北阳台",
+    "defaultContainerType": "种植箱",
+    "stages": [
+      {
+        "stage": "Seedling",
+        "stageName": "幼苗期",
+        "startDay": 1,
+        "endDay": 15,
+        "description": "发芽至长出3-4片真叶",
+        "tasks": [
+          { "taskType": "Water", "daysAfterPlanting": 2, "defaultNote": "喷雾保湿，避免冲倒幼苗", "growthStage": "Seedling" },
+          { "taskType": "Water", "daysAfterPlanting": 5, "defaultNote": "喷雾保湿", "growthStage": "Seedling" },
+          { "taskType": "Water", "daysAfterPlanting": 8, "defaultNote": "轻浇，保持土壤湿润", "growthStage": "Seedling" },
+          { "taskType": "Water", "daysAfterPlanting": 12, "defaultNote": "轻浇，保持土壤湿润", "growthStage": "Seedling" }
+        ]
+      },
+      {
+        "stage": "Vegetative",
+        "stageName": "莲座期",
+        "startDay": 16,
+        "endDay": 35,
+        "description": "叶片快速生长，形成莲座状",
+        "tasks": [
+          { "taskType": "Water", "daysAfterPlanting": 16, "defaultNote": "正常浇水，保持土壤湿润", "growthStage": "Vegetative" },
+          { "taskType": "Fertilize", "daysAfterPlanting": 18, "defaultNote": "施用氮肥为主的稀薄液肥", "growthStage": "Vegetative" },
+          { "taskType": "Water", "daysAfterPlanting": 20, "defaultNote": "正常浇水", "growthStage": "Vegetative" },
+          { "taskType": "Water", "daysAfterPlanting": 24, "defaultNote": "正常浇水", "growthStage": "Vegetative" },
+          { "taskType": "Fertilize", "daysAfterPlanting": 28, "defaultNote": "追施氮肥，促进叶片生长", "growthStage": "Vegetative" },
+          { "taskType": "Water", "daysAfterPlanting": 28, "defaultNote": "正常浇水", "growthStage": "Vegetative" },
+          { "taskType": "Water", "daysAfterPlanting": 32, "defaultNote": "正常浇水", "growthStage": "Vegetative" }
+        ]
+      },
+      {
+        "stage": "Mature",
+        "stageName": "成熟期",
+        "startDay": 36,
+        "endDay": 50,
+        "description": "可采收外围叶片，或整株采收",
+        "tasks": [
+          { "taskType": "Water", "daysAfterPlanting": 36, "defaultNote": "正常浇水", "growthStage": "Mature" },
+          { "taskType": "Fertilize", "daysAfterPlanting": 38, "defaultNote": "追施稀薄氮肥（分次采收时）", "growthStage": "Mature" },
+          { "taskType": "Water", "daysAfterPlanting": 40, "defaultNote": "正常浇水", "growthStage": "Mature" },
+          { "taskType": "Prune", "daysAfterPlanting": 42, "defaultNote": "采收外围大叶，保留心叶继续生长", "growthStage": "Mature" },
+          { "taskType": "Water", "daysAfterPlanting": 44, "defaultNote": "正常浇水", "growthStage": "Mature" },
+          { "taskType": "Water", "daysAfterPlanting": 48, "defaultNote": "正常浇水", "growthStage": "Mature" }
+        ]
+      }
+    ],
+    "tasks": []
+  },
+  {
+    "id": "cucumber-fruit",
+    "cropName": "黄瓜",
+    "variety": "水果黄瓜",
+    "aliases": ["青瓜"],
+    "difficulty": "中等",
+    "totalGrowthDays": 60,
+    "description": "水果黄瓜种植养护全周期计划，需搭架攀爬",
+    "tips": "需要搭架攀爬，喜水肥，开花结果期注意授粉，保持充足水分",
+    "suitableLocation": "南阳台（需搭架）",
+    "defaultContainerType": "深口花盆",
+    "stages": [
+      {
+        "stage": "Seedling",
+        "stageName": "幼苗期",
+        "startDay": 1,
+        "endDay": 15,
+        "description": "发芽至长出3-4片真叶",
+        "tasks": [
+          { "taskType": "Water", "daysAfterPlanting": 2, "defaultNote": "喷雾保湿", "growthStage": "Seedling" },
+          { "taskType": "Water", "daysAfterPlanting": 5, "defaultNote": "轻浇，保持土壤湿润", "growthStage": "Seedling" },
+          { "taskType": "Water", "daysAfterPlanting": 9, "defaultNote": "轻浇", "growthStage": "Seedling" },
+          { "taskType": "Water", "daysAfterPlanting": 13, "defaultNote": "轻浇", "growthStage": "Seedling" }
+        ]
+      },
+      {
+        "stage": "Vegetative",
+        "stageName": "抽蔓期",
+        "startDay": 16,
+        "endDay": 30,
+        "description": "茎叶快速生长，需要搭架引蔓",
+        "tasks": [
+          { "taskType": "Water", "daysAfterPlanting": 16, "defaultNote": "充足浇水", "growthStage": "Vegetative" },
+          { "taskType": "Fertilize", "daysAfterPlanting": 18, "defaultNote": "施用氮磷钾复合肥", "growthStage": "Vegetative" },
+          { "taskType": "Prune", "daysAfterPlanting": 20, "defaultNote": "搭架引蔓，绑蔓上架", "growthStage": "Vegetative" },
+          { "taskType": "Water", "daysAfterPlanting": 20, "defaultNote": "充足浇水", "growthStage": "Vegetative" },
+          { "taskType": "Water", "daysAfterPlanting": 24, "defaultNote": "充足浇水", "growthStage": "Vegetative" },
+          { "taskType": "Fertilize", "daysAfterPlanting": 26, "defaultNote": "追施复合肥", "growthStage": "Vegetative" },
+          { "taskType": "Water", "daysAfterPlanting": 26, "defaultNote": "充足浇水", "growthStage": "Vegetative" },
+          { "taskType": "Prune", "daysAfterPlanting": 28, "defaultNote": "绑蔓，摘除卷须", "growthStage": "Vegetative" },
+          { "taskType": "Water", "daysAfterPlanting": 29, "defaultNote": "充足浇水", "growthStage": "Vegetative" }
+        ]
+      },
+      {
+        "stage": "Flowering",
+        "stageName": "开花期",
+        "startDay": 31,
+        "endDay": 40,
+        "description": "开花结果初期，注意授粉",
+        "tasks": [
+          { "taskType": "Fertilize", "daysAfterPlanting": 31, "defaultNote": "增施磷钾肥", "growthStage": "Flowering" },
+          { "taskType": "Water", "daysAfterPlanting": 32, "defaultNote": "充足浇水", "growthStage": "Flowering" },
+          { "taskType": "Prune", "daysAfterPlanting": 34, "defaultNote": "人工辅助授粉，摘除多余雄花", "growthStage": "Flowering" },
+          { "taskType": "Water", "daysAfterPlanting": 35, "defaultNote": "充足浇水", "growthStage": "Flowering" },
+          { "taskType": "Water", "daysAfterPlanting": 38, "defaultNote": "充足浇水", "growthStage": "Flowering" }
+        ]
+      },
+      {
+        "stage": "Fruiting",
+        "stageName": "结瓜期",
+        "startDay": 41,
+        "endDay": 60,
+        "description": "大量结瓜，水肥需求量大",
+        "tasks": [
+          { "taskType": "Water", "daysAfterPlanting": 41, "defaultNote": "每天浇水，保持土壤湿润", "growthStage": "Fruiting" },
+          { "taskType": "Fertilize", "daysAfterPlanting": 42, "defaultNote": "重施磷钾肥", "growthStage": "Fruiting" },
+          { "taskType": "Water", "daysAfterPlanting": 44, "defaultNote": "每天浇水", "growthStage": "Fruiting" },
+          { "taskType": "Water", "daysAfterPlanting": 47, "defaultNote": "每天浇水", "growthStage": "Fruiting" },
+          { "taskType": "Fertilize", "daysAfterPlanting": 49, "defaultNote": "追施磷钾肥，隔水带肥", "growthStage": "Fruiting" },
+          { "taskType": "Water", "daysAfterPlanting": 49, "defaultNote": "每天浇水", "growthStage": "Fruiting" },
+          { "taskType": "Prune", "daysAfterPlanting": 50, "defaultNote": "摘除老黄叶，及时采收商品瓜", "growthStage": "Fruiting" },
+          { "taskType": "Water", "daysAfterPlanting": 52, "defaultNote": "每天浇水", "growthStage": "Fruiting" },
+          { "taskType": "Water", "daysAfterPlanting": 55, "defaultNote": "每天浇水", "growthStage": "Fruiting" },
+          { "taskType": "Fertilize", "daysAfterPlanting": 56, "defaultNote": "最后一次追肥", "growthStage": "Fruiting" },
+          { "taskType": "Water", "daysAfterPlanting": 56, "defaultNote": "每天浇水", "growthStage": "Fruiting" },
+          { "taskType": "Water", "daysAfterPlanting": 59, "defaultNote": "每天浇水", "growthStage": "Fruiting" }
+        ]
+      }
+    ],
+    "tasks": []
+  },
+  {
+    "id": "pepper-millet",
+    "cropName": "辣椒",
+    "variety": "小米椒",
+    "aliases": ["辣子", "海椒"],
+    "difficulty": "中等",
+    "totalGrowthDays": 120,
+    "description": "小米椒种植养护全周期计划，喜温暖阳光",
+    "tips": "喜温暖阳光，开花结果期需要充足磷钾肥，注意防治病虫害",
+    "suitableLocation": "南阳台、西阳台",
+    "defaultContainerType": "塑料花盆",
+    "stages": [
+      {
+        "stage": "Seedling",
+        "stageName": "幼苗期",
+        "startDay": 1,
+        "endDay": 35,
+        "description": "发芽至长出8-10片真叶，生长较慢需要耐心",
+        "tasks": [
+          { "taskType": "Water", "daysAfterPlanting": 3, "defaultNote": "喷雾保湿，避免浇倒幼苗", "growthStage": "Seedling" },
+          { "taskType": "Water", "daysAfterPlanting": 7, "defaultNote": "轻浇，保持土壤微湿", "growthStage": "Seedling" },
+          { "taskType": "Water", "daysAfterPlanting": 12, "defaultNote": "轻浇", "growthStage": "Seedling" },
+          { "taskType": "Water", "daysAfterPlanting": 17, "defaultNote": "轻浇", "growthStage": "Seedling" },
+          { "taskType": "Water", "daysAfterPlanting": 22, "defaultNote": "轻浇", "growthStage": "Seedling" },
+          { "taskType": "Fertilize", "daysAfterPlanting": 25, "defaultNote": "稀薄氮肥，促进生长", "growthStage": "Seedling" },
+          { "taskType": "Water", "daysAfterPlanting": 27, "defaultNote": "轻浇", "growthStage": "Seedling" },
+          { "taskType": "Water", "daysAfterPlanting": 32, "defaultNote": "轻浇", "growthStage": "Seedling" }
+        ]
+      },
+      {
+        "stage": "Vegetative",
+        "stageName": "营养生长期",
+        "startDay": 36,
+        "endDay": 70,
+        "description": "分枝生长，快速长叶",
+        "tasks": [
+          { "taskType": "Water", "daysAfterPlanting": 36, "defaultNote": "正常浇水，见干见湿", "growthStage": "Vegetative" },
+          { "taskType": "Fertilize", "daysAfterPlanting": 40, "defaultNote": "施用氮磷钾复合肥", "growthStage": "Vegetative" },
+          { "taskType": "Water", "daysAfterPlanting": 42, "defaultNote": "正常浇水", "growthStage": "Vegetative" },
+          { "taskType": "Prune", "daysAfterPlanting": 45, "defaultNote": "摘心打顶，促进分枝", "growthStage": "Vegetative" },
+          { "taskType": "Water", "daysAfterPlanting": 48, "defaultNote": "正常浇水", "growthStage": "Vegetative" },
+          { "taskType": "Fertilize", "daysAfterPlanting": 52, "defaultNote": "追施复合肥", "growthStage": "Vegetative" },
+          { "taskType": "Water", "daysAfterPlanting": 54, "defaultNote": "正常浇水", "growthStage": "Vegetative" },
+          { "taskType": "Water", "daysAfterPlanting": 60, "defaultNote": "正常浇水", "growthStage": "Vegetative" },
+          { "taskType": "Fertilize", "daysAfterPlanting": 64, "defaultNote": "追施复合肥", "growthStage": "Vegetative" },
+          { "taskType": "Water", "daysAfterPlanting": 66, "defaultNote": "正常浇水", "growthStage": "Vegetative" }
+        ]
+      },
+      {
+        "stage": "Flowering",
+        "stageName": "开花期",
+        "startDay": 71,
+        "endDay": 90,
+        "description": "大量开花，注意控水保花",
+        "tasks": [
+          { "taskType": "Fertilize", "daysAfterPlanting": 71, "defaultNote": "增施磷钾肥，促进开花", "growthStage": "Flowering" },
+          { "taskType": "Water", "daysAfterPlanting": 72, "defaultNote": "适当控水，见干见湿", "growthStage": "Flowering" },
+          { "taskType": "Water", "daysAfterPlanting": 77, "defaultNote": "适当控水", "growthStage": "Flowering" },
+          { "taskType": "Prune", "daysAfterPlanting": 80, "defaultNote": "轻摇植株辅助授粉", "growthStage": "Flowering" },
+          { "taskType": "Fertilize", "daysAfterPlanting": 82, "defaultNote": "追施磷钾肥", "growthStage": "Flowering" },
+          { "taskType": "Water", "daysAfterPlanting": 82, "defaultNote": "适当控水", "growthStage": "Flowering" },
+          { "taskType": "Water", "daysAfterPlanting": 87, "defaultNote": "适当控水", "growthStage": "Flowering" }
+        ]
+      },
+      {
+        "stage": "Fruiting",
+        "stageName": "结果期",
+        "startDay": 91,
+        "endDay": 120,
+        "description": "辣椒膨大成熟，可陆续采收",
+        "tasks": [
+          { "taskType": "Water", "daysAfterPlanting": 91, "defaultNote": "充足浇水", "growthStage": "Fruiting" },
+          { "taskType": "Fertilize", "daysAfterPlanting": 93, "defaultNote": "重施磷钾肥", "growthStage": "Fruiting" },
+          { "taskType": "Water", "daysAfterPlanting": 96, "defaultNote": "充足浇水", "growthStage": "Fruiting" },
+          { "taskType": "Water", "daysAfterPlanting": 100, "defaultNote": "充足浇水", "growthStage": "Fruiting" },
+          { "taskType": "Fertilize", "daysAfterPlanting": 103, "defaultNote": "追施磷钾肥", "growthStage": "Fruiting" },
+          { "taskType": "Water", "daysAfterPlanting": 103, "defaultNote": "充足浇水", "growthStage": "Fruiting" },
+          { "taskType": "Prune", "daysAfterPlanting": 105, "defaultNote": "摘除下部老叶，及时采收成熟辣椒", "growthStage": "Fruiting" },
+          { "taskType": "Water", "daysAfterPlanting": 108, "defaultNote": "充足浇水", "growthStage": "Fruiting" },
+          { "taskType": "Water", "daysAfterPlanting": 112, "defaultNote": "充足浇水", "growthStage": "Fruiting" },
+          { "taskType": "Fertilize", "daysAfterPlanting": 114, "defaultNote": "最后一次追肥", "growthStage": "Fruiting" },
+          { "taskType": "Water", "daysAfterPlanting": 114, "defaultNote": "充足浇水", "growthStage": "Fruiting" },
+          { "taskType": "Water", "daysAfterPlanting": 118, "defaultNote": "充足浇水", "growthStage": "Fruiting" }
+        ]
+      }
+    ],
+    "tasks": []
+  },
+  {
+    "id": "chinese-cabbage-green",
+    "cropName": "小白菜",
+    "variety": "上海青",
+    "aliases": ["青菜", "小棠菜"],
+    "difficulty": "简单",
+    "totalGrowthDays": 38,
+    "description": "上海青种植养护全周期计划，生长速度快",
+    "tips": "生长速度快，需要充足水分和肥料，适合密植",
+    "suitableLocation": "南阳台、东阳台",
+    "defaultContainerType": "种植箱",
+    "stages": [
+      {
+        "stage": "Seedling",
+        "stageName": "幼苗期",
+        "startDay": 1,
+        "endDay": 10,
+        "description": "发芽至长出2-3片真叶",
+        "tasks": [
+          { "taskType": "Water", "daysAfterPlanting": 2, "defaultNote": "喷雾保湿", "growthStage": "Seedling" },
+          { "taskType": "Water", "daysAfterPlanting": 5, "defaultNote": "轻浇", "growthStage": "Seedling" },
+          { "taskType": "Water", "daysAfterPlanting": 8, "defaultNote": "轻浇", "growthStage": "Seedling" }
+        ]
+      },
+      {
+        "stage": "Vegetative",
+        "stageName": "快速生长期",
+        "startDay": 11,
+        "endDay": 30,
+        "description": "叶片快速生长，需大水大肥",
+        "tasks": [
+          { "taskType": "Water", "daysAfterPlanting": 11, "defaultNote": "充足浇水，每天或隔天一次", "growthStage": "Vegetative" },
+          { "taskType": "Fertilize", "daysAfterPlanting": 13, "defaultNote": "施用氮肥为主的稀薄液肥", "growthStage": "Vegetative" },
+          { "taskType": "Water", "daysAfterPlanting": 15, "defaultNote": "充足浇水", "growthStage": "Vegetative" },
+          { "taskType": "Water", "daysAfterPlanting": 18, "defaultNote": "充足浇水", "growthStage": "Vegetative" },
+          { "taskType": "Fertilize", "daysAfterPlanting": 20, "defaultNote": "追施氮肥，促进叶片生长", "growthStage": "Vegetative" },
+          { "taskType": "Water", "daysAfterPlanting": 21, "defaultNote": "充足浇水", "growthStage": "Vegetative" },
+          { "taskType": "Water", "daysAfterPlanting": 24, "defaultNote": "充足浇水", "growthStage": "Vegetative" },
+          { "taskType": "Fertilize", "daysAfterPlanting": 27, "defaultNote": "追施氮肥", "growthStage": "Vegetative" },
+          { "taskType": "Water", "daysAfterPlanting": 27, "defaultNote": "充足浇水", "growthStage": "Vegetative" }
+        ]
+      },
+      {
+        "stage": "Mature",
+        "stageName": "采收期",
+        "startDay": 31,
+        "endDay": 38,
+        "description": "可整株采收或间拔采收",
+        "tasks": [
+          { "taskType": "Water", "daysAfterPlanting": 31, "defaultNote": "正常浇水", "growthStage": "Mature" },
+          { "taskType": "Water", "daysAfterPlanting": 34, "defaultNote": "正常浇水", "growthStage": "Mature" },
+          { "taskType": "Prune", "daysAfterPlanting": 36, "defaultNote": "采收大株，留下小株继续生长", "growthStage": "Mature" }
+        ]
+      }
+    ],
+    "tasks": []
+  },
+  {
+    "id": "strawberry-hongyan",
+    "cropName": "草莓",
+    "variety": "红颜草莓",
+    "aliases": ["红莓"],
+    "difficulty": "中等",
+    "totalGrowthDays": 105,
+    "description": "红颜草莓种植养护全周期计划，多年生可多年结果",
+    "tips": "喜凉爽阳光，开花期注意授粉，结果期追施磷钾肥，及时摘除匍匐茎",
+    "suitableLocation": "南阳台、东阳台",
+    "defaultContainerType": "塑料花盆",
+    "stages": [
+      {
+        "stage": "Vegetative",
+        "stageName": "定植缓苗期",
+        "startDay": 1,
+        "endDay": 20,
+        "description": "种苗定植后恢复生长",
+        "tasks": [
+          { "taskType": "Water", "daysAfterPlanting": 1, "defaultNote": "定植后浇透定根水", "growthStage": "Vegetative" },
+          { "taskType": "Water", "daysAfterPlanting": 3, "defaultNote": "保持土壤湿润，促进缓苗", "growthStage": "Vegetative" },
+          { "taskType": "Water", "daysAfterPlanting": 6, "defaultNote": "正常浇水", "growthStage": "Vegetative" },
+          { "taskType": "Water", "daysAfterPlanting": 10, "defaultNote": "正常浇水", "growthStage": "Vegetative" },
+          { "taskType": "Prune", "daysAfterPlanting": 14, "defaultNote": "摘除老叶和抽生的匍匐茎", "growthStage": "Vegetative" },
+          { "taskType": "Water", "daysAfterPlanting": 15, "defaultNote": "正常浇水", "growthStage": "Vegetative" },
+          { "taskType": "Fertilize", "daysAfterPlanting": 18, "defaultNote": "施用稀薄复合肥", "growthStage": "Vegetative" },
+          { "taskType": "Water", "daysAfterPlanting": 18, "defaultNote": "正常浇水", "growthStage": "Vegetative" }
+        ]
+      },
+      {
+        "stage": "Vegetative",
+        "stageName": "旺盛生长期",
+        "startDay": 21,
+        "endDay": 55,
+        "description": "大量长叶，积累养分",
+        "tasks": [
+          { "taskType": "Water", "daysAfterPlanting": 22, "defaultNote": "充足浇水", "growthStage": "Vegetative" },
+          { "taskType": "Fertilize", "daysAfterPlanting": 25, "defaultNote": "施用氮磷钾复合肥", "growthStage": "Vegetative" },
+          { "taskType": "Water", "daysAfterPlanting": 26, "defaultNote": "充足浇水", "growthStage": "Vegetative" },
+          { "taskType": "Prune", "daysAfterPlanting": 30, "defaultNote": "摘除匍匐茎和老黄叶", "growthStage": "Vegetative" },
+          { "taskType": "Water", "daysAfterPlanting": 32, "defaultNote": "充足浇水", "growthStage": "Vegetative" },
+          { "taskType": "Fertilize", "daysAfterPlanting": 35, "defaultNote": "追施复合肥", "growthStage": "Vegetative" },
+          { "taskType": "Water", "daysAfterPlanting": 36, "defaultNote": "充足浇水", "growthStage": "Vegetative" },
+          { "taskType": "Water", "daysAfterPlanting": 42, "defaultNote": "充足浇水", "growthStage": "Vegetative" },
+          { "taskType": "Fertilize", "daysAfterPlanting": 45, "defaultNote": "追施复合肥", "growthStage": "Vegetative" },
+          { "taskType": "Prune", "daysAfterPlanting": 46, "defaultNote": "摘除匍匐茎", "growthStage": "Vegetative" },
+          { "taskType": "Water", "daysAfterPlanting": 48, "defaultNote": "充足浇水", "growthStage": "Vegetative" },
+          { "taskType": "Water", "daysAfterPlanting": 53, "defaultNote": "充足浇水", "growthStage": "Vegetative" }
+        ]
+      },
+      {
+        "stage": "Flowering",
+        "stageName": "开花期",
+        "startDay": 56,
+        "endDay": 75,
+        "description": "抽花序开花，需要人工辅助授粉",
+        "tasks": [
+          { "taskType": "Fertilize", "daysAfterPlanting": 56, "defaultNote": "增施磷钾肥，促进花芽分化", "growthStage": "Flowering" },
+          { "taskType": "Water", "daysAfterPlanting": 57, "defaultNote": "正常浇水，避免浇到花上", "growthStage": "Flowering" },
+          { "taskType": "Water", "daysAfterPlanting": 61, "defaultNote": "正常浇水", "growthStage": "Flowering" },
+          { "taskType": "Prune", "daysAfterPlanting": 63, "defaultNote": "用毛笔轻扫花朵辅助授粉，摘除细弱花序", "growthStage": "Flowering" },
+          { "taskType": "Fertilize", "daysAfterPlanting": 66, "defaultNote": "追施磷钾肥", "growthStage": "Flowering" },
+          { "taskType": "Water", "daysAfterPlanting": 66, "defaultNote": "正常浇水", "growthStage": "Flowering" },
+          { "taskType": "Water", "daysAfterPlanting": 70, "defaultNote": "正常浇水", "growthStage": "Flowering" },
+          { "taskType": "Prune", "daysAfterPlanting": 72, "defaultNote": "继续辅助授粉", "growthStage": "Flowering" }
+        ]
+      },
+      {
+        "stage": "Fruiting",
+        "stageName": "结果期",
+        "startDay": 76,
+        "endDay": 105,
+        "description": "果实膨大转色成熟",
+        "tasks": [
+          { "taskType": "Water", "daysAfterPlanting": 76, "defaultNote": "充足浇水，保持土壤湿润", "growthStage": "Fruiting" },
+          { "taskType": "Fertilize", "daysAfterPlanting": 78, "defaultNote": "重施磷钾肥", "growthStage": "Fruiting" },
+          { "taskType": "Water", "daysAfterPlanting": 81, "defaultNote": "充足浇水", "growthStage": "Fruiting" },
+          { "taskType": "Prune", "daysAfterPlanting": 83, "defaultNote": "摘除遮挡果实的叶片，垫果防止沾土", "growthStage": "Fruiting" },
+          { "taskType": "Water", "daysAfterPlanting": 86, "defaultNote": "充足浇水", "growthStage": "Fruiting" },
+          { "taskType": "Fertilize", "daysAfterPlanting": 88, "defaultNote": "追施磷钾肥", "growthStage": "Fruiting" },
+          { "taskType": "Water", "daysAfterPlanting": 89, "defaultNote": "充足浇水", "growthStage": "Fruiting" },
+          { "taskType": "Water", "daysAfterPlanting": 94, "defaultNote": "充足浇水", "growthStage": "Fruiting" },
+          { "taskType": "Prune", "daysAfterPlanting": 95, "defaultNote": "及时采收成熟果实（八成熟即可）", "growthStage": "Fruiting" },
+          { "taskType": "Fertilize", "daysAfterPlanting": 97, "defaultNote": "追施磷钾肥，促进后续果实", "growthStage": "Fruiting" },
+          { "taskType": "Water", "daysAfterPlanting": 98, "defaultNote": "充足浇水", "growthStage": "Fruiting" },
+          { "taskType": "Water", "daysAfterPlanting": 103, "defaultNote": "充足浇水", "growthStage": "Fruiting" }
+        ]
+      }
+    ],
+    "tasks": []
+  },
+  {
+    "id": "scallion-four-season",
+    "cropName": "小葱",
+    "variety": "四季小葱",
+    "aliases": ["香葱", "青葱"],
+    "difficulty": "简单",
+    "totalGrowthDays": 60,
+    "description": "四季小葱种植养护全周期计划，可多次采收",
+    "tips": "可多次采收，保持土壤湿润，定期追施氮肥，采收后及时追肥",
+    "suitableLocation": "南阳台、东阳台",
+    "defaultContainerType": "塑料花盆",
+    "stages": [
+      {
+        "stage": "Seedling",
+        "stageName": "幼苗期",
+        "startDay": 1,
+        "endDay": 20,
+        "description": "发芽至株高10cm左右",
+        "tasks": [
+          { "taskType": "Water", "daysAfterPlanting": 2, "defaultNote": "喷雾保湿", "growthStage": "Seedling" },
+          { "taskType": "Water", "daysAfterPlanting": 6, "defaultNote": "轻浇", "growthStage": "Seedling" },
+          { "taskType": "Water", "daysAfterPlanting": 10, "defaultNote": "轻浇", "growthStage": "Seedling" },
+          { "taskType": "Fertilize", "daysAfterPlanting": 14, "defaultNote": "稀薄氮肥", "growthStage": "Seedling" },
+          { "taskType": "Water", "daysAfterPlanting": 15, "defaultNote": "轻浇", "growthStage": "Seedling" },
+          { "taskType": "Water", "daysAfterPlanting": 18, "defaultNote": "轻浇", "growthStage": "Seedling" }
+        ]
+      },
+      {
+        "stage": "Vegetative",
+        "stageName": "旺盛生长期",
+        "startDay": 21,
+        "endDay": 45,
+        "description": "快速生长，分蘖增多",
+        "tasks": [
+          { "taskType": "Water", "daysAfterPlanting": 22, "defaultNote": "充足浇水", "growthStage": "Vegetative" },
+          { "taskType": "Fertilize", "daysAfterPlanting": 25, "defaultNote": "施用氮肥为主的复合肥", "growthStage": "Vegetative" },
+          { "taskType": "Water", "daysAfterPlanting": 27, "defaultNote": "充足浇水", "growthStage": "Vegetative" },
+          { "taskType": "Water", "daysAfterPlanting": 32, "defaultNote": "充足浇水", "growthStage": "Vegetative" },
+          { "taskType": "Fertilize", "daysAfterPlanting": 35, "defaultNote": "追施氮肥", "growthStage": "Vegetative" },
+          { "taskType": "Water", "daysAfterPlanting": 36, "defaultNote": "充足浇水", "growthStage": "Vegetative" },
+          { "taskType": "Water", "daysAfterPlanting": 41, "defaultNote": "充足浇水", "growthStage": "Vegetative" }
+        ]
+      },
+      {
+        "stage": "Mature",
+        "stageName": "采收期",
+        "startDay": 46,
+        "endDay": 60,
+        "description": "可陆续采收，留根继续生长",
+        "tasks": [
+          { "taskType": "Water", "daysAfterPlanting": 46, "defaultNote": "正常浇水", "growthStage": "Mature" },
+          { "taskType": "Prune", "daysAfterPlanting": 48, "defaultNote": "采收：离地面2-3cm割取上部，保留根茬", "growthStage": "Mature" },
+          { "taskType": "Fertilize", "daysAfterPlanting": 50, "defaultNote": "采收后追施氮肥，促进再生", "growthStage": "Mature" },
+          { "taskType": "Water", "daysAfterPlanting": 50, "defaultNote": "充足浇水", "growthStage": "Mature" },
+          { "taskType": "Water", "daysAfterPlanting": 55, "defaultNote": "正常浇水", "growthStage": "Mature" },
+          { "taskType": "Prune", "daysAfterPlanting": 58, "defaultNote": "可再次采收", "growthStage": "Mature" }
+        ]
+      }
+    ],
+    "tasks": []
+  },
+  {
+    "id": "cilantro-big-leaf",
+    "cropName": "香菜",
+    "variety": "大叶香菜",
+    "aliases": ["芫荽"],
+    "difficulty": "简单",
+    "totalGrowthDays": 50,
+    "description": "大叶香菜种植养护全周期计划，喜凉爽",
+    "tips": "喜凉爽，不耐高温，夏季种植需要遮阴，种子碾碎后播种出苗更快",
+    "suitableLocation": "东阳台、北阳台",
+    "defaultContainerType": "塑料花盆",
+    "stages": [
+      {
+        "stage": "Seedling",
+        "stageName": "幼苗期",
+        "startDay": 1,
+        "endDay": 18,
+        "description": "发芽至长出2-3片真叶，出苗较慢需耐心",
+        "tasks": [
+          { "taskType": "Water", "daysAfterPlanting": 2, "defaultNote": "喷雾保湿，出苗前保持湿润", "growthStage": "Seedling" },
+          { "taskType": "Water", "daysAfterPlanting": 6, "defaultNote": "喷雾保湿", "growthStage": "Seedling" },
+          { "taskType": "Water", "daysAfterPlanting": 10, "defaultNote": "轻浇", "growthStage": "Seedling" },
+          { "taskType": "Water", "daysAfterPlanting": 15, "defaultNote": "轻浇", "growthStage": "Seedling" }
+        ]
+      },
+      {
+        "stage": "Vegetative",
+        "stageName": "快速生长期",
+        "startDay": 19,
+        "endDay": 40,
+        "description": "叶片快速生长",
+        "tasks": [
+          { "taskType": "Water", "daysAfterPlanting": 20, "defaultNote": "充足浇水，保持土壤湿润", "growthStage": "Vegetative" },
+          { "taskType": "Fertilize", "daysAfterPlanting": 22, "defaultNote": "施用氮肥为主的稀薄液肥", "growthStage": "Vegetative" },
+          { "taskType": "Water", "daysAfterPlanting": 25, "defaultNote": "充足浇水", "growthStage": "Vegetative" },
+          { "taskType": "Water", "daysAfterPlanting": 30, "defaultNote": "充足浇水", "growthStage": "Vegetative" },
+          { "taskType": "Fertilize", "daysAfterPlanting": 32, "defaultNote": "追施氮肥", "growthStage": "Vegetative" },
+          { "taskType": "Water", "daysAfterPlanting": 33, "defaultNote": "充足浇水", "growthStage": "Vegetative" },
+          { "taskType": "Water", "daysAfterPlanting": 38, "defaultNote": "充足浇水", "growthStage": "Vegetative" }
+        ]
+      },
+      {
+        "stage": "Mature",
+        "stageName": "采收期",
+        "startDay": 41,
+        "endDay": 50,
+        "description": "株高15cm以上可陆续采收",
+        "tasks": [
+          { "taskType": "Water", "daysAfterPlanting": 41, "defaultNote": "正常浇水", "growthStage": "Mature" },
+          { "taskType": "Prune", "daysAfterPlanting": 43, "defaultNote": "采收外部大叶，保留心叶继续生长", "growthStage": "Mature" },
+          { "taskType": "Water", "daysAfterPlanting": 45, "defaultNote": "正常浇水", "growthStage": "Mature" },
+          { "taskType": "Fertilize", "daysAfterPlanting": 46, "defaultNote": "追施稀薄氮肥（分次采收时）", "growthStage": "Mature" },
+          { "taskType": "Water", "daysAfterPlanting": 48, "defaultNote": "正常浇水", "growthStage": "Mature" }
+        ]
+      }
+    ],
+    "tasks": []
+  }
+]

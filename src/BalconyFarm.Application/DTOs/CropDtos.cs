@@ -27,6 +27,17 @@ public class CreateCropRequestDto
     public string ContainerType { get; set; } = string.Empty;
     public CropStatus Status { get; set; } = CropStatus.Growing;
     public string? PhotoUrl { get; set; }
+    public string? PlantingPlanTemplateId { get; set; }
+    public bool AutoGenerateTasksFromTemplate { get; set; } = true;
+}
+
+public class CreateCropWithTemplateResultDto
+{
+    public CropDto Crop { get; set; } = new();
+    public string? AppliedTemplateId { get; set; }
+    public string? AppliedTemplateName { get; set; }
+    public int GeneratedTaskCount { get; set; }
+    public List<CropCareTaskDto> GeneratedTasks { get; set; } = new();
 }
 
 public class UpdateCropRequestDto

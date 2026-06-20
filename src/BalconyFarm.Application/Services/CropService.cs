@@ -1,3 +1,4 @@
+using BalconyFarm.Application.Data;
 using BalconyFarm.Application.DTOs;
 using BalconyFarm.Application.Models;
 using BalconyFarm.Domain.Entities;
@@ -5,6 +6,7 @@ using BalconyFarm.Domain.Enums;
 using BalconyFarm.Domain.Interfaces;
 using Mapster;
 using Microsoft.Extensions.Logging;
+using TaskStatus = BalconyFarm.Domain.Enums.TaskStatus;
 
 namespace BalconyFarm.Application.Services;
 
@@ -12,11 +14,16 @@ public class CropService : ICropService
 {
     private readonly IUnitOfWork _unitOfWork;
     private readonly ILogger<CropService> _logger;
+    private readonly IPlantingPlanTemplateDataProvider _templateDataProvider;
 
-    public CropService(IUnitOfWork unitOfWork, ILogger<CropService> logger)
+    public CropService(
+        IUnitOfWork unitOfWork,
+        ILogger<CropService> logger,
+        IPlantingPlanTemplateDataProvider templateDataProvider)
     {
         _unitOfWork = unitOfWork;
         _logger = logger;
+        _templateDataProvider = templateDataProvider;
     }
 
     public async Task<ApiResponse<PagedResult<CropDto>>> GetCropsAsync(CropQueryRequestDto query, Guid? userId = null, CancellationToken cancellationToken = default)
@@ -127,6 +134,80 @@ public class CropService : ICropService
 
         var cropDto = crop.Adapt<CropDto>();
         return ApiResponse<CropDto>.Success(cropDto, "创建成功");
+    }
+
+    public async Task<ApiResponse<CreateCropWithTemplateResultDto>> CreateCropWithTemplateAsync(
+        CreateCropRequestDto dto,
+        Guid userId,
+        CancellationToken cancellationToken = default)
+    {
+        _logger.LogInformation("创建作物并应用模板: {Name}, TemplateId={TemplateId}, 用户: {UserId}",
+            dto.Name, dto.PlantingPlanTemplateId, userId);
+
+        var crop = dto.Adapt<Crop>();
+        crop.Id = Guid.NewGuid();
+        crop.UserId = userId;
+        crop.CreatedAt = DateTime.UtcNow;
+
+        await _unitOfWork.Crops.AddAsync(crop, cancellationToken);
+
+        var result = new CreateCropWithTemplateResultDto
+        {
+            Crop = crop.Adapt<CropDto>()
+        };
+
+        if (dto.AutoGenerateTasksFromTemplate && !string.IsNullOrEmpty(dto.PlantingPlanTemplateId))
+        {
+            var template = await _templateDataProvider.GetTemplateByIdAsync(dto.PlantingPlanTemplateId, cancellationToken);
+            if (template == null)
+            {
+                return ApiResponse<CreateCropWithTemplateResultDto>.Error("种植计划模板不存在", 404);
+            }
+
+            result.AppliedTemplateId = template.Id;
+            result.AppliedTemplateName = $"{template.CropName} - {template.Variety}";
+
+            var allTemplateTasks = template.Stages
+                .SelectMany(s => s.Tasks)
+                .Concat(template.Tasks)
+                .DistinctBy(t => new { t.TaskType, t.DaysAfterPlanting })
+                .ToList();
+
+            var generatedTasks = new List<CropCareTaskDto>();
+
+            foreach (var templateTask in allTemplateTasks)
+            {
+                var scheduledDate = crop.PlantingDate.Date.AddDays(templateTask.DaysAfterPlanting);
+
+                var task = new CropCareTask
+                {
+                    Id = Guid.NewGuid(),
+                    CropId = crop.Id,
+                    TaskType = templateTask.TaskType,
+                    ScheduledDate = scheduledDate,
+                    Status = TaskStatus.Pending,
+                    Note = templateTask.DefaultNote
+                };
+
+                await _unitOfWork.CropCareTasks.AddAsync(task, cancellationToken);
+                generatedTasks.Add(task.Adapt<CropCareTaskDto>());
+            }
+
+            result.GeneratedTaskCount = generatedTasks.Count;
+            result.GeneratedTasks = generatedTasks;
+            _logger.LogInformation("模板应用成功，生成 {TaskCount} 个养护任务", generatedTasks.Count);
+        }
+
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+        result.Crop = crop.Adapt<CropDto>();
+        result.GeneratedTasks.ForEach(t => t.CropName = crop.Name);
+
+        var message = result.GeneratedTaskCount > 0
+            ? $"创建成功，已根据模板自动生成 {result.GeneratedTaskCount} 个养护任务"
+            : "创建成功";
+
+        return ApiResponse<CreateCropWithTemplateResultDto>.Success(result, message);
     }
 
     public async Task<ApiResponse<CropDto>> UpdateCropAsync(Guid id, UpdateCropRequestDto dto, Guid userId, CancellationToken cancellationToken = default)
