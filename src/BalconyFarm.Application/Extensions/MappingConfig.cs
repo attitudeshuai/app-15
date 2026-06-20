@@ -85,5 +85,18 @@ public static class MappingConfig
             .Map(dest => dest.ReadAt, src => src.ReadAt)
             .Map(dest => dest.CreatedAt, src => src.CreatedAt)
             .Map(dest => dest.Task, src => (CropCareTaskDto?)null);
+
+        TypeAdapterConfig<CreateQuestionRequestDto, CommunityQuestion>.NewConfig()
+            .Map(dest => dest.Title, src => src.Title)
+            .Map(dest => dest.Content, src => src.Content)
+            .Map(dest => dest.CropType, src => src.CropType);
+
+        TypeAdapterConfig<CommunityQuestion, CommunityQuestionDto>.NewConfig()
+            .Map(dest => dest.AuthorUsername, src => src.User != null ? src.User.Username : null)
+            .Map(dest => dest.ReplyCount, src => src.Replies.Count)
+            .Map(dest => dest.Tags, src => src.Tags.Select(t => t.Name).ToList());
+
+        TypeAdapterConfig<CommunityReply, CommunityReplyDto>.NewConfig()
+            .Map(dest => dest.AuthorUsername, src => src.User != null ? src.User.Username : null);
     }
 }

@@ -16,6 +16,9 @@ public class AppDbContext : DbContext
     public DbSet<PestRecord> PestRecords => Set<PestRecord>();
     public DbSet<TreatmentLog> TreatmentLogs => Set<TreatmentLog>();
     public DbSet<Notification> Notifications => Set<Notification>();
+    public DbSet<CommunityQuestion> Questions => Set<CommunityQuestion>();
+    public DbSet<CommunityReply> Replies => Set<CommunityReply>();
+    public DbSet<CommunityTag> Tags => Set<CommunityTag>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -135,6 +138,67 @@ public class AppDbContext : DbContext
                   .WithMany()
                   .HasForeignKey(n => n.CropCareTaskId)
                   .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<CommunityQuestion>(entity =>
+        {
+            entity.HasKey(q => q.Id);
+            entity.Property(q => q.UserId).IsRequired();
+            entity.Property(q => q.Title).IsRequired().HasMaxLength(200);
+            entity.Property(q => q.Content).IsRequired().HasMaxLength(5000);
+            entity.Property(q => q.CropType).HasMaxLength(50);
+            entity.Property(q => q.IsResolved).IsRequired();
+            entity.Property(q => q.ViewCount).IsRequired();
+            entity.Property(q => q.CreatedAt).HasDefaultValueSql("CURRENT_TIMESTAMP");
+            entity.Property(q => q.UpdatedAt).HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            entity.HasIndex(q => q.CropType);
+            entity.HasIndex(q => q.IsResolved);
+            entity.HasIndex(q => q.CreatedAt);
+
+            entity.HasOne(q => q.User)
+                  .WithMany()
+                  .HasForeignKey(q => q.UserId)
+                  .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasMany(q => q.Replies)
+                  .WithOne(r => r.Question)
+                  .HasForeignKey(r => r.QuestionId)
+                  .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasMany(q => q.Tags)
+                  .WithOne(t => t.Question)
+                  .HasForeignKey(t => t.QuestionId)
+                  .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<CommunityReply>(entity =>
+        {
+            entity.HasKey(r => r.Id);
+            entity.Property(r => r.QuestionId).IsRequired();
+            entity.Property(r => r.UserId).IsRequired();
+            entity.Property(r => r.Content).IsRequired().HasMaxLength(2000);
+            entity.Property(r => r.IsAccepted).IsRequired();
+            entity.Property(r => r.CreatedAt).HasDefaultValueSql("CURRENT_TIMESTAMP");
+            entity.Property(r => r.UpdatedAt).HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            entity.HasIndex(r => r.QuestionId);
+
+            entity.HasOne(r => r.User)
+                  .WithMany()
+                  .HasForeignKey(r => r.UserId)
+                  .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<CommunityTag>(entity =>
+        {
+            entity.HasKey(t => t.Id);
+            entity.Property(t => t.QuestionId).IsRequired();
+            entity.Property(t => t.Name).IsRequired().HasMaxLength(20);
+            entity.Property(t => t.CreatedAt).HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            entity.HasIndex(t => t.Name);
+            entity.HasIndex(t => t.QuestionId);
         });
     }
 

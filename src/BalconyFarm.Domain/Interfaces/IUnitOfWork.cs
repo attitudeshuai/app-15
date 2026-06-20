@@ -11,5 +11,8 @@ public interface IUnitOfWork
     IRepository<PestRecord> PestRecords { get; }
     IRepository<TreatmentLog> TreatmentLogs { get; }
     IRepository<Notification> Notifications { get; }
+    IRepository<CommunityQuestion> Questions { get; }
+    IRepository<CommunityReply> Replies { get; }
+    IRepository<CommunityTag> Tags { get; }
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }

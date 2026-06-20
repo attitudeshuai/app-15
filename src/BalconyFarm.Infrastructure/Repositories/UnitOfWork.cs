@@ -14,6 +14,9 @@ public class UnitOfWork : IUnitOfWork
     private IRepository<PestRecord>? _pestRecords;
     private IRepository<TreatmentLog>? _treatmentLogs;
     private IRepository<Notification>? _notifications;
+    private IRepository<CommunityQuestion>? _questions;
+    private IRepository<CommunityReply>? _replies;
+    private IRepository<CommunityTag>? _tags;
 
     public UnitOfWork(AppDbContext context)
     {
@@ -27,6 +30,9 @@ public class UnitOfWork : IUnitOfWork
     public IRepository<PestRecord> PestRecords => _pestRecords ??= new Repository<PestRecord>(_context);
     public IRepository<TreatmentLog> TreatmentLogs => _treatmentLogs ??= new Repository<TreatmentLog>(_context);
     public IRepository<Notification> Notifications => _notifications ??= new Repository<Notification>(_context);
+    public IRepository<CommunityQuestion> Questions => _questions ??= new Repository<CommunityQuestion>(_context);
+    public IRepository<CommunityReply> Replies => _replies ??= new Repository<CommunityReply>(_context);
+    public IRepository<CommunityTag> Tags => _tags ??= new Repository<CommunityTag>(_context);
 
     public async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {
