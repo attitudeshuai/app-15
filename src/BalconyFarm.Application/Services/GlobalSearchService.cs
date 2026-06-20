@@ -28,7 +28,8 @@ public class GlobalSearchService : IGlobalSearchService
             SearchResultType.Crop,
             SearchResultType.CropCareTask,
             SearchResultType.PestRecord,
-            SearchResultType.HarvestRecord
+            SearchResultType.HarvestRecord,
+            SearchResultType.SeedInventory
         };
 
         var userCropIdNameMap = await GetUserCropIdNameMapAsync(userId, cancellationToken);
@@ -73,6 +74,13 @@ public class GlobalSearchService : IGlobalSearchService
             var harvests = await SearchHarvestRecordsAsync(query, userCropIds, keywordMatchedCropIds, userCropIdNameMap, cancellationToken);
             countByType[SearchResultType.HarvestRecord] = harvests.Count;
             allResults.AddRange(harvests);
+        }
+
+        if (searchTypes.Contains(SearchResultType.SeedInventory))
+        {
+            var seeds = await SearchSeedInventoriesAsync(query, userId, cancellationToken);
+            countByType[SearchResultType.SeedInventory] = seeds.Count;
+            allResults.AddRange(seeds);
         }
 
         var totalCount = allResults.Count;
@@ -384,6 +392,73 @@ public class GlobalSearchService : IGlobalSearchService
                     { "qualityNote", h.QualityNote ?? string.Empty },
                     { "harvestDate", h.HarvestDate },
                     { "photoUrl", h.PhotoUrl ?? string.Empty }
+                }
+            };
+        }).ToList();
+    }
+
+    private async Task<List<GlobalSearchResultItemDto>> SearchSeedInventoriesAsync(
+        GlobalSearchRequestDto query,
+        Guid userId,
+        CancellationToken cancellationToken)
+    {
+        Expression<Func<SeedInventory, bool>> predicate = s => s.UserId == userId;
+
+        if (!string.IsNullOrEmpty(query.SearchKeyword))
+        {
+            var keyword = query.SearchKeyword;
+            predicate = predicate.And(s =>
+                s.Name.Contains(keyword) ||
+                s.Variety.Contains(keyword) ||
+                (s.Notes != null && s.Notes.Contains(keyword)));
+        }
+
+        if (query.DateFrom.HasValue)
+        {
+            var dateFrom = query.DateFrom.Value;
+            predicate = predicate.And(s => s.PurchaseDate >= dateFrom || s.ExpiryDate >= dateFrom);
+        }
+
+        if (query.DateTo.HasValue)
+        {
+            var dateTo = query.DateTo.Value;
+            predicate = predicate.And(s => s.PurchaseDate <= dateTo || s.ExpiryDate <= dateTo);
+        }
+
+        var seeds = await _unitOfWork.SeedInventories.FindAsync(predicate, cancellationToken);
+
+        return seeds.Select(s =>
+        {
+            var today = DateTime.UtcNow.Date;
+            var daysToExpiry = (int)(s.ExpiryDate.Date - today).TotalDays;
+            string status;
+            if (daysToExpiry < 0)
+                status = "已过期";
+            else if (daysToExpiry <= 7)
+                status = "即将过期";
+            else if (daysToExpiry <= 30)
+                status = "临期";
+            else
+                status = "正常";
+
+            return new GlobalSearchResultItemDto
+            {
+                Id = s.Id,
+                Type = SearchResultType.SeedInventory,
+                Title = $"{s.Name} - {s.Variety}",
+                Description = $"库存: {s.Quantity} {s.Unit} | 保质期至: {s.ExpiryDate:yyyy-MM-dd}",
+                Date = s.ExpiryDate,
+                Status = status,
+                Metadata = new Dictionary<string, object>
+                {
+                    { "name", s.Name },
+                    { "variety", s.Variety },
+                    { "quantity", s.Quantity },
+                    { "unit", s.Unit },
+                    { "purchaseDate", s.PurchaseDate },
+                    { "expiryDate", s.ExpiryDate },
+                    { "daysToExpiry", daysToExpiry },
+                    { "notes", s.Notes ?? string.Empty }
                 }
             };
         }).ToList();

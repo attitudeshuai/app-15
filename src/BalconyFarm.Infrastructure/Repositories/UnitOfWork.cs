@@ -18,6 +18,7 @@ public class UnitOfWork : IUnitOfWork
     private IRepository<CommunityReply>? _replies;
     private IRepository<CommunityTag>? _tags;
     private IRepository<CropPhoto>? _cropPhotos;
+    private IRepository<SeedInventory>? _seedInventories;
 
     public UnitOfWork(AppDbContext context)
     {
@@ -35,6 +36,7 @@ public class UnitOfWork : IUnitOfWork
     public IRepository<CommunityReply> Replies => _replies ??= new Repository<CommunityReply>(_context);
     public IRepository<CommunityTag> Tags => _tags ??= new Repository<CommunityTag>(_context);
     public IRepository<CropPhoto> CropPhotos => _cropPhotos ??= new Repository<CropPhoto>(_context);
+    public IRepository<SeedInventory> SeedInventories => _seedInventories ??= new Repository<SeedInventory>(_context);
 
     public async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {

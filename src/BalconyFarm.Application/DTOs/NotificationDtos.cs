@@ -7,7 +7,8 @@ public class NotificationDto
 {
     public Guid Id { get; set; }
     public Guid UserId { get; set; }
-    public Guid CropCareTaskId { get; set; }
+    public Guid? CropCareTaskId { get; set; }
+    public Guid? SeedInventoryId { get; set; }
     public string Title { get; set; } = string.Empty;
     public string Message { get; set; } = string.Empty;
     public NotificationType NotificationType { get; set; }
@@ -15,6 +16,7 @@ public class NotificationDto
     public DateTime? ReadAt { get; set; }
     public DateTime CreatedAt { get; set; }
     public CropCareTaskDto? Task { get; set; }
+    public SeedInventoryDto? SeedInventory { get; set; }
 }
 
 public class NotificationQueryRequestDto : PagedRequest

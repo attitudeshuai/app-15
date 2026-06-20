@@ -78,13 +78,15 @@ public static class MappingConfig
             .Map(dest => dest.Id, src => src.Id)
             .Map(dest => dest.UserId, src => src.UserId)
             .Map(dest => dest.CropCareTaskId, src => src.CropCareTaskId)
+            .Map(dest => dest.SeedInventoryId, src => src.SeedInventoryId)
             .Map(dest => dest.Title, src => src.Title)
             .Map(dest => dest.Message, src => src.Message)
             .Map(dest => dest.NotificationType, src => src.NotificationType)
             .Map(dest => dest.IsRead, src => src.IsRead)
             .Map(dest => dest.ReadAt, src => src.ReadAt)
             .Map(dest => dest.CreatedAt, src => src.CreatedAt)
-            .Map(dest => dest.Task, src => (CropCareTaskDto?)null);
+            .Map(dest => dest.Task, src => (CropCareTaskDto?)null)
+            .Map(dest => dest.SeedInventory, src => (SeedInventoryDto?)null);
 
         TypeAdapterConfig<CreateQuestionRequestDto, CommunityQuestion>.NewConfig()
             .Map(dest => dest.Title, src => src.Title)
@@ -107,5 +109,26 @@ public static class MappingConfig
 
         TypeAdapterConfig<CropPhoto, CropPhotoDto>.NewConfig()
             .Map(dest => dest.CropName, src => src.Crop != null ? src.Crop.Name : null);
+
+        TypeAdapterConfig<CreateSeedInventoryRequestDto, SeedInventory>.NewConfig()
+            .Map(dest => dest.Name, src => src.Name)
+            .Map(dest => dest.Variety, src => src.Variety)
+            .Map(dest => dest.Quantity, src => src.Quantity)
+            .Map(dest => dest.Unit, src => src.Unit)
+            .Map(dest => dest.PurchaseDate, src => src.PurchaseDate)
+            .Map(dest => dest.ExpiryDate, src => src.ExpiryDate)
+            .Map(dest => dest.Notes, src => src.Notes);
+
+        TypeAdapterConfig<SeedInventory, SeedInventoryDto>.NewConfig()
+            .Map(dest => dest.Id, src => src.Id)
+            .Map(dest => dest.UserId, src => src.UserId)
+            .Map(dest => dest.Name, src => src.Name)
+            .Map(dest => dest.Variety, src => src.Variety)
+            .Map(dest => dest.Quantity, src => src.Quantity)
+            .Map(dest => dest.Unit, src => src.Unit)
+            .Map(dest => dest.PurchaseDate, src => src.PurchaseDate)
+            .Map(dest => dest.ExpiryDate, src => src.ExpiryDate)
+            .Map(dest => dest.Notes, src => src.Notes)
+            .Map(dest => dest.CreatedAt, src => src.CreatedAt);
     }
 }

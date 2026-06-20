@@ -11,4 +11,5 @@ public class User
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 
     public ICollection<Crop> Crops { get; set; } = new List<Crop>();
+    public ICollection<SeedInventory> SeedInventories { get; set; } = new List<SeedInventory>();
 }

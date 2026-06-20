@@ -8,7 +8,8 @@ public enum SearchResultType
     Crop,
     CropCareTask,
     PestRecord,
-    HarvestRecord
+    HarvestRecord,
+    SeedInventory
 }
 
 public class GlobalSearchResultItemDto

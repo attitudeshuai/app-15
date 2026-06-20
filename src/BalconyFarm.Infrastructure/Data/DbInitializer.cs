@@ -42,6 +42,11 @@ public static class DbInitializer
         {
             await SeedPestRecordsAsync(context, cancellationToken);
         }
+
+        if (!await context.SeedInventories.AnyAsync(cancellationToken))
+        {
+            await SeedInventoriesAsync(context, cancellationToken);
+        }
     }
 
     private static async Task SeedUsersAsync(AppDbContext context, IPasswordHashService passwordHashService, CancellationToken cancellationToken)
@@ -341,6 +346,94 @@ public static class DbInitializer
         };
 
         await context.PestRecords.AddRangeAsync(records, cancellationToken);
+        await context.SaveChangesAsync(cancellationToken);
+    }
+
+    private static async Task SeedInventoriesAsync(AppDbContext context, CancellationToken cancellationToken)
+    {
+        var seeds = new List<SeedInventory>
+        {
+            new SeedInventory
+            {
+                Id = Guid.Parse("40000000-0000-0000-0000-000000000001"),
+                UserId = Guid.Parse("11111111-1111-1111-1111-111111111111"),
+                Name = "番茄",
+                Variety = "千禧樱桃番茄",
+                Quantity = 50,
+                Unit = "粒",
+                PurchaseDate = DateTime.UtcNow.AddMonths(-2),
+                ExpiryDate = DateTime.UtcNow.AddDays(5),
+                Notes = "春季购买，出芽率高",
+                CreatedAt = DateTime.UtcNow.AddMonths(-2)
+            },
+            new SeedInventory
+            {
+                Id = Guid.Parse("40000000-0000-0000-0000-000000000002"),
+                UserId = Guid.Parse("11111111-1111-1111-1111-111111111111"),
+                Name = "罗勒",
+                Variety = "甜罗勒",
+                Quantity = 100,
+                Unit = "粒",
+                PurchaseDate = DateTime.UtcNow.AddMonths(-3),
+                ExpiryDate = DateTime.UtcNow.AddDays(20),
+                Notes = "香味浓郁，适合配意大利面",
+                CreatedAt = DateTime.UtcNow.AddMonths(-3)
+            },
+            new SeedInventory
+            {
+                Id = Guid.Parse("40000000-0000-0000-0000-000000000003"),
+                UserId = Guid.Parse("11111111-1111-1111-1111-111111111111"),
+                Name = "生菜",
+                Variety = "奶油生菜",
+                Quantity = 200,
+                Unit = "粒",
+                PurchaseDate = DateTime.UtcNow.AddMonths(-1),
+                ExpiryDate = DateTime.UtcNow.AddMonths(5),
+                Notes = "耐寒品种，可四季种植",
+                CreatedAt = DateTime.UtcNow.AddMonths(-1)
+            },
+            new SeedInventory
+            {
+                Id = Guid.Parse("40000000-0000-0000-0000-000000000004"),
+                UserId = Guid.Parse("22222222-2222-2222-2222-222222222222"),
+                Name = "薄荷",
+                Variety = "留兰香薄荷",
+                Quantity = 80,
+                Unit = "粒",
+                PurchaseDate = DateTime.UtcNow.AddMonths(-4),
+                ExpiryDate = DateTime.UtcNow.AddDays(15),
+                Notes = "生命力强，容易繁殖",
+                CreatedAt = DateTime.UtcNow.AddMonths(-4)
+            },
+            new SeedInventory
+            {
+                Id = Guid.Parse("40000000-0000-0000-0000-000000000005"),
+                UserId = Guid.Parse("33333333-3333-3333-3333-333333333333"),
+                Name = "辣椒",
+                Variety = "小米辣",
+                Quantity = 30,
+                Unit = "粒",
+                PurchaseDate = DateTime.UtcNow.AddMonths(-6),
+                ExpiryDate = DateTime.UtcNow.AddDays(-5),
+                Notes = "去年的种子，可能出芽率降低",
+                CreatedAt = DateTime.UtcNow.AddMonths(-6)
+            },
+            new SeedInventory
+            {
+                Id = Guid.Parse("40000000-0000-0000-0000-000000000006"),
+                UserId = Guid.Parse("33333333-3333-3333-3333-333333333333"),
+                Name = "黄瓜",
+                Variety = "水果黄瓜",
+                Quantity = 25,
+                Unit = "粒",
+                PurchaseDate = DateTime.UtcNow.AddMonths(-1),
+                ExpiryDate = DateTime.UtcNow.AddMonths(8),
+                Notes = "新品种，期待试试",
+                CreatedAt = DateTime.UtcNow.AddMonths(-1)
+            }
+        };
+
+        await context.SeedInventories.AddRangeAsync(seeds, cancellationToken);
         await context.SaveChangesAsync(cancellationToken);
     }
 }

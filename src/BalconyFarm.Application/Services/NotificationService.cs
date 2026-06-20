@@ -46,11 +46,13 @@ public class NotificationService : INotificationService
             .Take(query.PageSize)
             .ToList();
 
-        var cropIds = items.Select(n => n.CropCareTaskId).Distinct().ToList();
+        var taskIds = items.Where(n => n.CropCareTaskId.HasValue).Select(n => n.CropCareTaskId.Value).Distinct().ToList();
+        var seedIds = items.Where(n => n.SeedInventoryId.HasValue).Select(n => n.SeedInventoryId.Value).Distinct().ToList();
         var taskDict = new Dictionary<Guid, CropCareTask>();
         var cropDict = new Dictionary<Guid, string>();
+        var seedDict = new Dictionary<Guid, SeedInventory>();
 
-        foreach (var taskId in cropIds)
+        foreach (var taskId in taskIds)
         {
             var task = await _unitOfWork.CropCareTasks.GetByIdAsync(taskId, cancellationToken);
             if (task != null)
@@ -67,10 +69,19 @@ public class NotificationService : INotificationService
             }
         }
 
+        foreach (var seedId in seedIds)
+        {
+            var seed = await _unitOfWork.SeedInventories.GetByIdAsync(seedId, cancellationToken);
+            if (seed != null)
+            {
+                seedDict[seedId] = seed;
+            }
+        }
+
         var dtoItems = items.Select(n =>
         {
             var dto = n.Adapt<NotificationDto>();
-            if (taskDict.TryGetValue(n.CropCareTaskId, out var task))
+            if (n.CropCareTaskId.HasValue && taskDict.TryGetValue(n.CropCareTaskId.Value, out var task))
             {
                 var taskDto = task.Adapt<CropCareTaskDto>();
                 if (cropDict.TryGetValue(task.CropId, out var cropName))
@@ -79,6 +90,10 @@ public class NotificationService : INotificationService
                 }
                 SetOverdueInfo(taskDto);
                 dto.Task = taskDto;
+            }
+            if (n.SeedInventoryId.HasValue && seedDict.TryGetValue(n.SeedInventoryId.Value, out var seed))
+            {
+                dto.SeedInventory = EnrichSeedWithExpiryInfo(seed);
             }
             return dto;
         }).ToList();
@@ -151,80 +166,134 @@ public class NotificationService : INotificationService
 
     public async Task GenerateRemindersAsync(CancellationToken cancellationToken = default)
     {
-        _logger.LogInformation("开始生成养护任务提醒通知");
+        _logger.LogInformation("开始生成提醒通知（养护任务 + 种子临期）");
 
         var today = DateTime.UtcNow.Date;
         var tomorrow = today.AddDays(1);
+        var in7Days = today.AddDays(7);
+        var in30Days = today.AddDays(30);
+
+        var newNotifications = new List<Notification>();
 
         var pendingTasks = (await _unitOfWork.CropCareTasks.FindAsync(
             t => t.Status == TaskStatus.Pending || t.Status == TaskStatus.InProgress,
             cancellationToken)).ToList();
 
-        if (!pendingTasks.Any())
+        if (pendingTasks.Any())
         {
-            _logger.LogInformation("没有待处理的养护任务，跳过提醒生成");
-            return;
-        }
-
-        var cropIds = pendingTasks.Select(t => t.CropId).Distinct().ToList();
-        var cropDict = new Dictionary<Guid, Crop>();
-        foreach (var cropId in cropIds)
-        {
-            var crop = await _unitOfWork.Crops.GetByIdAsync(cropId, cancellationToken);
-            if (crop != null)
+            var cropIds = pendingTasks.Select(t => t.CropId).Distinct().ToList();
+            var cropDict = new Dictionary<Guid, Crop>();
+            foreach (var cropId in cropIds)
             {
-                cropDict[cropId] = crop;
+                var crop = await _unitOfWork.Crops.GetByIdAsync(cropId, cancellationToken);
+                if (crop != null)
+                {
+                    cropDict[cropId] = crop;
+                }
+            }
+
+            var existingNotifications = (await _unitOfWork.Notifications.GetAllAsync(cancellationToken)).ToList();
+
+            var dayBeforeExists = existingNotifications
+                .Where(n => n.NotificationType == NotificationType.DayBeforeReminder)
+                .Select(n => n.CropCareTaskId)
+                .ToHashSet();
+
+            var sameDayExists = existingNotifications
+                .Where(n => n.NotificationType == NotificationType.SameDayReminder)
+                .Select(n => n.CropCareTaskId)
+                .ToHashSet();
+
+            foreach (var task in pendingTasks)
+            {
+                if (!cropDict.TryGetValue(task.CropId, out var crop))
+                {
+                    continue;
+                }
+
+                var scheduledDate = task.ScheduledDate.Date;
+                var taskTypeName = GetTaskTypeName(task.TaskType);
+
+                if (scheduledDate == tomorrow && !dayBeforeExists.Contains(task.Id))
+                {
+                    newNotifications.Add(new Notification
+                    {
+                        Id = Guid.NewGuid(),
+                        UserId = crop.UserId,
+                        CropCareTaskId = task.Id,
+                        Title = $"明日养护提醒：{crop.Name}",
+                        Message = $"明天（{tomorrow:yyyy-MM-dd}）需要为「{crop.Name}」执行{taskTypeName}任务，请提前准备。",
+                        NotificationType = NotificationType.DayBeforeReminder,
+                        IsRead = false
+                    });
+                }
+
+                if (scheduledDate == today && !sameDayExists.Contains(task.Id))
+                {
+                    newNotifications.Add(new Notification
+                    {
+                        Id = Guid.NewGuid(),
+                        UserId = crop.UserId,
+                        CropCareTaskId = task.Id,
+                        Title = $"今日养护提醒：{crop.Name}",
+                        Message = $"今天（{today:yyyy-MM-dd}）需要为「{crop.Name}」执行{taskTypeName}任务，请尽快完成。",
+                        NotificationType = NotificationType.SameDayReminder,
+                        IsRead = false
+                    });
+                }
             }
         }
 
-        var existingNotifications = (await _unitOfWork.Notifications.GetAllAsync(cancellationToken)).ToList();
+        var existingSeedNotifications = (await _unitOfWork.Notifications.FindAsync(
+            n => n.NotificationType == NotificationType.SeedExpiryReminder,
+            cancellationToken)).ToList();
 
-        var dayBeforeExists = existingNotifications
-            .Where(n => n.NotificationType == NotificationType.DayBeforeReminder)
-            .Select(n => n.CropCareTaskId)
+        var seedExpiry7DaysExists = existingSeedNotifications
+            .Where(n => n.CreatedAt.Date >= today.AddDays(-7))
+            .Select(n => n.SeedInventoryId)
             .ToHashSet();
 
-        var sameDayExists = existingNotifications
-            .Where(n => n.NotificationType == NotificationType.SameDayReminder)
-            .Select(n => n.CropCareTaskId)
+        var seedExpiry30DaysExists = existingSeedNotifications
+            .Where(n => n.CreatedAt.Date >= today.AddDays(-30) && n.CreatedAt.Date < today.AddDays(-7))
+            .Select(n => n.SeedInventoryId)
             .ToHashSet();
 
-        var newNotifications = new List<Notification>();
+        var seeds = (await _unitOfWork.SeedInventories.FindAsync(
+            s => s.Quantity > 0,
+            cancellationToken)).ToList();
 
-        foreach (var task in pendingTasks)
+        foreach (var seed in seeds)
         {
-            if (!cropDict.TryGetValue(task.CropId, out var crop))
+            var daysToExpiry = (int)(seed.ExpiryDate.Date - today).TotalDays;
+
+            if (daysToExpiry < 0)
             {
                 continue;
             }
 
-            var scheduledDate = task.ScheduledDate.Date;
-            var taskTypeName = GetTaskTypeName(task.TaskType);
-
-            if (scheduledDate == tomorrow && !dayBeforeExists.Contains(task.Id))
+            if (daysToExpiry <= 7 && !seedExpiry7DaysExists.Contains(seed.Id))
             {
                 newNotifications.Add(new Notification
                 {
                     Id = Guid.NewGuid(),
-                    UserId = crop.UserId,
-                    CropCareTaskId = task.Id,
-                    Title = $"明日养护提醒：{crop.Name}",
-                    Message = $"明天（{tomorrow:yyyy-MM-dd}）需要为「{crop.Name}」执行{taskTypeName}任务，请提前准备。",
-                    NotificationType = NotificationType.DayBeforeReminder,
+                    UserId = seed.UserId,
+                    SeedInventoryId = seed.Id,
+                    Title = $"种子即将过期：{seed.Name}",
+                    Message = $"「{seed.Name}（{seed.Variety}）」还有 {daysToExpiry} 天过期，剩余 {seed.Quantity} {seed.Unit}，请优先使用！",
+                    NotificationType = NotificationType.SeedExpiryReminder,
                     IsRead = false
                 });
             }
-
-            if (scheduledDate == today && !sameDayExists.Contains(task.Id))
+            else if (daysToExpiry <= 30 && !seedExpiry30DaysExists.Contains(seed.Id) && !seedExpiry7DaysExists.Contains(seed.Id))
             {
                 newNotifications.Add(new Notification
                 {
                     Id = Guid.NewGuid(),
-                    UserId = crop.UserId,
-                    CropCareTaskId = task.Id,
-                    Title = $"今日养护提醒：{crop.Name}",
-                    Message = $"今天（{today:yyyy-MM-dd}）需要为「{crop.Name}」执行{taskTypeName}任务，请尽快完成。",
-                    NotificationType = NotificationType.SameDayReminder,
+                    UserId = seed.UserId,
+                    SeedInventoryId = seed.Id,
+                    Title = $"种子临期提醒：{seed.Name}",
+                    Message = $"「{seed.Name}（{seed.Variety}）」还有 {daysToExpiry} 天过期，剩余 {seed.Quantity} {seed.Unit}，建议提前规划使用。",
+                    NotificationType = NotificationType.SeedExpiryReminder,
                     IsRead = false
                 });
             }
@@ -268,5 +337,18 @@ public class NotificationService : INotificationService
             dto.IsOverdue = false;
             dto.OverdueDays = null;
         }
+    }
+
+    private static SeedInventoryDto EnrichSeedWithExpiryInfo(SeedInventory seed)
+    {
+        var dto = seed.Adapt<SeedInventoryDto>();
+        var today = DateTime.UtcNow.Date;
+        var daysToExpiry = (int)(seed.ExpiryDate.Date - today).TotalDays;
+
+        dto.DaysToExpiry = daysToExpiry;
+        dto.IsExpired = daysToExpiry < 0;
+        dto.IsExpiringSoon = daysToExpiry >= 0 && daysToExpiry <= 30;
+
+        return dto;
     }
 }

@@ -5,6 +5,7 @@ $newCropId = ""
 $newTaskId = ""
 $newHarvestId = ""
 $newPestId = ""
+$newSeedId = ""
 
 function Write-Result {
     param($testName, $response, $expectedCode = 200)
@@ -328,22 +329,90 @@ if ($result -and $result.code -eq 0) {
 }
 Write-Host ""
 
+Write-Host "--- 🌱 种子库存管理模块 ---" -ForegroundColor Yellow
+Write-Host ""
+
+# 28. 创建种子库存
+$createSeedBody = @{
+    name = "黄瓜"
+    variety = "水果黄瓜"
+    quantity = 30
+    unit = "粒"
+    purchaseDate = "2026-05-01"
+    expiryDate = "2027-05-01"
+    notes = "春季购买"
+}
+$response = Invoke-Api "POST" "/api/seedinventories" $createSeedBody
+$result = Write-Result "28. 创建种子库存" $response 201
+if ($result -and $result.code -eq 0) {
+    $newSeedId = $result.data.id
+    Write-Host "   种子ID: $newSeedId" -ForegroundColor Gray
+}
+Write-Host ""
+
+# 29. 获取种子库存列表
+$response = Invoke-Api "GET" "/api/seedinventories?pageNumber=1&pageSize=10"
+$result = Write-Result "29. 获取种子库存列表" $response 200
+if ($result -and $result.code -eq 0) {
+    Write-Host "   总数: $($result.data.totalCount)" -ForegroundColor Gray
+}
+Write-Host ""
+
+# 30. 获取种子库存详情
+$response = Invoke-Api "GET" "/api/seedinventories/$newSeedId"
+$result = Write-Result "30. 获取种子库存详情" $response 200
+Write-Host ""
+
+# 31. 更新种子库存信息
+$updateSeedBody = @{
+    quantity = 40
+    notes = "春季购买，更新"
+}
+$response = Invoke-Api "PUT" "/api/seedinventories/$newSeedId" $updateSeedBody
+$result = Write-Result "31. 更新种子库存信息" $response 200
+Write-Host ""
+
+# 32. 使用种子（扣减库存）
+$useSeedBody = @{
+    quantity = 5
+    note = "播种测试"
+}
+$response = Invoke-Api "PATCH" "/api/seedinventories/$newSeedId/use" $useSeedBody
+$result = Write-Result "32. 使用种子（扣减库存）" $response 200
+if ($result -and $result.code -eq 0) {
+    Write-Host "   剩余数量: $($result.data.quantity)" -ForegroundColor Gray
+}
+Write-Host ""
+
+# 33. 获取临期种子列表
+$response = Invoke-Api "GET" "/api/seedinventories/expiring?daysThreshold=30"
+$result = Write-Result "33. 获取临期种子列表" $response 200
+if ($result -and $result.code -eq 0) {
+    Write-Host "   临期种子数: $($result.data.totalCount)" -ForegroundColor Gray
+}
+Write-Host ""
+
 Write-Host "--- 🧹 数据清理 ---" -ForegroundColor Yellow
 Write-Host ""
 
-# 28. 删除病虫害记录
+# 34. 删除种子库存
+$response = Invoke-Api "DELETE" "/api/seedinventories/$newSeedId"
+$result = Write-Result "34. 删除种子库存" $response 200
+Write-Host ""
+
+# 35. 删除病虫害记录
 $response = Invoke-Api "DELETE" "/api/pestrecords/$newPestId"
-$result = Write-Result "28. 删除病虫害记录" $response 200
+$result = Write-Result "35. 删除病虫害记录" $response 200
 Write-Host ""
 
-# 29. 删除收成记录
+# 36. 删除收成记录
 $response = Invoke-Api "DELETE" "/api/harvestrecords/$newHarvestId"
-$result = Write-Result "29. 删除收成记录" $response 200
+$result = Write-Result "36. 删除收成记录" $response 200
 Write-Host ""
 
-# 30. 删除作物
+# 37. 删除作物
 $response = Invoke-Api "DELETE" "/api/crops/$newCropId"
-$result = Write-Result "30. 删除作物" $response 200
+$result = Write-Result "37. 删除作物" $response 200
 Write-Host ""
 
 Write-Host "========================================" -ForegroundColor Cyan

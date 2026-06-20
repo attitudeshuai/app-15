@@ -9,6 +9,7 @@ set NEW_CROP_ID=
 set NEW_TASK_ID=
 set NEW_HARVEST_ID=
 set NEW_PEST_ID=
+set NEW_SEED_ID=
 
 echo ========================================
 echo   阳台种菜助手 API 接口测试
@@ -358,7 +359,7 @@ if !errorlevel! equ 0 (
 )
 echo.
 
-echo [27/30] 获取趋势统计（30天）...
+echo [27/37] 获取趋势统计（30天）...
 for /f "delims=" %%i in ('curl.exe -s -X GET "%BASE_URL%/api/stats/trend?days=30" -H "Authorization: Bearer !TOKEN!"') do set RESPONSE=%%i
 echo !RESPONSE! | findstr "\"code\":0" >nul
 if !errorlevel! equ 0 (
@@ -369,11 +370,103 @@ if !errorlevel! equ 0 (
 )
 echo.
 
+echo --- 🌱 种子库存管理模块 ---
+echo.
+
+echo [28/37] 创建种子库存...
+for /f "delims=" %%i in ('curl.exe -s -X POST "%BASE_URL%/api/seedinventories" -H "Content-Type: application/json" -H "Authorization: Bearer !TOKEN!" -d "{\"name\":\"黄瓜\",\"variety\":\"水果黄瓜\",\"quantity\":30,\"unit\":\"粒\",\"purchaseDate\":\"2026-05-01\",\"expiryDate\":\"2027-05-01\",\"notes\":\"春季购买\"}"') do set RESPONSE=%%i
+echo !RESPONSE! | findstr "\"code\":0" >nul
+if !errorlevel! equ 0 (
+    echo ✅ 创建种子库存 - 成功 (201)
+    for /f "tokens=2 delims=:{}, " %%a in ('echo !RESPONSE! ^| findstr /r "\"id\":\"[0-9a-fA-F-]*\""') do (
+        if "!NEW_SEED_ID!"=="" set "NEW_SEED_ID=%%~a"
+    )
+    echo    种子ID: !NEW_SEED_ID!
+) else (
+    echo ❌ 创建种子库存 - 失败
+    echo    响应: !RESPONSE!
+)
+echo.
+
+echo [29/37] 获取种子库存列表...
+for /f "delims=" %%i in ('curl.exe -s -X GET "%BASE_URL%/api/seedinventories?pageNumber=1^&pageSize=10" -H "Authorization: Bearer !TOKEN!"') do set RESPONSE=%%i
+echo !RESPONSE! | findstr "\"code\":0" >nul
+if !errorlevel! equ 0 (
+    echo ✅ 获取种子库存列表 - 成功
+) else (
+    echo ❌ 获取种子库存列表 - 失败
+    echo    响应: !RESPONSE!
+)
+echo.
+
+if not "!NEW_SEED_ID!"=="" (
+echo [30/37] 获取种子库存详情...
+for /f "delims=" %%i in ('curl.exe -s -X GET "%BASE_URL%/api/seedinventories/!NEW_SEED_ID!" -H "Authorization: Bearer !TOKEN!"') do set RESPONSE=%%i
+echo !RESPONSE! | findstr "\"code\":0" >nul
+if !errorlevel! equ 0 (
+    echo ✅ 获取种子库存详情 - 成功
+) else (
+    echo ❌ 获取种子库存详情 - 失败
+    echo    响应: !RESPONSE!
+)
+echo.
+)
+
+if not "!NEW_SEED_ID!"=="" (
+echo [31/37] 更新种子库存信息...
+for /f "delims=" %%i in ('curl.exe -s -X PUT "%BASE_URL%/api/seedinventories/!NEW_SEED_ID!" -H "Content-Type: application/json" -H "Authorization: Bearer !TOKEN!" -d "{\"quantity\":40,\"notes\":\"春季购买，更新\"}"') do set RESPONSE=%%i
+echo !RESPONSE! | findstr "\"code\":0" >nul
+if !errorlevel! equ 0 (
+    echo ✅ 更新种子库存信息 - 成功
+) else (
+    echo ❌ 更新种子库存信息 - 失败
+    echo    响应: !RESPONSE!
+)
+echo.
+)
+
+if not "!NEW_SEED_ID!"=="" (
+echo [32/37] 使用种子（扣减库存）...
+for /f "delims=" %%i in ('curl.exe -s -X PATCH "%BASE_URL%/api/seedinventories/!NEW_SEED_ID!/use" -H "Content-Type: application/json" -H "Authorization: Bearer !TOKEN!" -d "{\"quantity\":5,\"note\":\"播种测试\"}"') do set RESPONSE=%%i
+echo !RESPONSE! | findstr "\"code\":0" >nul
+if !errorlevel! equ 0 (
+    echo ✅ 使用种子 - 成功
+) else (
+    echo ❌ 使用种子 - 失败
+    echo    响应: !RESPONSE!
+)
+echo.
+)
+
+echo [33/37] 获取临期种子列表...
+for /f "delims=" %%i in ('curl.exe -s -X GET "%BASE_URL%/api/seedinventories/expiring?daysThreshold=30" -H "Authorization: Bearer !TOKEN!"') do set RESPONSE=%%i
+echo !RESPONSE! | findstr "\"code\":0" >nul
+if !errorlevel! equ 0 (
+    echo ✅ 获取临期种子列表 - 成功
+) else (
+    echo ❌ 获取临期种子列表 - 失败
+    echo    响应: !RESPONSE!
+)
+echo.
+
 echo --- 🧹 数据清理 ---
 echo.
 
+if not "!NEW_SEED_ID!"=="" (
+echo [34/37] 删除种子库存...
+for /f "delims=" %%i in ('curl.exe -s -X DELETE "%BASE_URL%/api/seedinventories/!NEW_SEED_ID!" -H "Authorization: Bearer !TOKEN!"') do set RESPONSE=%%i
+echo !RESPONSE! | findstr "\"code\":0" >nul
+if !errorlevel! equ 0 (
+    echo ✅ 删除种子库存 - 成功
+) else (
+    echo ❌ 删除种子库存 - 失败
+    echo    响应: !RESPONSE!
+)
+echo.
+)
+
 if not "!NEW_PEST_ID!"=="" (
-echo [28/30] 删除病虫害记录...
+echo [35/37] 删除病虫害记录...
 for /f "delims=" %%i in ('curl.exe -s -X DELETE "%BASE_URL%/api/pestrecords/!NEW_PEST_ID!" -H "Authorization: Bearer !TOKEN!"') do set RESPONSE=%%i
 echo !RESPONSE! | findstr "\"code\":0" >nul
 if !errorlevel! equ 0 (
@@ -386,7 +479,7 @@ echo.
 )
 
 if not "!NEW_HARVEST_ID!"=="" (
-echo [29/30] 删除收成记录...
+echo [36/37] 删除收成记录...
 for /f "delims=" %%i in ('curl.exe -s -X DELETE "%BASE_URL%/api/harvestrecords/!NEW_HARVEST_ID!" -H "Authorization: Bearer !TOKEN!"') do set RESPONSE=%%i
 echo !RESPONSE! | findstr "\"code\":0" >nul
 if !errorlevel! equ 0 (
@@ -399,7 +492,7 @@ echo.
 )
 
 if not "!NEW_CROP_ID!"=="" (
-echo [30/30] 删除作物...
+echo [37/37] 删除作物...
 for /f "delims=" %%i in ('curl.exe -s -X DELETE "%BASE_URL%/api/crops/!NEW_CROP_ID!" -H "Authorization: Bearer !TOKEN!"') do set RESPONSE=%%i
 echo !RESPONSE! | findstr "\"code\":0" >nul
 if !errorlevel! equ 0 (

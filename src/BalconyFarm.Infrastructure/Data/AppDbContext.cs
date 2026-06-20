@@ -20,6 +20,7 @@ public class AppDbContext : DbContext
     public DbSet<CommunityReply> Replies => Set<CommunityReply>();
     public DbSet<CommunityTag> Tags => Set<CommunityTag>();
     public DbSet<CropPhoto> CropPhotos => Set<CropPhoto>();
+    public DbSet<SeedInventory> SeedInventories => Set<SeedInventory>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -137,7 +138,6 @@ public class AppDbContext : DbContext
         {
             entity.HasKey(n => n.Id);
             entity.Property(n => n.UserId).IsRequired();
-            entity.Property(n => n.CropCareTaskId).IsRequired();
             entity.Property(n => n.Title).IsRequired().HasMaxLength(200);
             entity.Property(n => n.Message).IsRequired().HasMaxLength(1000);
             entity.Property(n => n.NotificationType).IsRequired();
@@ -146,7 +146,8 @@ public class AppDbContext : DbContext
 
             entity.HasIndex(n => n.UserId);
             entity.HasIndex(n => new { n.UserId, n.IsRead });
-            entity.HasIndex(n => new { n.CropCareTaskId, n.NotificationType }).IsUnique();
+            entity.HasIndex(n => n.CropCareTaskId);
+            entity.HasIndex(n => n.SeedInventoryId);
 
             entity.HasOne(n => n.User)
                   .WithMany()
@@ -156,6 +157,34 @@ public class AppDbContext : DbContext
             entity.HasOne(n => n.CropCareTask)
                   .WithMany()
                   .HasForeignKey(n => n.CropCareTaskId)
+                  .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasOne(n => n.SeedInventory)
+                  .WithMany()
+                  .HasForeignKey(n => n.SeedInventoryId)
+                  .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<SeedInventory>(entity =>
+        {
+            entity.HasKey(s => s.Id);
+            entity.Property(s => s.UserId).IsRequired();
+            entity.Property(s => s.Name).IsRequired().HasMaxLength(100);
+            entity.Property(s => s.Variety).IsRequired().HasMaxLength(100);
+            entity.Property(s => s.Quantity).IsRequired();
+            entity.Property(s => s.Unit).IsRequired().HasMaxLength(50);
+            entity.Property(s => s.PurchaseDate).IsRequired();
+            entity.Property(s => s.ExpiryDate).IsRequired();
+            entity.Property(s => s.Notes).HasMaxLength(1000);
+            entity.Property(s => s.CreatedAt).HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            entity.HasIndex(s => s.UserId);
+            entity.HasIndex(s => s.ExpiryDate);
+            entity.HasIndex(s => new { s.UserId, s.ExpiryDate });
+
+            entity.HasOne(s => s.User)
+                  .WithMany(u => u.SeedInventories)
+                  .HasForeignKey(s => s.UserId)
                   .OnDelete(DeleteBehavior.Cascade);
         });
 
