@@ -34,6 +34,16 @@ public class GlobalSearchService : IGlobalSearchService
         var userCropIdNameMap = await GetUserCropIdNameMapAsync(userId, cancellationToken);
         var userCropIds = userCropIdNameMap.Keys.ToHashSet();
 
+        HashSet<Guid>? keywordMatchedCropIds = null;
+        if (!string.IsNullOrEmpty(query.SearchKeyword))
+        {
+            var keyword = query.SearchKeyword;
+            keywordMatchedCropIds = new HashSet<Guid>(
+                userCropIdNameMap.Where(kv => kv.Value.Contains(keyword))
+                    .Select(kv => kv.Key)
+            );
+        }
+
         var allResults = new List<GlobalSearchResultItemDto>();
         var countByType = new Dictionary<SearchResultType, int>();
 
@@ -46,21 +56,21 @@ public class GlobalSearchService : IGlobalSearchService
 
         if (searchTypes.Contains(SearchResultType.CropCareTask))
         {
-            var tasks = await SearchCropCareTasksAsync(query, userCropIds, userCropIdNameMap, cancellationToken);
+            var tasks = await SearchCropCareTasksAsync(query, userCropIds, keywordMatchedCropIds, userCropIdNameMap, cancellationToken);
             countByType[SearchResultType.CropCareTask] = tasks.Count;
             allResults.AddRange(tasks);
         }
 
         if (searchTypes.Contains(SearchResultType.PestRecord))
         {
-            var pests = await SearchPestRecordsAsync(query, userCropIds, userCropIdNameMap, cancellationToken);
+            var pests = await SearchPestRecordsAsync(query, userCropIds, keywordMatchedCropIds, userCropIdNameMap, cancellationToken);
             countByType[SearchResultType.PestRecord] = pests.Count;
             allResults.AddRange(pests);
         }
 
         if (searchTypes.Contains(SearchResultType.HarvestRecord))
         {
-            var harvests = await SearchHarvestRecordsAsync(query, userCropIds, userCropIdNameMap, cancellationToken);
+            var harvests = await SearchHarvestRecordsAsync(query, userCropIds, keywordMatchedCropIds, userCropIdNameMap, cancellationToken);
             countByType[SearchResultType.HarvestRecord] = harvests.Count;
             allResults.AddRange(harvests);
         }
@@ -155,10 +165,28 @@ public class GlobalSearchService : IGlobalSearchService
     private async Task<List<GlobalSearchResultItemDto>> SearchCropCareTasksAsync(
         GlobalSearchRequestDto query,
         HashSet<Guid> userCropIds,
+        HashSet<Guid>? keywordMatchedCropIds,
         Dictionary<Guid, string> cropIdNameMap,
         CancellationToken cancellationToken)
     {
         Expression<Func<CropCareTask, bool>> predicate = t => userCropIds.Contains(t.CropId);
+
+        if (!string.IsNullOrEmpty(query.SearchKeyword))
+        {
+            var keyword = query.SearchKeyword;
+            var hasKeywordMatchedCrops = keywordMatchedCropIds != null && keywordMatchedCropIds.Count > 0;
+
+            if (hasKeywordMatchedCrops)
+            {
+                predicate = predicate.And(t =>
+                    (t.Note != null && t.Note.Contains(keyword)) ||
+                    keywordMatchedCropIds!.Contains(t.CropId));
+            }
+            else
+            {
+                predicate = predicate.And(t => t.Note != null && t.Note.Contains(keyword));
+            }
+        }
 
         if (query.TaskType.HasValue)
         {
@@ -187,18 +215,8 @@ public class GlobalSearchService : IGlobalSearchService
         }
 
         var tasks = await _unitOfWork.CropCareTasks.FindAsync(predicate, cancellationToken);
-        var taskList = tasks.ToList();
 
-        if (!string.IsNullOrEmpty(query.SearchKeyword))
-        {
-            var keyword = query.SearchKeyword;
-            taskList = taskList.Where(t =>
-                (t.Note != null && t.Note.Contains(keyword)) ||
-                (cropIdNameMap.TryGetValue(t.CropId, out var cropName) && cropName.Contains(keyword))
-            ).ToList();
-        }
-
-        return taskList.Select(t =>
+        return tasks.Select(t =>
         {
             cropIdNameMap.TryGetValue(t.CropId, out var cropName);
             cropName ??= "未知作物";
@@ -226,6 +244,7 @@ public class GlobalSearchService : IGlobalSearchService
     private async Task<List<GlobalSearchResultItemDto>> SearchPestRecordsAsync(
         GlobalSearchRequestDto query,
         HashSet<Guid> userCropIds,
+        HashSet<Guid>? keywordMatchedCropIds,
         Dictionary<Guid, string> cropIdNameMap,
         CancellationToken cancellationToken)
     {
@@ -234,10 +253,23 @@ public class GlobalSearchService : IGlobalSearchService
         if (!string.IsNullOrEmpty(query.SearchKeyword))
         {
             var keyword = query.SearchKeyword;
-            predicate = predicate.And(p =>
-                p.IssueType.Contains(keyword) ||
-                p.Symptoms.Contains(keyword) ||
-                p.Treatment.Contains(keyword));
+            var hasKeywordMatchedCrops = keywordMatchedCropIds != null && keywordMatchedCropIds.Count > 0;
+
+            if (hasKeywordMatchedCrops)
+            {
+                predicate = predicate.And(p =>
+                    p.IssueType.Contains(keyword) ||
+                    p.Symptoms.Contains(keyword) ||
+                    p.Treatment.Contains(keyword) ||
+                    keywordMatchedCropIds!.Contains(p.CropId));
+            }
+            else
+            {
+                predicate = predicate.And(p =>
+                    p.IssueType.Contains(keyword) ||
+                    p.Symptoms.Contains(keyword) ||
+                    p.Treatment.Contains(keyword));
+            }
         }
 
         if (query.PestStatus.HasValue)
@@ -261,20 +293,8 @@ public class GlobalSearchService : IGlobalSearchService
         }
 
         var pests = await _unitOfWork.PestRecords.FindAsync(predicate, cancellationToken);
-        var pestList = pests.ToList();
 
-        if (!string.IsNullOrEmpty(query.SearchKeyword))
-        {
-            var keyword = query.SearchKeyword;
-            pestList = pestList.Where(p =>
-                p.IssueType.Contains(keyword) ||
-                p.Symptoms.Contains(keyword) ||
-                p.Treatment.Contains(keyword) ||
-                (cropIdNameMap.TryGetValue(p.CropId, out var cropName) && cropName.Contains(keyword))
-            ).ToList();
-        }
-
-        return pestList.Select(p =>
+        return pests.Select(p =>
         {
             cropIdNameMap.TryGetValue(p.CropId, out var cropName);
             cropName ??= "未知作物";
@@ -303,10 +323,31 @@ public class GlobalSearchService : IGlobalSearchService
     private async Task<List<GlobalSearchResultItemDto>> SearchHarvestRecordsAsync(
         GlobalSearchRequestDto query,
         HashSet<Guid> userCropIds,
+        HashSet<Guid>? keywordMatchedCropIds,
         Dictionary<Guid, string> cropIdNameMap,
         CancellationToken cancellationToken)
     {
         Expression<Func<HarvestRecord, bool>> predicate = h => userCropIds.Contains(h.CropId);
+
+        if (!string.IsNullOrEmpty(query.SearchKeyword))
+        {
+            var keyword = query.SearchKeyword;
+            var hasKeywordMatchedCrops = keywordMatchedCropIds != null && keywordMatchedCropIds.Count > 0;
+
+            if (hasKeywordMatchedCrops)
+            {
+                predicate = predicate.And(h =>
+                    h.Unit.Contains(keyword) ||
+                    (h.QualityNote != null && h.QualityNote.Contains(keyword)) ||
+                    keywordMatchedCropIds!.Contains(h.CropId));
+            }
+            else
+            {
+                predicate = predicate.And(h =>
+                    h.Unit.Contains(keyword) ||
+                    (h.QualityNote != null && h.QualityNote.Contains(keyword)));
+            }
+        }
 
         if (query.DateFrom.HasValue)
         {
@@ -321,19 +362,8 @@ public class GlobalSearchService : IGlobalSearchService
         }
 
         var harvests = await _unitOfWork.HarvestRecords.FindAsync(predicate, cancellationToken);
-        var harvestList = harvests.ToList();
 
-        if (!string.IsNullOrEmpty(query.SearchKeyword))
-        {
-            var keyword = query.SearchKeyword;
-            harvestList = harvestList.Where(h =>
-                h.Unit.Contains(keyword) ||
-                (h.QualityNote != null && h.QualityNote.Contains(keyword)) ||
-                (cropIdNameMap.TryGetValue(h.CropId, out var cropName) && cropName.Contains(keyword))
-            ).ToList();
-        }
-
-        return harvestList.Select(h =>
+        return harvests.Select(h =>
         {
             cropIdNameMap.TryGetValue(h.CropId, out var cropName);
             cropName ??= "未知作物";
