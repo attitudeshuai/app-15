@@ -129,6 +129,24 @@ public class CropCareTasksController : ControllerBase
         return Ok(result);
     }
 
+    [HttpPatch("batch/status")]
+    [Authorize]
+    public async Task<ActionResult<ApiResponse<BatchUpdateTaskStatusResultDto>>> BatchUpdateTaskStatus([FromBody] BatchUpdateTaskStatusRequestDto dto, CancellationToken cancellationToken)
+    {
+        var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (userIdClaim == null || !Guid.TryParse(userIdClaim, out var userId))
+        {
+            return Unauthorized(ApiResponse.Error("用户未认证", 401));
+        }
+
+        var result = await _cropCareTaskService.BatchUpdateTaskStatusAsync(dto, userId, cancellationToken);
+        if (result.Code != 200)
+        {
+            return BadRequest(result);
+        }
+        return Ok(result);
+    }
+
     [HttpPost("preview")]
     [Authorize]
     public async Task<ActionResult<ApiResponse<GenerateCareTasksResultDto>>> PreviewCareTasks([FromBody] GenerateCareTasksRequestDto dto, CancellationToken cancellationToken)

@@ -273,6 +273,77 @@ public class CropCareTaskService : ICropCareTaskService
         return ApiResponse<CropCareTaskDto>.Success(taskDto, "状态更新成功");
     }
 
+    public async Task<ApiResponse<BatchUpdateTaskStatusResultDto>> BatchUpdateTaskStatusAsync(BatchUpdateTaskStatusRequestDto dto, Guid userId, CancellationToken cancellationToken = default)
+    {
+        _logger.LogInformation("批量更新任务状态: TaskCount={TaskCount}, 状态: {Status}, 用户: {UserId}", dto.TaskIds.Count, dto.Status, userId);
+
+        var result = new BatchUpdateTaskStatusResultDto
+        {
+            TotalCount = dto.TaskIds.Count
+        };
+
+        var uniqueTaskIds = dto.TaskIds.Distinct().ToList();
+        var cropIdsToCheck = new HashSet<Guid>();
+
+        foreach (var taskId in uniqueTaskIds)
+        {
+            try
+            {
+                var task = await _unitOfWork.CropCareTasks.GetByIdAsync(taskId, cancellationToken);
+                if (task == null)
+                {
+                    result.Failures.Add(new BatchTaskFailureDto { TaskId = taskId, ErrorMessage = "任务不存在" });
+                    result.FailedCount++;
+                    continue;
+                }
+
+                var crop = await _unitOfWork.Crops.GetByIdAsync(task.CropId, cancellationToken);
+                if (crop == null || crop.UserId != userId)
+                {
+                    result.Failures.Add(new BatchTaskFailureDto { TaskId = taskId, ErrorMessage = "无权修改此任务" });
+                    result.FailedCount++;
+                    continue;
+                }
+
+                task.Status = dto.Status;
+                if (dto.Status == TaskStatus.Completed)
+                {
+                    task.CompletedDate = DateTime.UtcNow;
+                }
+
+                await _unitOfWork.CropCareTasks.UpdateAsync(task, cancellationToken);
+                cropIdsToCheck.Add(task.CropId);
+
+                var taskDto = task.Adapt<CropCareTaskDto>();
+                taskDto.CropName = crop.Name;
+                SetOverdueInfo(taskDto);
+                result.UpdatedTasks.Add(taskDto);
+                result.SuccessCount++;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "批量更新任务状态失败: TaskId={TaskId}", taskId);
+                result.Failures.Add(new BatchTaskFailureDto { TaskId = taskId, ErrorMessage = $"更新失败: {ex.Message}" });
+                result.FailedCount++;
+            }
+        }
+
+        foreach (var cropId in cropIdsToCheck)
+        {
+            await CheckAndUpdateCropFinishedStatusAsync(cropId, cancellationToken);
+        }
+
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+        _logger.LogInformation("批量更新任务状态完成: 成功={SuccessCount}, 失败={FailedCount}", result.SuccessCount, result.FailedCount);
+
+        var message = result.FailedCount == 0
+            ? $"成功更新 {result.SuccessCount} 个任务"
+            : $"成功更新 {result.SuccessCount} 个任务，失败 {result.FailedCount} 个任务";
+
+        return ApiResponse<BatchUpdateTaskStatusResultDto>.Success(result, message);
+    }
+
     private async Task CheckAndUpdateCropFinishedStatusAsync(Guid cropId, CancellationToken cancellationToken)
     {
         var allTasks = await _unitOfWork.CropCareTasks.FindAsync(t => t.CropId == cropId, cancellationToken);

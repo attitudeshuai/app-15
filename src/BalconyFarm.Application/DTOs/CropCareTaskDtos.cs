@@ -76,3 +76,24 @@ public class GenerateCareTasksResultDto
     public List<RecommendedTaskDto> RecommendedTasks { get; set; } = new();
     public List<CropCareTaskDto> CreatedTasks { get; set; } = new();
 }
+
+public class BatchUpdateTaskStatusRequestDto
+{
+    public List<Guid> TaskIds { get; set; } = new();
+    public Domain.Enums.TaskStatus Status { get; set; }
+}
+
+public class BatchUpdateTaskStatusResultDto
+{
+    public int TotalCount { get; set; }
+    public int SuccessCount { get; set; }
+    public int FailedCount { get; set; }
+    public List<CropCareTaskDto> UpdatedTasks { get; set; } = new();
+    public List<BatchTaskFailureDto> Failures { get; set; } = new();
+}
+
+public class BatchTaskFailureDto
+{
+    public Guid TaskId { get; set; }
+    public string ErrorMessage { get; set; } = string.Empty;
+}

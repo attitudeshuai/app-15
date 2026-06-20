@@ -39,3 +39,25 @@ public class UpdateCropCareTaskRequestDtoValidator : AbstractValidator<UpdateCro
             .WithMessage("备注长度不能超过1000个字符");
     }
 }
+
+public class UpdateTaskStatusRequestDtoValidator : AbstractValidator<UpdateTaskStatusRequestDto>
+{
+    public UpdateTaskStatusRequestDtoValidator()
+    {
+        RuleFor(x => x.Status)
+            .IsInEnum().WithMessage("任务状态无效");
+    }
+}
+
+public class BatchUpdateTaskStatusRequestDtoValidator : AbstractValidator<BatchUpdateTaskStatusRequestDto>
+{
+    public BatchUpdateTaskStatusRequestDtoValidator()
+    {
+        RuleFor(x => x.TaskIds)
+            .NotEmpty().WithMessage("任务ID列表不能为空")
+            .Must(x => x.Count <= 100).WithMessage("单次批量操作最多支持100个任务");
+
+        RuleFor(x => x.Status)
+            .IsInEnum().WithMessage("任务状态无效");
+    }
+}

@@ -11,4 +11,5 @@ public interface ICropCareTaskService
     Task<ApiResponse<CropCareTaskDto>> UpdateCropCareTaskAsync(Guid id, UpdateCropCareTaskRequestDto dto, Guid userId, CancellationToken cancellationToken = default);
     Task<ApiResponse> DeleteCropCareTaskAsync(Guid id, Guid userId, CancellationToken cancellationToken = default);
     Task<ApiResponse<CropCareTaskDto>> UpdateTaskStatusAsync(Guid id, UpdateTaskStatusRequestDto dto, Guid userId, CancellationToken cancellationToken = default);
+    Task<ApiResponse<BatchUpdateTaskStatusResultDto>> BatchUpdateTaskStatusAsync(BatchUpdateTaskStatusRequestDto dto, Guid userId, CancellationToken cancellationToken = default);
 }
