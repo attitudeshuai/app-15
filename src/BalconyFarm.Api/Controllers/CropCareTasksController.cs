@@ -14,11 +14,19 @@ public class CropCareTasksController : ControllerBase
 {
     private readonly ICropCareTaskService _cropCareTaskService;
     private readonly ISmartCareRecommendationService _smartCareRecommendationService;
+    private readonly IWeatherAwareTaskAdjustmentService _weatherAdjustmentService;
+    private readonly IWeatherForecastService _weatherForecastService;
 
-    public CropCareTasksController(ICropCareTaskService cropCareTaskService, ISmartCareRecommendationService smartCareRecommendationService)
+    public CropCareTasksController(
+        ICropCareTaskService cropCareTaskService,
+        ISmartCareRecommendationService smartCareRecommendationService,
+        IWeatherAwareTaskAdjustmentService weatherAdjustmentService,
+        IWeatherForecastService weatherForecastService)
     {
         _cropCareTaskService = cropCareTaskService;
         _smartCareRecommendationService = smartCareRecommendationService;
+        _weatherAdjustmentService = weatherAdjustmentService;
+        _weatherForecastService = weatherForecastService;
     }
 
     [HttpGet]
@@ -181,5 +189,61 @@ public class CropCareTasksController : ControllerBase
             return BadRequest(result);
         }
         return Ok(result);
+    }
+
+    [HttpPost("weather-adjust")]
+    [Authorize]
+    public async Task<ActionResult<ApiResponse<WeatherAdjustTaskResultDto>>> WeatherAdjustTasks([FromBody] WeatherAdjustTaskRequestDto dto, CancellationToken cancellationToken)
+    {
+        var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (userIdClaim == null || !Guid.TryParse(userIdClaim, out var userId))
+        {
+            return Unauthorized(ApiResponse.Error("用户未认证", 401));
+        }
+
+        var result = await _weatherAdjustmentService.AdjustUpcomingWateringTasksAsync(dto, userId, cancellationToken);
+        if (result.Code != 200)
+        {
+            return BadRequest(result);
+        }
+        return Ok(result);
+    }
+
+    [HttpGet("weather-forecast/{cityName}")]
+    [Authorize]
+    public async Task<ActionResult<ApiResponse<WeatherForecastDto>>> GetWeatherForecast(
+        [FromRoute] string cityName,
+        [FromQuery] int daysAhead = 7,
+        CancellationToken cancellationToken = default)
+    {
+        var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (userIdClaim == null || !Guid.TryParse(userIdClaim, out _))
+        {
+            return Unauthorized(ApiResponse.Error("用户未认证", 401));
+        }
+
+        var forecast = await _weatherForecastService.GetForecastAsync(cityName, daysAhead, cancellationToken);
+        if (forecast == null)
+        {
+            return BadRequest(ApiResponse<WeatherForecastDto>.Error($"无法获取城市 {cityName} 的天气预报数据", 400));
+        }
+        return Ok(ApiResponse<WeatherForecastDto>.Success(forecast));
+    }
+
+    [HttpGet("weather-assess")]
+    [Authorize]
+    public async Task<ActionResult<ApiResponse<WeatherImpactAssessment>>> AssessWateringByWeather(
+        [FromQuery] string cityName,
+        [FromQuery] DateTime scheduledDate,
+        CancellationToken cancellationToken = default)
+    {
+        var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (userIdClaim == null || !Guid.TryParse(userIdClaim, out _))
+        {
+            return Unauthorized(ApiResponse.Error("用户未认证", 401));
+        }
+
+        var assessment = await _weatherForecastService.AssessWateringNeedAsync(cityName, scheduledDate, cancellationToken);
+        return Ok(ApiResponse<WeatherImpactAssessment>.Success(assessment));
     }
 }

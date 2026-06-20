@@ -12,5 +12,12 @@ public class CropCareTask
     public Domain.Enums.TaskStatus Status { get; set; } = Domain.Enums.TaskStatus.Pending;
     public string? Note { get; set; }
 
+    public bool WeatherAdjusted { get; set; }
+    public string? WeatherAdjustmentReason { get; set; }
+    public DateTime? WeatherAdjustedAt { get; set; }
+    public string? WeatherCity { get; set; }
+    public double? WeatherTemperatureC { get; set; }
+    public double? WeatherPrecipitationMm { get; set; }
+
     public Crop? Crop { get; set; }
 }

@@ -15,6 +15,13 @@ public class CropCareTaskDto
     public string? CropName { get; set; }
     public bool IsOverdue { get; set; }
     public int? OverdueDays { get; set; }
+
+    public bool WeatherAdjusted { get; set; }
+    public string? WeatherAdjustmentReason { get; set; }
+    public DateTime? WeatherAdjustedAt { get; set; }
+    public string? WeatherCity { get; set; }
+    public double? WeatherTemperatureC { get; set; }
+    public double? WeatherPrecipitationMm { get; set; }
 }
 
 public class CreateCropCareTaskRequestDto
@@ -52,6 +59,7 @@ public class GenerateCareTasksRequestDto
     public Guid CropId { get; set; }
     public int DaysAhead { get; set; } = 30;
     public bool OverwriteExisting { get; set; } = false;
+    public bool EnableWeatherAware { get; set; } = true;
 }
 
 public class RecommendedTaskDto
@@ -61,6 +69,11 @@ public class RecommendedTaskDto
     public string? Note { get; set; }
     public GrowthStage GrowthStage { get; set; }
     public string GrowthStageName { get; set; } = string.Empty;
+
+    public bool WeatherAdjusted { get; set; }
+    public string? WeatherAdjustmentReason { get; set; }
+    public DailyWeatherDto? WeatherInfo { get; set; }
+    public bool WeatherSkipped { get; set; }
 }
 
 public class GenerateCareTasksResultDto
@@ -73,6 +86,9 @@ public class GenerateCareTasksResultDto
     public int TotalGrowthDays { get; set; }
     public int GeneratedCount { get; set; }
     public int SkippedCount { get; set; }
+    public int WeatherSkippedCount { get; set; }
+    public int WeatherAdjustedCount { get; set; }
+    public string? WeatherCity { get; set; }
     public List<RecommendedTaskDto> RecommendedTasks { get; set; } = new();
     public List<CropCareTaskDto> CreatedTasks { get; set; } = new();
 }
@@ -93,6 +109,59 @@ public class BatchUpdateTaskStatusResultDto
 }
 
 public class BatchTaskFailureDto
+{
+    public Guid TaskId { get; set; }
+    public string ErrorMessage { get; set; } = string.Empty;
+}
+
+public class DailyWeatherDto
+{
+    public DateTime Date { get; set; }
+    public double TemperatureC { get; set; }
+    public double PrecipitationMm { get; set; }
+    public double Humidity { get; set; }
+    public string WeatherCondition { get; set; } = string.Empty;
+    public bool IsRaining => PrecipitationMm > 0;
+    public bool IsHeavyRain => PrecipitationMm >= 20;
+}
+
+public class WeatherForecastDto
+{
+    public string CityName { get; set; } = string.Empty;
+    public List<DailyWeatherDto> DailyForecasts { get; set; } = new();
+}
+
+public class WeatherAdjustTaskRequestDto
+{
+    public Guid? CropId { get; set; }
+    public int DaysAhead { get; set; } = 7;
+    public bool DryRun { get; set; } = true;
+}
+
+public class WeatherAdjustTaskResultDto
+{
+    public int TotalTasksChecked { get; set; }
+    public int TasksSkipped { get; set; }
+    public int TasksDelayed { get; set; }
+    public int TasksUnchanged { get; set; }
+    public int TasksFailed { get; set; }
+    public List<WeatherAdjustedTaskDto> AdjustedTasks { get; set; } = new();
+    public List<WeatherAdjustTaskFailureDto> Failures { get; set; } = new();
+}
+
+public class WeatherAdjustedTaskDto
+{
+    public Guid TaskId { get; set; }
+    public Guid CropId { get; set; }
+    public string? CropName { get; set; }
+    public DateTime OriginalScheduledDate { get; set; }
+    public DateTime? NewScheduledDate { get; set; }
+    public string Action { get; set; } = string.Empty;
+    public string AdjustmentReason { get; set; } = string.Empty;
+    public DailyWeatherDto? WeatherOnScheduleDate { get; set; }
+}
+
+public class WeatherAdjustTaskFailureDto
 {
     public Guid TaskId { get; set; }
     public string ErrorMessage { get; set; } = string.Empty;

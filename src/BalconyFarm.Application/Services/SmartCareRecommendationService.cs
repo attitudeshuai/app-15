@@ -14,6 +14,7 @@ public class SmartCareRecommendationService : ISmartCareRecommendationService
 {
     private readonly IUnitOfWork _unitOfWork;
     private readonly ICareRuleDataProvider _careRuleDataProvider;
+    private readonly IWeatherForecastService _weatherForecastService;
     private readonly ILogger<SmartCareRecommendationService> _logger;
 
     private static readonly Dictionary<GrowthStage, string> GrowthStageNames = new()
@@ -28,10 +29,12 @@ public class SmartCareRecommendationService : ISmartCareRecommendationService
     public SmartCareRecommendationService(
         IUnitOfWork unitOfWork,
         ICareRuleDataProvider careRuleDataProvider,
+        IWeatherForecastService weatherForecastService,
         ILogger<SmartCareRecommendationService> logger)
     {
         _unitOfWork = unitOfWork;
         _careRuleDataProvider = careRuleDataProvider;
+        _weatherForecastService = weatherForecastService;
         _logger = logger;
     }
 
@@ -51,8 +54,8 @@ public class SmartCareRecommendationService : ISmartCareRecommendationService
         bool createTasks,
         CancellationToken cancellationToken)
     {
-        _logger.LogInformation("智能养护任务推荐: CropId={CropId}, DaysAhead={DaysAhead}, Create={Create}, User={UserId}",
-            dto.CropId, dto.DaysAhead, createTasks, userId);
+        _logger.LogInformation("智能养护任务推荐: CropId={CropId}, DaysAhead={DaysAhead}, Create={Create}, WeatherAware={WeatherAware}, User={UserId}",
+            dto.CropId, dto.DaysAhead, createTasks, dto.EnableWeatherAware, userId);
 
         if (dto.DaysAhead <= 0 || dto.DaysAhead > 365)
         {
@@ -93,7 +96,8 @@ public class SmartCareRecommendationService : ISmartCareRecommendationService
             CurrentGrowthStage = currentStage,
             CurrentGrowthStageName = GrowthStageNames.GetValueOrDefault(currentStage, "未知"),
             DaysSincePlanting = daysSincePlanting,
-            TotalGrowthDays = careRule.TotalGrowthDays
+            TotalGrowthDays = careRule.TotalGrowthDays,
+            WeatherCity = crop.Location
         };
 
         var existingTasks = (await _unitOfWork.CropCareTasks.FindAsync(
@@ -101,6 +105,8 @@ public class SmartCareRecommendationService : ISmartCareRecommendationService
 
         var generatedCount = 0;
         var skippedCount = 0;
+        var weatherSkippedCount = 0;
+        var weatherAdjustedCount = 0;
         var createdTasks = new List<CropCareTask>();
 
         for (var offsetDay = 0; offsetDay < dto.DaysAhead; offsetDay++)
@@ -127,13 +133,48 @@ public class SmartCareRecommendationService : ISmartCareRecommendationService
                     GrowthStage = stageForDay,
                     GrowthStageName = GrowthStageNames.GetValueOrDefault(stageForDay, "未知")
                 };
+
+                var finalScheduledDate = scheduledDate;
+                var weatherSkipped = false;
+                WeatherImpactAssessment? weatherAssessment = null;
+
+                if (dto.EnableWeatherAware && taskRule.TaskType == TaskType.Water)
+                {
+                    weatherAssessment = await _weatherForecastService.AssessWateringNeedAsync(
+                        crop.Location, scheduledDate, cancellationToken);
+
+                    recommendedTask.WeatherAdjusted = true;
+                    recommendedTask.WeatherAdjustmentReason = weatherAssessment.AdjustmentReason;
+                    recommendedTask.WeatherInfo = weatherAssessment.WeatherOnScheduledDate;
+
+                    if (weatherAssessment.ShouldSkipWatering)
+                    {
+                        recommendedTask.WeatherSkipped = true;
+                        weatherSkipped = true;
+                        weatherSkippedCount++;
+                        result.RecommendedTasks.Add(recommendedTask);
+                        continue;
+                    }
+
+                    if (weatherAssessment.ShouldDelayWatering && weatherAssessment.DelayDays > 0)
+                    {
+                        finalScheduledDate = scheduledDate.AddDays(weatherAssessment.DelayDays.Value);
+                        recommendedTask.ScheduledDate = finalScheduledDate;
+                        weatherAdjustedCount++;
+                    }
+                    else if (weatherAssessment.ShouldDelayWatering)
+                    {
+                        weatherAdjustedCount++;
+                    }
+                }
+
                 result.RecommendedTasks.Add(recommendedTask);
 
                 if (!createTasks) continue;
 
                 var hasConflict = existingTasks.Any(t =>
                     t.TaskType == taskRule.TaskType &&
-                    t.ScheduledDate.Date == scheduledDate.Date &&
+                    t.ScheduledDate.Date == finalScheduledDate.Date &&
                     t.Status != TaskStatus.Cancelled);
 
                 if (hasConflict && !dto.OverwriteExisting)
@@ -142,31 +183,52 @@ public class SmartCareRecommendationService : ISmartCareRecommendationService
                     continue;
                 }
 
+                CropCareTask taskToSave;
+
                 if (hasConflict && dto.OverwriteExisting)
                 {
-                    var existing = existingTasks.First(t =>
+                    taskToSave = existingTasks.First(t =>
                         t.TaskType == taskRule.TaskType &&
-                        t.ScheduledDate.Date == scheduledDate.Date);
-                    existing.Note = taskRule.DefaultNote;
-                    await _unitOfWork.CropCareTasks.UpdateAsync(existing, cancellationToken);
-                    createdTasks.Add(existing);
+                        t.ScheduledDate.Date == finalScheduledDate.Date);
+                    taskToSave.Note = taskRule.DefaultNote;
+                    taskToSave.ScheduledDate = finalScheduledDate;
                 }
                 else
                 {
-                    var newTask = new CropCareTask
+                    taskToSave = new CropCareTask
                     {
                         Id = Guid.NewGuid(),
                         CropId = crop.Id,
                         TaskType = taskRule.TaskType,
-                        ScheduledDate = scheduledDate,
+                        ScheduledDate = finalScheduledDate,
                         Status = TaskStatus.Pending,
                         Note = taskRule.DefaultNote
                     };
-                    await _unitOfWork.CropCareTasks.AddAsync(newTask, cancellationToken);
-                    createdTasks.Add(newTask);
-                    existingTasks.Add(newTask);
+                    await _unitOfWork.CropCareTasks.AddAsync(taskToSave, cancellationToken);
+                    existingTasks.Add(taskToSave);
                 }
-                generatedCount++;
+
+                if (weatherAssessment != null && taskRule.TaskType == TaskType.Water)
+                {
+                    taskToSave.WeatherAdjusted = recommendedTask.WeatherAdjusted;
+                    taskToSave.WeatherAdjustmentReason = weatherAssessment.AdjustmentReason;
+                    taskToSave.WeatherAdjustedAt = DateTime.UtcNow;
+                    taskToSave.WeatherCity = crop.Location;
+                    taskToSave.WeatherTemperatureC = weatherAssessment.WeatherOnScheduledDate?.TemperatureC;
+                    taskToSave.WeatherPrecipitationMm = weatherAssessment.WeatherOnScheduledDate?.PrecipitationMm;
+
+                    if (weatherSkipped)
+                    {
+                        taskToSave.Status = TaskStatus.Cancelled;
+                        taskToSave.Note = $"[天气自动取消] {weatherAssessment.AdjustmentReason} | {taskRule.DefaultNote}";
+                    }
+                }
+
+                if (!hasConflict || dto.OverwriteExisting)
+                {
+                    createdTasks.Add(taskToSave);
+                    generatedCount++;
+                }
             }
         }
 
@@ -183,9 +245,11 @@ public class SmartCareRecommendationService : ISmartCareRecommendationService
 
         result.GeneratedCount = generatedCount;
         result.SkippedCount = skippedCount;
+        result.WeatherSkippedCount = weatherSkippedCount;
+        result.WeatherAdjustedCount = weatherAdjustedCount;
 
-        _logger.LogInformation("智能养护任务推荐完成: 推荐{Recommended}条, 创建{Created}条, 跳过{Skipped}条",
-            result.RecommendedTasks.Count, generatedCount, skippedCount);
+        _logger.LogInformation("智能养护任务推荐完成: 推荐{Recommended}条, 创建{Created}条, 跳过{Skipped}条, 天气跳过{WeatherSkipped}条, 天气调整{WeatherAdjusted}条",
+            result.RecommendedTasks.Count, generatedCount, skippedCount, weatherSkippedCount, weatherAdjustedCount);
 
         return ApiResponse<GenerateCareTasksResultDto>.Success(result, createTasks ? "任务生成成功" : "任务预览成功");
     }

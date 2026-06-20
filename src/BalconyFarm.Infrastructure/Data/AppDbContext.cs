@@ -61,6 +61,11 @@ public class AppDbContext : DbContext
             entity.Property(t => t.ScheduledDate).IsRequired();
             entity.Property(t => t.Status).IsRequired();
             entity.Property(t => t.Note).HasMaxLength(1000);
+            entity.Property(t => t.WeatherAdjusted).HasDefaultValue(false);
+            entity.Property(t => t.WeatherAdjustmentReason).HasMaxLength(1000);
+            entity.Property(t => t.WeatherCity).HasMaxLength(100);
+            entity.Property(t => t.WeatherTemperatureC).HasColumnType("decimal(18,2)");
+            entity.Property(t => t.WeatherPrecipitationMm).HasColumnType("decimal(18,2)");
 
             entity.HasOne(t => t.Crop)
                   .WithMany(c => c.CareTasks)
