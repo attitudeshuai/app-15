@@ -10,5 +10,6 @@ public interface IUnitOfWork
     IRepository<HarvestRecord> HarvestRecords { get; }
     IRepository<PestRecord> PestRecords { get; }
     IRepository<TreatmentLog> TreatmentLogs { get; }
+    IRepository<Notification> Notifications { get; }
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }

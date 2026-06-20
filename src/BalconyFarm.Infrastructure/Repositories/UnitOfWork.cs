@@ -13,6 +13,7 @@ public class UnitOfWork : IUnitOfWork
     private IRepository<HarvestRecord>? _harvestRecords;
     private IRepository<PestRecord>? _pestRecords;
     private IRepository<TreatmentLog>? _treatmentLogs;
+    private IRepository<Notification>? _notifications;
 
     public UnitOfWork(AppDbContext context)
     {
@@ -25,6 +26,7 @@ public class UnitOfWork : IUnitOfWork
     public IRepository<HarvestRecord> HarvestRecords => _harvestRecords ??= new Repository<HarvestRecord>(_context);
     public IRepository<PestRecord> PestRecords => _pestRecords ??= new Repository<PestRecord>(_context);
     public IRepository<TreatmentLog> TreatmentLogs => _treatmentLogs ??= new Repository<TreatmentLog>(_context);
+    public IRepository<Notification> Notifications => _notifications ??= new Repository<Notification>(_context);
 
     public async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {

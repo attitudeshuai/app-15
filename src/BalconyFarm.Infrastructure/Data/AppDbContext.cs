@@ -15,6 +15,7 @@ public class AppDbContext : DbContext
     public DbSet<HarvestRecord> HarvestRecords => Set<HarvestRecord>();
     public DbSet<PestRecord> PestRecords => Set<PestRecord>();
     public DbSet<TreatmentLog> TreatmentLogs => Set<TreatmentLog>();
+    public DbSet<Notification> Notifications => Set<Notification>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -107,6 +108,32 @@ public class AppDbContext : DbContext
             entity.Property(t => t.SymptomChange).IsRequired().HasMaxLength(1000);
             entity.Property(t => t.TreatmentDate).IsRequired();
             entity.Property(t => t.Note).HasMaxLength(500);
+        });
+
+        modelBuilder.Entity<Notification>(entity =>
+        {
+            entity.HasKey(n => n.Id);
+            entity.Property(n => n.UserId).IsRequired();
+            entity.Property(n => n.CropCareTaskId).IsRequired();
+            entity.Property(n => n.Title).IsRequired().HasMaxLength(200);
+            entity.Property(n => n.Message).IsRequired().HasMaxLength(1000);
+            entity.Property(n => n.NotificationType).IsRequired();
+            entity.Property(n => n.IsRead).IsRequired();
+            entity.Property(n => n.CreatedAt).HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            entity.HasIndex(n => n.UserId);
+            entity.HasIndex(n => new { n.UserId, n.IsRead });
+            entity.HasIndex(n => new { n.CropCareTaskId, n.NotificationType }).IsUnique();
+
+            entity.HasOne(n => n.User)
+                  .WithMany()
+                  .HasForeignKey(n => n.UserId)
+                  .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasOne(n => n.CropCareTask)
+                  .WithMany()
+                  .HasForeignKey(n => n.CropCareTaskId)
+                  .OnDelete(DeleteBehavior.Cascade);
         });
     }
 

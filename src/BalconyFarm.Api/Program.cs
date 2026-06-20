@@ -1,4 +1,5 @@
 using BalconyFarm.Api.Middleware;
+using BalconyFarm.Api.Services;
 using BalconyFarm.Application.Extensions;
 using BalconyFarm.Infrastructure.Data;
 using BalconyFarm.Infrastructure.Extensions;
@@ -65,6 +66,8 @@ builder.Services.AddSwaggerGen(c =>
 
 builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddApplication();
+
+builder.Services.AddHostedService<NotificationBackgroundService>();
 
 builder.Services.AddTransient<BalconyFarm.Api.Middleware.ExceptionMiddleware>();
 

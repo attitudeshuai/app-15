@@ -71,5 +71,17 @@ public static class MappingConfig
             .Map(dest => dest.SymptomChange, src => src.SymptomChange)
             .Map(dest => dest.TreatmentDate, src => src.TreatmentDate)
             .Map(dest => dest.Note, src => src.Note);
+
+        TypeAdapterConfig<Notification, NotificationDto>.NewConfig()
+            .Map(dest => dest.Id, src => src.Id)
+            .Map(dest => dest.UserId, src => src.UserId)
+            .Map(dest => dest.CropCareTaskId, src => src.CropCareTaskId)
+            .Map(dest => dest.Title, src => src.Title)
+            .Map(dest => dest.Message, src => src.Message)
+            .Map(dest => dest.NotificationType, src => src.NotificationType)
+            .Map(dest => dest.IsRead, src => src.IsRead)
+            .Map(dest => dest.ReadAt, src => src.ReadAt)
+            .Map(dest => dest.CreatedAt, src => src.CreatedAt)
+            .Map(dest => dest.Task, src => (CropCareTaskDto?)null);
     }
 }
