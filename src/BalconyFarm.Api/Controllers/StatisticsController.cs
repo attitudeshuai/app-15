@@ -71,4 +71,22 @@ public class StatisticsController : ControllerBase
         }
         return Ok(result);
     }
+
+    [HttpGet("harvest-quality")]
+    [Authorize]
+    public async Task<ActionResult<ApiResponse<HarvestQualityAnalysis>>> GetHarvestQualityAnalysis(CancellationToken cancellationToken)
+    {
+        var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (userIdClaim == null || !Guid.TryParse(userIdClaim, out var userId))
+        {
+            return Unauthorized(ApiResponse.Error("用户未认证", 401));
+        }
+
+        var result = await _statisticsService.GetHarvestQualityAnalysisAsync(userId, cancellationToken);
+        if (result.Code != 200)
+        {
+            return BadRequest(result);
+        }
+        return Ok(result);
+    }
 }

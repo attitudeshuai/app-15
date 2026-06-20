@@ -227,6 +227,7 @@ public static class DbInitializer
                 HarvestDate = DateTime.UtcNow.AddDays(-5),
                 Quantity = 0.15m,
                 Unit = "kg",
+                Quality = HarvestQuality.Excellent,
                 QualityNote = "叶片新鲜，香气浓郁",
                 PhotoUrl = "https://example.com/harvest/basil_harvest1.jpg"
             },
@@ -237,6 +238,7 @@ public static class DbInitializer
                 HarvestDate = DateTime.UtcNow.AddDays(-12),
                 Quantity = 0.1m,
                 Unit = "kg",
+                Quality = HarvestQuality.Good,
                 QualityNote = "第一次采收，品质很好",
                 PhotoUrl = "https://example.com/harvest/basil_harvest2.jpg"
             },
@@ -247,6 +249,7 @@ public static class DbInitializer
                 HarvestDate = DateTime.UtcNow.AddDays(-3),
                 Quantity = 0.08m,
                 Unit = "kg",
+                Quality = HarvestQuality.Excellent,
                 QualityNote = "辣味十足，约50个辣椒",
                 PhotoUrl = "https://example.com/harvest/chili_harvest1.jpg"
             },
@@ -257,8 +260,42 @@ public static class DbInitializer
                 HarvestDate = DateTime.UtcNow.AddDays(-20),
                 Quantity = 0.25m,
                 Unit = "kg",
+                Quality = HarvestQuality.Good,
                 QualityNote = "薄荷香气浓郁，共采收3次",
                 PhotoUrl = "https://example.com/harvest/mint_harvest1.jpg"
+            },
+            new HarvestRecord
+            {
+                Id = Guid.Parse("20000000-0000-0000-0000-000000000005"),
+                CropId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+                HarvestDate = DateTime.UtcNow.AddDays(-8),
+                Quantity = 0.3m,
+                Unit = "kg",
+                Quality = HarvestQuality.Good,
+                QualityNote = "小番茄成熟度好，甜度高",
+                PhotoUrl = "https://example.com/harvest/tomato_harvest1.jpg"
+            },
+            new HarvestRecord
+            {
+                Id = Guid.Parse("20000000-0000-0000-0000-000000000006"),
+                CropId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+                HarvestDate = DateTime.UtcNow.AddDays(-15),
+                Quantity = 0.2m,
+                Unit = "kg",
+                Quality = HarvestQuality.Fair,
+                QualityNote = "部分果实有裂果现象",
+                PhotoUrl = "https://example.com/harvest/tomato_harvest2.jpg"
+            },
+            new HarvestRecord
+            {
+                Id = Guid.Parse("20000000-0000-0000-0000-000000000007"),
+                CropId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd"),
+                HarvestDate = DateTime.UtcNow.AddDays(-2),
+                Quantity = 0.12m,
+                Unit = "kg",
+                Quality = HarvestQuality.Excellent,
+                QualityNote = "生菜叶片脆嫩，无虫害",
+                PhotoUrl = "https://example.com/harvest/lettuce_harvest1.jpg"
             }
         };
 

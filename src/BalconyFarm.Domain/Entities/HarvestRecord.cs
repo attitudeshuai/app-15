@@ -1,3 +1,5 @@
+using BalconyFarm.Domain.Enums;
+
 namespace BalconyFarm.Domain.Entities;
 
 public class HarvestRecord
@@ -7,6 +9,7 @@ public class HarvestRecord
     public DateTime HarvestDate { get; set; }
     public decimal Quantity { get; set; }
     public string Unit { get; set; } = string.Empty;
+    public HarvestQuality Quality { get; set; } = HarvestQuality.Good;
     public string? QualityNote { get; set; }
     public string? PhotoUrl { get; set; }
 

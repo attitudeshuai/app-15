@@ -277,6 +277,301 @@ public class StatisticsService : IStatisticsService
         return ApiResponse<IEnumerable<CropTaskCompletionItem>>.Success(result);
     }
 
+    public async Task<ApiResponse<HarvestQualityAnalysis>> GetHarvestQualityAnalysisAsync(Guid userId, CancellationToken cancellationToken = default)
+    {
+        _logger.LogInformation("获取用户收成质量分析: {UserId}", userId);
+
+        var crops = (await _unitOfWork.Crops.FindAsync(c => c.UserId == userId, cancellationToken)).ToList();
+        if (!crops.Any())
+        {
+            return ApiResponse<HarvestQualityAnalysis>.Success(new HarvestQualityAnalysis());
+        }
+
+        var cropIds = crops.Select(c => c.Id).ToList();
+        var harvestRecords = (await _unitOfWork.HarvestRecords.GetAllAsync(cancellationToken))
+            .Where(h => cropIds.Contains(h.CropId))
+            .ToList();
+
+        if (!harvestRecords.Any())
+        {
+            return ApiResponse<HarvestQualityAnalysis>.Success(new HarvestQualityAnalysis());
+        }
+
+        var cropDict = crops.ToDictionary(c => c.Id);
+        var totalRecords = harvestRecords.Count;
+        var highQualityThreshold = HarvestQuality.Good;
+
+        var qualityDistribution = GetQualityDistribution(harvestRecords, totalRecords);
+        var byCrop = GetCropQualityStats(harvestRecords, cropDict, highQualityThreshold);
+        var byLocation = GetLocationQualityStats(harvestRecords, cropDict, highQualityThreshold);
+        var bySeason = GetSeasonQualityStats(harvestRecords, highQualityThreshold);
+        var byContainer = GetContainerQualityStats(harvestRecords, cropDict, highQualityThreshold);
+        var insights = GenerateInsights(byCrop, byLocation, bySeason, byContainer);
+
+        var overallAvgScore = (decimal)harvestRecords.Average(h => (int)h.Quality);
+        var overallHighQualityRate = harvestRecords.Count(h => h.Quality >= highQualityThreshold) / (decimal)totalRecords * 100;
+
+        var analysis = new HarvestQualityAnalysis
+        {
+            QualityDistribution = qualityDistribution,
+            ByCrop = byCrop.OrderByDescending(c => c.HighQualityRate).ToList(),
+            ByLocation = byLocation.OrderByDescending(l => l.HighQualityRate).ToList(),
+            BySeason = bySeason.OrderByDescending(s => s.HighQualityRate).ToList(),
+            ByContainer = byContainer.OrderByDescending(c => c.HighQualityRate).ToList(),
+            Insights = insights,
+            OverallAverageQualityScore = Math.Round(overallAvgScore, 2),
+            OverallHighQualityRate = Math.Round(overallHighQualityRate, 1),
+            TotalHarvestRecords = totalRecords
+        };
+
+        return ApiResponse<HarvestQualityAnalysis>.Success(analysis);
+    }
+
+    private static List<QualityDistributionItem> GetQualityDistribution(List<HarvestRecord> records, int totalRecords)
+    {
+        var qualities = Enum.GetValues(typeof(HarvestQuality)).Cast<HarvestQuality>().ToList();
+        var distribution = new List<QualityDistributionItem>();
+
+        foreach (var quality in qualities)
+        {
+            var count = records.Count(h => h.Quality == quality);
+            var percentage = totalRecords > 0 ? Math.Round((decimal)count / totalRecords * 100, 1) : 0;
+            var totalQuantity = records.Where(h => h.Quality == quality).Sum(h => h.Quantity);
+
+            distribution.Add(new QualityDistributionItem
+            {
+                Quality = quality,
+                QualityName = GetQualityName(quality),
+                Count = count,
+                Percentage = percentage,
+                TotalQuantity = Math.Round(totalQuantity, 2)
+            });
+        }
+
+        return distribution;
+    }
+
+    private static string GetQualityName(HarvestQuality quality)
+    {
+        return quality switch
+        {
+            HarvestQuality.Poor => "较差",
+            HarvestQuality.Fair => "一般",
+            HarvestQuality.Good => "良好",
+            HarvestQuality.Excellent => "优秀",
+            _ => quality.ToString()
+        };
+    }
+
+    private static List<CropQualityStats> GetCropQualityStats(List<HarvestRecord> records, Dictionary<Guid, Crop> cropDict, HarvestQuality highQualityThreshold)
+    {
+        return records
+            .GroupBy(h => h.CropId)
+            .Select(g =>
+            {
+                var crop = cropDict.GetValueOrDefault(g.Key);
+                var harvests = g.ToList();
+                var highQualityCount = harvests.Count(h => h.Quality >= highQualityThreshold);
+                var avgScore = (decimal)harvests.Average(h => (int)h.Quality);
+
+                return new CropQualityStats
+                {
+                    CropId = g.Key,
+                    CropName = crop?.Name ?? "未知作物",
+                    TotalHarvests = harvests.Count,
+                    HighQualityHarvests = highQualityCount,
+                    HighQualityRate = Math.Round((decimal)highQualityCount / harvests.Count * 100, 1),
+                    AverageQualityScore = Math.Round(avgScore, 2),
+                    TotalQuantity = Math.Round(harvests.Sum(h => h.Quantity), 2)
+                };
+            })
+            .ToList();
+    }
+
+    private static List<LocationQualityStats> GetLocationQualityStats(List<HarvestRecord> records, Dictionary<Guid, Crop> cropDict, HarvestQuality highQualityThreshold)
+    {
+        return records
+            .GroupBy(h => cropDict.GetValueOrDefault(h.CropId)?.Location ?? "未知位置")
+            .Select(g =>
+            {
+                var harvests = g.ToList();
+                var highQualityCount = harvests.Count(h => h.Quality >= highQualityThreshold);
+                var avgScore = (decimal)harvests.Average(h => (int)h.Quality);
+                var cropCount = harvests.Select(h => h.CropId).Distinct().Count();
+
+                return new LocationQualityStats
+                {
+                    Location = g.Key,
+                    TotalHarvests = harvests.Count,
+                    HighQualityHarvests = highQualityCount,
+                    HighQualityRate = Math.Round((decimal)highQualityCount / harvests.Count * 100, 1),
+                    AverageQualityScore = Math.Round(avgScore, 2),
+                    CropCount = cropCount
+                };
+            })
+            .ToList();
+    }
+
+    private static List<SeasonQualityStats> GetSeasonQualityStats(List<HarvestRecord> records, HarvestQuality highQualityThreshold)
+    {
+        return records
+            .GroupBy(h => GetSeason(h.HarvestDate))
+            .Select(g =>
+            {
+                var harvests = g.ToList();
+                var highQualityCount = harvests.Count(h => h.Quality >= highQualityThreshold);
+                var avgScore = (decimal)harvests.Average(h => (int)h.Quality);
+
+                return new SeasonQualityStats
+                {
+                    Season = g.Key,
+                    TotalHarvests = harvests.Count,
+                    HighQualityHarvests = highQualityCount,
+                    HighQualityRate = Math.Round((decimal)highQualityCount / harvests.Count * 100, 1),
+                    AverageQualityScore = Math.Round(avgScore, 2),
+                    TotalQuantity = Math.Round(harvests.Sum(h => h.Quantity), 2)
+                };
+            })
+            .ToList();
+    }
+
+    private static string GetSeason(DateTime date)
+    {
+        int month = date.Month;
+        return month switch
+        {
+            3 or 4 or 5 => "春季",
+            6 or 7 or 8 => "夏季",
+            9 or 10 or 11 => "秋季",
+            12 or 1 or 2 => "冬季",
+            _ => "未知"
+        };
+    }
+
+    private static List<ContainerQualityStats> GetContainerQualityStats(List<HarvestRecord> records, Dictionary<Guid, Crop> cropDict, HarvestQuality highQualityThreshold)
+    {
+        return records
+            .GroupBy(h => cropDict.GetValueOrDefault(h.CropId)?.ContainerType ?? "未知容器")
+            .Select(g =>
+            {
+                var harvests = g.ToList();
+                var highQualityCount = harvests.Count(h => h.Quality >= highQualityThreshold);
+                var avgScore = (decimal)harvests.Average(h => (int)h.Quality);
+
+                return new ContainerQualityStats
+                {
+                    ContainerType = g.Key,
+                    TotalHarvests = harvests.Count,
+                    HighQualityHarvests = highQualityCount,
+                    HighQualityRate = Math.Round((decimal)highQualityCount / harvests.Count * 100, 1),
+                    AverageQualityScore = Math.Round(avgScore, 2)
+                };
+            })
+            .ToList();
+    }
+
+    private static List<QualityInsight> GenerateInsights(
+        List<CropQualityStats> byCrop,
+        List<LocationQualityStats> byLocation,
+        List<SeasonQualityStats> bySeason,
+        List<ContainerQualityStats> byContainer)
+    {
+        var insights = new List<QualityInsight>();
+
+        if (byCrop.Count >= 2)
+        {
+            var topCrop = byCrop.OrderByDescending(c => c.HighQualityRate).First();
+            var bottomCrop = byCrop.OrderBy(c => c.HighQualityRate).First();
+
+            var recommendations = new List<string>
+            {
+                $"「{topCrop.CropName}」优质率达 {topCrop.HighQualityRate}%，表现最佳，可考虑扩大种植",
+                $"「{bottomCrop.CropName}」优质率仅 {bottomCrop.HighQualityRate}%，建议优化种植条件或调整品种"
+            };
+
+            insights.Add(new QualityInsight
+            {
+                Dimension = "作物品种",
+                TopPerformer = topCrop.CropName,
+                TopHighQualityRate = topCrop.HighQualityRate,
+                BottomPerformer = bottomCrop.CropName,
+                BottomHighQualityRate = bottomCrop.HighQualityRate,
+                Recommendations = recommendations
+            });
+        }
+
+        if (byLocation.Count >= 2)
+        {
+            var topLocation = byLocation.OrderByDescending(l => l.HighQualityRate).First();
+            var bottomLocation = byLocation.OrderBy(l => l.HighQualityRate).First();
+
+            var recommendations = new List<string>
+            {
+                $"「{topLocation.Location}」优质率最高（{topLocation.HighQualityRate}%），光照和通风条件可能最佳",
+                $"「{bottomLocation.Location}」优质率偏低（{bottomLocation.HighQualityRate}%），建议检查光照、通风等环境条件",
+                "优先在优质率高的位置种植高价值作物"
+            };
+
+            insights.Add(new QualityInsight
+            {
+                Dimension = "种植位置",
+                TopPerformer = topLocation.Location,
+                TopHighQualityRate = topLocation.HighQualityRate,
+                BottomPerformer = bottomLocation.Location,
+                BottomHighQualityRate = bottomLocation.HighQualityRate,
+                Recommendations = recommendations
+            });
+        }
+
+        if (bySeason.Count >= 2)
+        {
+            var topSeason = bySeason.OrderByDescending(s => s.HighQualityRate).First();
+            var bottomSeason = bySeason.OrderBy(s => s.HighQualityRate).First();
+
+            var recommendations = new List<string>
+            {
+                $"「{topSeason.Season}」是收成质量最佳的季节，优质率 {topSeason.HighQualityRate}%",
+                $"「{bottomSeason.Season}」收成质量相对较低，建议选择适合当季的作物品种",
+                "根据季节特点调整种植计划，提高整体收成质量"
+            };
+
+            insights.Add(new QualityInsight
+            {
+                Dimension = "季节",
+                TopPerformer = topSeason.Season,
+                TopHighQualityRate = topSeason.HighQualityRate,
+                BottomPerformer = bottomSeason.Season,
+                BottomHighQualityRate = bottomSeason.HighQualityRate,
+                Recommendations = recommendations
+            });
+        }
+
+        if (byContainer.Count >= 2)
+        {
+            var topContainer = byContainer.OrderByDescending(c => c.HighQualityRate).First();
+            var bottomContainer = byContainer.OrderBy(c => c.HighQualityRate).First();
+
+            var recommendations = new List<string>
+            {
+                $"「{topContainer.ContainerType}」种植的收成质量更好，优质率 {topContainer.HighQualityRate}%",
+                $"「{bottomContainer.ContainerType}」的表现较差，可能需要更换容器或改善排水",
+                "优质作物建议优先使用表现好的容器类型"
+            };
+
+            insights.Add(new QualityInsight
+            {
+                Dimension = "容器类型",
+                TopPerformer = topContainer.ContainerType,
+                TopHighQualityRate = topContainer.HighQualityRate,
+                BottomPerformer = bottomContainer.ContainerType,
+                BottomHighQualityRate = bottomContainer.HighQualityRate,
+                Recommendations = recommendations
+            });
+        }
+
+        return insights;
+    }
+
     private static DateTime StartOfWeek(DateTime date, DayOfWeek startOfWeek)
     {
         int diff = (7 + (date.DayOfWeek - startOfWeek)) % 7;

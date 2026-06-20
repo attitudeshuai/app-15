@@ -52,6 +52,11 @@ public class HarvestRecordService : IHarvestRecordService
             harvestRecordsQuery = harvestRecordsQuery.Where(h => h.HarvestDate <= query.HarvestDateTo.Value);
         }
 
+        if (query.Quality.HasValue)
+        {
+            harvestRecordsQuery = harvestRecordsQuery.Where(h => h.Quality == query.Quality.Value);
+        }
+
         var totalCount = harvestRecordsQuery.Count();
         var sortFunc = GetSortProperty(query.SortBy ?? "harvestdate").Compile();
 
@@ -183,6 +188,8 @@ public class HarvestRecordService : IHarvestRecordService
             harvestRecord.Quantity = dto.Quantity.Value;
         if (!string.IsNullOrEmpty(dto.Unit))
             harvestRecord.Unit = dto.Unit;
+        if (dto.Quality.HasValue)
+            harvestRecord.Quality = dto.Quality.Value;
         if (dto.QualityNote != null)
             harvestRecord.QualityNote = dto.QualityNote;
         if (dto.PhotoUrl != null)
@@ -232,6 +239,7 @@ public class HarvestRecordService : IHarvestRecordService
             "quantity" => record => record.Quantity,
             "unit" => record => record.Unit,
             "cropid" => record => record.CropId,
+            "quality" => record => record.Quality,
             _ => record => record.HarvestDate
         };
     }

@@ -1,4 +1,5 @@
 using BalconyFarm.Application.Models;
+using BalconyFarm.Domain.Enums;
 
 namespace BalconyFarm.Application.DTOs;
 
@@ -9,6 +10,7 @@ public class HarvestRecordDto
     public DateTime HarvestDate { get; set; }
     public decimal Quantity { get; set; }
     public string Unit { get; set; } = string.Empty;
+    public HarvestQuality Quality { get; set; }
     public string? QualityNote { get; set; }
     public string? PhotoUrl { get; set; }
     public string? CropName { get; set; }
@@ -20,6 +22,7 @@ public class CreateHarvestRecordRequestDto
     public DateTime HarvestDate { get; set; }
     public decimal Quantity { get; set; }
     public string Unit { get; set; } = string.Empty;
+    public HarvestQuality? Quality { get; set; }
     public string? QualityNote { get; set; }
     public string? PhotoUrl { get; set; }
     public bool IsFinalHarvest { get; set; }
@@ -30,6 +33,7 @@ public class UpdateHarvestRecordRequestDto
     public DateTime? HarvestDate { get; set; }
     public decimal? Quantity { get; set; }
     public string? Unit { get; set; }
+    public HarvestQuality? Quality { get; set; }
     public string? QualityNote { get; set; }
     public string? PhotoUrl { get; set; }
 }
@@ -40,4 +44,5 @@ public class HarvestRecordQueryRequestDto : PagedRequest
     public string? Unit { get; set; }
     public DateTime? HarvestDateFrom { get; set; }
     public DateTime? HarvestDateTo { get; set; }
+    public HarvestQuality? Quality { get; set; }
 }

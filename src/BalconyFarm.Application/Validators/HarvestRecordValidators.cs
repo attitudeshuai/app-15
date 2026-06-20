@@ -1,4 +1,5 @@
 using BalconyFarm.Application.DTOs;
+using BalconyFarm.Domain.Enums;
 using FluentValidation;
 
 namespace BalconyFarm.Application.Validators;
@@ -21,6 +22,10 @@ public class CreateHarvestRecordRequestDtoValidator : AbstractValidator<CreateHa
             .NotEmpty().WithMessage("单位不能为空")
             .MaximumLength(50).WithMessage("单位长度不能超过50个字符");
 
+        RuleFor(x => x.Quality)
+            .IsInEnum().When(x => x.Quality.HasValue)
+            .WithMessage("无效的质量评级");
+
         RuleFor(x => x.QualityNote)
             .MaximumLength(1000).When(x => !string.IsNullOrEmpty(x.QualityNote))
             .WithMessage("质量说明长度不能超过1000个字符");
@@ -42,6 +47,10 @@ public class UpdateHarvestRecordRequestDtoValidator : AbstractValidator<UpdateHa
         RuleFor(x => x.Unit)
             .MaximumLength(50).When(x => !string.IsNullOrEmpty(x.Unit))
             .WithMessage("单位长度不能超过50个字符");
+
+        RuleFor(x => x.Quality)
+            .IsInEnum().When(x => x.Quality.HasValue)
+            .WithMessage("无效的质量评级");
 
         RuleFor(x => x.QualityNote)
             .MaximumLength(1000).When(x => !string.IsNullOrEmpty(x.QualityNote))

@@ -1,5 +1,6 @@
 using BalconyFarm.Application.DTOs;
 using BalconyFarm.Domain.Entities;
+using BalconyFarm.Domain.Enums;
 using Mapster;
 
 namespace BalconyFarm.Application.Extensions;
@@ -48,6 +49,7 @@ public static class MappingConfig
             .Map(dest => dest.HarvestDate, src => src.HarvestDate)
             .Map(dest => dest.Quantity, src => src.Quantity)
             .Map(dest => dest.Unit, src => src.Unit)
+            .Map(dest => dest.Quality, src => src.Quality ?? HarvestQuality.Good)
             .Map(dest => dest.QualityNote, src => src.QualityNote)
             .Map(dest => dest.PhotoUrl, src => src.PhotoUrl);
 

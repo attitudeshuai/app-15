@@ -70,6 +70,7 @@ public class AppDbContext : DbContext
             entity.Property(h => h.HarvestDate).IsRequired();
             entity.Property(h => h.Quantity).IsRequired().HasColumnType("decimal(18,2)");
             entity.Property(h => h.Unit).IsRequired().HasMaxLength(50);
+            entity.Property(h => h.Quality).IsRequired();
             entity.Property(h => h.QualityNote).HasMaxLength(1000);
 
             entity.HasOne(h => h.Crop)
