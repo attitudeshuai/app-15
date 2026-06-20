@@ -31,11 +31,6 @@ public class Repository<T> : IRepository<T> where T : class
         return await _dbSet.Where(predicate).ToListAsync(cancellationToken);
     }
 
-    public virtual IQueryable<T> GetQueryable()
-    {
-        return _dbSet.AsQueryable();
-    }
-
     public virtual async Task<T> AddAsync(T entity, CancellationToken cancellationToken = default)
     {
         await _dbSet.AddAsync(entity, cancellationToken);
