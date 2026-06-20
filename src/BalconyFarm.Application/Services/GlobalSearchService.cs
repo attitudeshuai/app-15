@@ -1,3 +1,4 @@
+using System.Linq.Expressions;
 using BalconyFarm.Application.DTOs;
 using BalconyFarm.Application.Models;
 using BalconyFarm.Domain.Entities;
@@ -30,6 +31,9 @@ public class GlobalSearchService : IGlobalSearchService
             SearchResultType.HarvestRecord
         };
 
+        var userCropIdNameMap = await GetUserCropIdNameMapAsync(userId, cancellationToken);
+        var userCropIds = userCropIdNameMap.Keys.ToHashSet();
+
         var allResults = new List<GlobalSearchResultItemDto>();
         var countByType = new Dictionary<SearchResultType, int>();
 
@@ -42,21 +46,21 @@ public class GlobalSearchService : IGlobalSearchService
 
         if (searchTypes.Contains(SearchResultType.CropCareTask))
         {
-            var tasks = await SearchCropCareTasksAsync(query, userId, cancellationToken);
+            var tasks = await SearchCropCareTasksAsync(query, userCropIds, userCropIdNameMap, cancellationToken);
             countByType[SearchResultType.CropCareTask] = tasks.Count;
             allResults.AddRange(tasks);
         }
 
         if (searchTypes.Contains(SearchResultType.PestRecord))
         {
-            var pests = await SearchPestRecordsAsync(query, userId, cancellationToken);
+            var pests = await SearchPestRecordsAsync(query, userCropIds, userCropIdNameMap, cancellationToken);
             countByType[SearchResultType.PestRecord] = pests.Count;
             allResults.AddRange(pests);
         }
 
         if (searchTypes.Contains(SearchResultType.HarvestRecord))
         {
-            var harvests = await SearchHarvestRecordsAsync(query, userId, cancellationToken);
+            var harvests = await SearchHarvestRecordsAsync(query, userCropIds, userCropIdNameMap, cancellationToken);
             countByType[SearchResultType.HarvestRecord] = harvests.Count;
             allResults.AddRange(harvests);
         }
@@ -88,33 +92,44 @@ public class GlobalSearchService : IGlobalSearchService
         return ApiResponse<GlobalSearchResultDto>.Success(result);
     }
 
+    private async Task<Dictionary<Guid, string>> GetUserCropIdNameMapAsync(Guid userId, CancellationToken cancellationToken)
+    {
+        var userCrops = await _unitOfWork.Crops.FindAsync(c => c.UserId == userId, cancellationToken);
+        return userCrops.ToDictionary(c => c.Id, c => c.Name);
+    }
+
     private async Task<List<GlobalSearchResultItemDto>> SearchCropsAsync(GlobalSearchRequestDto query, Guid userId, CancellationToken cancellationToken)
     {
-        var crops = (await _unitOfWork.Crops.GetAllAsync(cancellationToken))
-            .Where(c => c.UserId == userId);
+        Expression<Func<Crop, bool>> predicate = c => c.UserId == userId;
 
         if (!string.IsNullOrEmpty(query.SearchKeyword))
         {
-            crops = crops.Where(c =>
-                c.Name.Contains(query.SearchKeyword) ||
-                c.Variety.Contains(query.SearchKeyword) ||
-                c.Location.Contains(query.SearchKeyword));
+            var keyword = query.SearchKeyword;
+            predicate = predicate.And(c =>
+                c.Name.Contains(keyword) ||
+                c.Variety.Contains(keyword) ||
+                c.Location.Contains(keyword));
         }
 
         if (query.CropStatus.HasValue)
         {
-            crops = crops.Where(c => c.Status == query.CropStatus.Value);
+            var status = query.CropStatus.Value;
+            predicate = predicate.And(c => c.Status == status);
         }
 
         if (query.DateFrom.HasValue)
         {
-            crops = crops.Where(c => c.PlantingDate >= query.DateFrom.Value || c.CreatedAt >= query.DateFrom.Value);
+            var dateFrom = query.DateFrom.Value;
+            predicate = predicate.And(c => c.PlantingDate >= dateFrom || c.CreatedAt >= dateFrom);
         }
 
         if (query.DateTo.HasValue)
         {
-            crops = crops.Where(c => c.PlantingDate <= query.DateTo.Value || c.CreatedAt <= query.DateTo.Value);
+            var dateTo = query.DateTo.Value;
+            predicate = predicate.And(c => c.PlantingDate <= dateTo || c.CreatedAt <= dateTo);
         }
+
+        var crops = await _unitOfWork.Crops.FindAsync(predicate, cancellationToken);
 
         return crops.Select(c => new GlobalSearchResultItemDto
         {
@@ -137,49 +152,56 @@ public class GlobalSearchService : IGlobalSearchService
         }).ToList();
     }
 
-    private async Task<List<GlobalSearchResultItemDto>> SearchCropCareTasksAsync(GlobalSearchRequestDto query, Guid userId, CancellationToken cancellationToken)
+    private async Task<List<GlobalSearchResultItemDto>> SearchCropCareTasksAsync(
+        GlobalSearchRequestDto query,
+        HashSet<Guid> userCropIds,
+        Dictionary<Guid, string> cropIdNameMap,
+        CancellationToken cancellationToken)
     {
-        var allCrops = (await _unitOfWork.Crops.GetAllAsync(cancellationToken))
-            .Where(c => c.UserId == userId)
-            .ToDictionary(c => c.Id, c => c);
-
-        var cropIds = allCrops.Keys.ToHashSet();
-
-        var tasks = (await _unitOfWork.CropCareTasks.GetAllAsync(cancellationToken))
-            .Where(t => cropIds.Contains(t.CropId));
-
-        if (!string.IsNullOrEmpty(query.SearchKeyword))
-        {
-            tasks = tasks.Where(t =>
-                t.Note != null && t.Note.Contains(query.SearchKeyword));
-        }
+        Expression<Func<CropCareTask, bool>> predicate = t => userCropIds.Contains(t.CropId);
 
         if (query.TaskType.HasValue)
         {
-            tasks = tasks.Where(t => t.TaskType == query.TaskType.Value);
+            var taskType = query.TaskType.Value;
+            predicate = predicate.And(t => t.TaskType == taskType);
         }
 
         if (query.TaskStatus.HasValue)
         {
-            tasks = tasks.Where(t => t.Status == query.TaskStatus.Value);
+            var taskStatus = query.TaskStatus.Value;
+            predicate = predicate.And(t => t.Status == taskStatus);
         }
 
         if (query.DateFrom.HasValue)
         {
-            tasks = tasks.Where(t => t.ScheduledDate >= query.DateFrom.Value ||
-                                     (t.CompletedDate.HasValue && t.CompletedDate.Value >= query.DateFrom.Value));
+            var dateFrom = query.DateFrom.Value;
+            predicate = predicate.And(t => t.ScheduledDate >= dateFrom ||
+                                           (t.CompletedDate.HasValue && t.CompletedDate.Value >= dateFrom));
         }
 
         if (query.DateTo.HasValue)
         {
-            tasks = tasks.Where(t => t.ScheduledDate <= query.DateTo.Value ||
-                                     (t.CompletedDate.HasValue && t.CompletedDate.Value <= query.DateTo.Value));
+            var dateTo = query.DateTo.Value;
+            predicate = predicate.And(t => t.ScheduledDate <= dateTo ||
+                                           (t.CompletedDate.HasValue && t.CompletedDate.Value <= dateTo));
         }
 
-        return tasks.Select(t =>
+        var tasks = await _unitOfWork.CropCareTasks.FindAsync(predicate, cancellationToken);
+        var taskList = tasks.ToList();
+
+        if (!string.IsNullOrEmpty(query.SearchKeyword))
         {
-            allCrops.TryGetValue(t.CropId, out var crop);
-            var cropName = crop?.Name ?? "未知作物";
+            var keyword = query.SearchKeyword;
+            taskList = taskList.Where(t =>
+                (t.Note != null && t.Note.Contains(keyword)) ||
+                (cropIdNameMap.TryGetValue(t.CropId, out var cropName) && cropName.Contains(keyword))
+            ).ToList();
+        }
+
+        return taskList.Select(t =>
+        {
+            cropIdNameMap.TryGetValue(t.CropId, out var cropName);
+            cropName ??= "未知作物";
             return new GlobalSearchResultItemDto
             {
                 Id = t.Id,
@@ -194,53 +216,68 @@ public class GlobalSearchService : IGlobalSearchService
                 {
                     { "taskType", t.TaskType },
                     { "scheduledDate", t.ScheduledDate },
-                    { "completedDate", t.CompletedDate ?? (object?)null },
+                    { "completedDate", t.CompletedDate ?? (object?)DBNull.Value },
                     { "isOverdue", t.Status == Domain.Enums.TaskStatus.Pending && t.ScheduledDate < DateTime.Now }
                 }
             };
         }).ToList();
     }
 
-    private async Task<List<GlobalSearchResultItemDto>> SearchPestRecordsAsync(GlobalSearchRequestDto query, Guid userId, CancellationToken cancellationToken)
+    private async Task<List<GlobalSearchResultItemDto>> SearchPestRecordsAsync(
+        GlobalSearchRequestDto query,
+        HashSet<Guid> userCropIds,
+        Dictionary<Guid, string> cropIdNameMap,
+        CancellationToken cancellationToken)
     {
-        var allCrops = (await _unitOfWork.Crops.GetAllAsync(cancellationToken))
-            .Where(c => c.UserId == userId)
-            .ToDictionary(c => c.Id, c => c);
-
-        var cropIds = allCrops.Keys.ToHashSet();
-
-        var pests = (await _unitOfWork.PestRecords.GetAllAsync(cancellationToken))
-            .Where(p => cropIds.Contains(p.CropId));
+        Expression<Func<PestRecord, bool>> predicate = p => userCropIds.Contains(p.CropId);
 
         if (!string.IsNullOrEmpty(query.SearchKeyword))
         {
-            pests = pests.Where(p =>
-                p.IssueType.Contains(query.SearchKeyword) ||
-                p.Symptoms.Contains(query.SearchKeyword) ||
-                p.Treatment.Contains(query.SearchKeyword));
+            var keyword = query.SearchKeyword;
+            predicate = predicate.And(p =>
+                p.IssueType.Contains(keyword) ||
+                p.Symptoms.Contains(keyword) ||
+                p.Treatment.Contains(keyword));
         }
 
         if (query.PestStatus.HasValue)
         {
-            pests = pests.Where(p => p.Status == query.PestStatus.Value);
+            var pestStatus = query.PestStatus.Value;
+            predicate = predicate.And(p => p.Status == pestStatus);
         }
 
         if (query.DateFrom.HasValue)
         {
-            pests = pests.Where(p => p.DetectedDate >= query.DateFrom.Value ||
-                                     (p.ResolvedDate.HasValue && p.ResolvedDate.Value >= query.DateFrom.Value));
+            var dateFrom = query.DateFrom.Value;
+            predicate = predicate.And(p => p.DetectedDate >= dateFrom ||
+                                           (p.ResolvedDate.HasValue && p.ResolvedDate.Value >= dateFrom));
         }
 
         if (query.DateTo.HasValue)
         {
-            pests = pests.Where(p => p.DetectedDate <= query.DateTo.Value ||
-                                     (p.ResolvedDate.HasValue && p.ResolvedDate.Value <= query.DateTo.Value));
+            var dateTo = query.DateTo.Value;
+            predicate = predicate.And(p => p.DetectedDate <= dateTo ||
+                                           (p.ResolvedDate.HasValue && p.ResolvedDate.Value <= dateTo));
         }
 
-        return pests.Select(p =>
+        var pests = await _unitOfWork.PestRecords.FindAsync(predicate, cancellationToken);
+        var pestList = pests.ToList();
+
+        if (!string.IsNullOrEmpty(query.SearchKeyword))
         {
-            allCrops.TryGetValue(p.CropId, out var crop);
-            var cropName = crop?.Name ?? "未知作物";
+            var keyword = query.SearchKeyword;
+            pestList = pestList.Where(p =>
+                p.IssueType.Contains(keyword) ||
+                p.Symptoms.Contains(keyword) ||
+                p.Treatment.Contains(keyword) ||
+                (cropIdNameMap.TryGetValue(p.CropId, out var cropName) && cropName.Contains(keyword))
+            ).ToList();
+        }
+
+        return pestList.Select(p =>
+        {
+            cropIdNameMap.TryGetValue(p.CropId, out var cropName);
+            cropName ??= "未知作物";
             return new GlobalSearchResultItemDto
             {
                 Id = p.Id,
@@ -257,44 +294,49 @@ public class GlobalSearchService : IGlobalSearchService
                     { "symptoms", p.Symptoms },
                     { "treatment", p.Treatment },
                     { "detectedDate", p.DetectedDate },
-                    { "resolvedDate", p.ResolvedDate ?? (object?)null }
+                    { "resolvedDate", p.ResolvedDate ?? (object?)DBNull.Value }
                 }
             };
         }).ToList();
     }
 
-    private async Task<List<GlobalSearchResultItemDto>> SearchHarvestRecordsAsync(GlobalSearchRequestDto query, Guid userId, CancellationToken cancellationToken)
+    private async Task<List<GlobalSearchResultItemDto>> SearchHarvestRecordsAsync(
+        GlobalSearchRequestDto query,
+        HashSet<Guid> userCropIds,
+        Dictionary<Guid, string> cropIdNameMap,
+        CancellationToken cancellationToken)
     {
-        var allCrops = (await _unitOfWork.Crops.GetAllAsync(cancellationToken))
-            .Where(c => c.UserId == userId)
-            .ToDictionary(c => c.Id, c => c);
-
-        var cropIds = allCrops.Keys.ToHashSet();
-
-        var harvests = (await _unitOfWork.HarvestRecords.GetAllAsync(cancellationToken))
-            .Where(h => cropIds.Contains(h.CropId));
-
-        if (!string.IsNullOrEmpty(query.SearchKeyword))
-        {
-            harvests = harvests.Where(h =>
-                h.Unit.Contains(query.SearchKeyword) ||
-                (h.QualityNote != null && h.QualityNote.Contains(query.SearchKeyword)));
-        }
+        Expression<Func<HarvestRecord, bool>> predicate = h => userCropIds.Contains(h.CropId);
 
         if (query.DateFrom.HasValue)
         {
-            harvests = harvests.Where(h => h.HarvestDate >= query.DateFrom.Value);
+            var dateFrom = query.DateFrom.Value;
+            predicate = predicate.And(h => h.HarvestDate >= dateFrom);
         }
 
         if (query.DateTo.HasValue)
         {
-            harvests = harvests.Where(h => h.HarvestDate <= query.DateTo.Value);
+            var dateTo = query.DateTo.Value;
+            predicate = predicate.And(h => h.HarvestDate <= dateTo);
         }
 
-        return harvests.Select(h =>
+        var harvests = await _unitOfWork.HarvestRecords.FindAsync(predicate, cancellationToken);
+        var harvestList = harvests.ToList();
+
+        if (!string.IsNullOrEmpty(query.SearchKeyword))
         {
-            allCrops.TryGetValue(h.CropId, out var crop);
-            var cropName = crop?.Name ?? "未知作物";
+            var keyword = query.SearchKeyword;
+            harvestList = harvestList.Where(h =>
+                h.Unit.Contains(keyword) ||
+                (h.QualityNote != null && h.QualityNote.Contains(keyword)) ||
+                (cropIdNameMap.TryGetValue(h.CropId, out var cropName) && cropName.Contains(keyword))
+            ).ToList();
+        }
+
+        return harvestList.Select(h =>
+        {
+            cropIdNameMap.TryGetValue(h.CropId, out var cropName);
+            cropName ??= "未知作物";
             return new GlobalSearchResultItemDto
             {
                 Id = h.Id,
@@ -327,5 +369,38 @@ public class GlobalSearchService : IGlobalSearchService
             TaskType.Repot => "换盆",
             _ => taskType.ToString()
         };
+    }
+}
+
+public static class ExpressionExtensions
+{
+    public static Expression<Func<T, bool>> And<T>(
+        this Expression<Func<T, bool>> left,
+        Expression<Func<T, bool>> right)
+    {
+        var parameter = Expression.Parameter(typeof(T));
+        var leftVisitor = new ReplaceExpressionVisitor(left.Parameters[0], parameter);
+        var leftExpr = leftVisitor.Visit(left.Body);
+        var rightVisitor = new ReplaceExpressionVisitor(right.Parameters[0], parameter);
+        var rightExpr = rightVisitor.Visit(right.Body);
+        return Expression.Lambda<Func<T, bool>>(
+            Expression.AndAlso(leftExpr!, rightExpr!), parameter);
+    }
+
+    private class ReplaceExpressionVisitor : ExpressionVisitor
+    {
+        private readonly Expression _oldValue;
+        private readonly Expression _newValue;
+
+        public ReplaceExpressionVisitor(Expression oldValue, Expression newValue)
+        {
+            _oldValue = oldValue;
+            _newValue = newValue;
+        }
+
+        public override Expression? Visit(Expression? node)
+        {
+            return node == _oldValue ? _newValue : base.Visit(node);
+        }
     }
 }
