@@ -12,11 +12,13 @@ public class PestRecordService : IPestRecordService
 {
     private readonly IUnitOfWork _unitOfWork;
     private readonly ILogger<PestRecordService> _logger;
+    private readonly IAchievementService _achievementService;
 
-    public PestRecordService(IUnitOfWork unitOfWork, ILogger<PestRecordService> logger)
+    public PestRecordService(IUnitOfWork unitOfWork, ILogger<PestRecordService> logger, IAchievementService achievementService)
     {
         _unitOfWork = unitOfWork;
         _logger = logger;
+        _achievementService = achievementService;
     }
 
     public async Task<ApiResponse<PagedResult<PestRecordDto>>> GetPestRecordsAsync(PestRecordQueryRequestDto query, Guid? userId = null, CancellationToken cancellationToken = default)
@@ -207,6 +209,11 @@ public class PestRecordService : IPestRecordService
 
         _logger.LogInformation("病虫害记录更新成功: {PestRecordId}", id);
 
+        if (pestRecord.Status == PestStatus.Resolved && crop != null)
+        {
+            await _achievementService.CheckAndUnlockPestAchievementsAsync(userId, cancellationToken);
+        }
+
         var pestRecordDto = pestRecord.Adapt<PestRecordDto>();
         pestRecordDto.CropName = crop?.Name;
         return ApiResponse<PestRecordDto>.Success(pestRecordDto, "更新成功");
@@ -267,6 +274,11 @@ public class PestRecordService : IPestRecordService
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
         _logger.LogInformation("病虫害状态更新成功: {PestRecordId}", id);
+
+        if (dto.Status == PestStatus.Resolved && crop != null)
+        {
+            await _achievementService.CheckAndUnlockPestAchievementsAsync(userId, cancellationToken);
+        }
 
         var pestRecordDto = pestRecord.Adapt<PestRecordDto>();
         pestRecordDto.CropName = crop?.Name;

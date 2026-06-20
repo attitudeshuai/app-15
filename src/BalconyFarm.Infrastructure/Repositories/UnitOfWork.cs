@@ -19,6 +19,8 @@ public class UnitOfWork : IUnitOfWork
     private IRepository<CommunityTag>? _tags;
     private IRepository<CropPhoto>? _cropPhotos;
     private IRepository<SeedInventory>? _seedInventories;
+    private IRepository<Achievement>? _achievements;
+    private IRepository<UserAchievement>? _userAchievements;
 
     public UnitOfWork(AppDbContext context)
     {
@@ -37,6 +39,8 @@ public class UnitOfWork : IUnitOfWork
     public IRepository<CommunityTag> Tags => _tags ??= new Repository<CommunityTag>(_context);
     public IRepository<CropPhoto> CropPhotos => _cropPhotos ??= new Repository<CropPhoto>(_context);
     public IRepository<SeedInventory> SeedInventories => _seedInventories ??= new Repository<SeedInventory>(_context);
+    public IRepository<Achievement> Achievements => _achievements ??= new Repository<Achievement>(_context);
+    public IRepository<UserAchievement> UserAchievements => _userAchievements ??= new Repository<UserAchievement>(_context);
 
     public async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {

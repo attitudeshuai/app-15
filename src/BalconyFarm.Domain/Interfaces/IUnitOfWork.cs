@@ -16,5 +16,7 @@ public interface IUnitOfWork
     IRepository<CommunityTag> Tags { get; }
     IRepository<CropPhoto> CropPhotos { get; }
     IRepository<SeedInventory> SeedInventories { get; }
+    IRepository<Achievement> Achievements { get; }
+    IRepository<UserAchievement> UserAchievements { get; }
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }

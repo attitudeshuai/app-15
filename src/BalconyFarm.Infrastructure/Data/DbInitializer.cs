@@ -47,6 +47,11 @@ public static class DbInitializer
         {
             await SeedInventoriesAsync(context, cancellationToken);
         }
+
+        if (!await context.Achievements.AnyAsync(cancellationToken))
+        {
+            await SeedAchievementsAsync(context, cancellationToken);
+        }
     }
 
     private static async Task SeedUsersAsync(AppDbContext context, IPasswordHashService passwordHashService, CancellationToken cancellationToken)
@@ -434,6 +439,181 @@ public static class DbInitializer
         };
 
         await context.SeedInventories.AddRangeAsync(seeds, cancellationToken);
+        await context.SaveChangesAsync(cancellationToken);
+    }
+
+    private static async Task SeedAchievementsAsync(AppDbContext context, CancellationToken cancellationToken)
+    {
+        var achievements = new List<Achievement>
+        {
+            new Achievement
+            {
+                Id = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+                Type = AchievementType.FirstHarvest,
+                Name = "初尝收获",
+                Description = "完成第一次收获，享受劳动的果实",
+                IconUrl = "https://example.com/achievements/first-harvest.png",
+                Points = 10,
+                Category = "收获",
+                CreatedAt = DateTime.UtcNow
+            },
+            new Achievement
+            {
+                Id = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
+                Type = AchievementType.Harvest10Times,
+                Name = "丰收小能手",
+                Description = "累计完成10次收获",
+                IconUrl = "https://example.com/achievements/harvest-10.png",
+                Points = 30,
+                Category = "收获",
+                CreatedAt = DateTime.UtcNow
+            },
+            new Achievement
+            {
+                Id = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc"),
+                Type = AchievementType.Harvest50Times,
+                Name = "收获达人",
+                Description = "累计完成50次收获",
+                IconUrl = "https://example.com/achievements/harvest-50.png",
+                Points = 100,
+                Category = "收获",
+                CreatedAt = DateTime.UtcNow
+            },
+            new Achievement
+            {
+                Id = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd"),
+                Type = AchievementType.ConsecutiveWatering7Days,
+                Name = "勤劳园丁",
+                Description = "连续7天完成浇水任务",
+                IconUrl = "https://example.com/achievements/water-7.png",
+                Points = 20,
+                Category = "养护",
+                CreatedAt = DateTime.UtcNow
+            },
+            new Achievement
+            {
+                Id = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee"),
+                Type = AchievementType.ConsecutiveWatering30Days,
+                Name = "坚持不懈",
+                Description = "连续30天完成浇水任务",
+                IconUrl = "https://example.com/achievements/water-30.png",
+                Points = 80,
+                Category = "养护",
+                CreatedAt = DateTime.UtcNow
+            },
+            new Achievement
+            {
+                Id = Guid.Parse("ffffffff-ffff-ffff-ffff-ffffffffffff"),
+                Type = AchievementType.ConsecutiveWatering100Days,
+                Name = "滴水穿石",
+                Description = "连续100天完成浇水任务",
+                IconUrl = "https://example.com/achievements/water-100.png",
+                Points = 300,
+                Category = "养护",
+                CreatedAt = DateTime.UtcNow
+            },
+            new Achievement
+            {
+                Id = Guid.Parse("10000000-0000-0000-0000-000000000001"),
+                Type = AchievementType.FirstPestResolved,
+                Name = "初战告捷",
+                Description = "成功解决第一次病虫害问题",
+                IconUrl = "https://example.com/achievements/pest-first.png",
+                Points = 15,
+                Category = "病虫害",
+                CreatedAt = DateTime.UtcNow
+            },
+            new Achievement
+            {
+                Id = Guid.Parse("10000000-0000-0000-0000-000000000002"),
+                Type = AchievementType.PestResolved5Times,
+                Name = "病虫害克星",
+                Description = "成功解决5次病虫害问题",
+                IconUrl = "https://example.com/achievements/pest-5.png",
+                Points = 50,
+                Category = "病虫害",
+                CreatedAt = DateTime.UtcNow
+            },
+            new Achievement
+            {
+                Id = Guid.Parse("10000000-0000-0000-0000-000000000003"),
+                Type = AchievementType.PestResolved20Times,
+                Name = "植物医生",
+                Description = "成功解决20次病虫害问题",
+                IconUrl = "https://example.com/achievements/pest-20.png",
+                Points = 150,
+                Category = "病虫害",
+                CreatedAt = DateTime.UtcNow
+            },
+            new Achievement
+            {
+                Id = Guid.Parse("10000000-0000-0000-0000-000000000004"),
+                Type = AchievementType.FirstCropPlanted,
+                Name = "播下希望",
+                Description = "种植第一棵作物",
+                IconUrl = "https://example.com/achievements/plant-first.png",
+                Points = 5,
+                Category = "种植",
+                CreatedAt = DateTime.UtcNow
+            },
+            new Achievement
+            {
+                Id = Guid.Parse("10000000-0000-0000-0000-000000000005"),
+                Type = AchievementType.CropsPlanted5,
+                Name = "小菜园主",
+                Description = "累计种植5棵作物",
+                IconUrl = "https://example.com/achievements/plant-5.png",
+                Points = 25,
+                Category = "种植",
+                CreatedAt = DateTime.UtcNow
+            },
+            new Achievement
+            {
+                Id = Guid.Parse("10000000-0000-0000-0000-000000000006"),
+                Type = AchievementType.CropsPlanted20,
+                Name = "种植专家",
+                Description = "累计种植20棵作物",
+                IconUrl = "https://example.com/achievements/plant-20.png",
+                Points = 120,
+                Category = "种植",
+                CreatedAt = DateTime.UtcNow
+            },
+            new Achievement
+            {
+                Id = Guid.Parse("10000000-0000-0000-0000-000000000007"),
+                Type = AchievementType.PerfectQualityHarvest,
+                Name = "完美品质",
+                Description = "收获一次优秀品质的作物",
+                IconUrl = "https://example.com/achievements/perfect-quality.png",
+                Points = 40,
+                Category = "收获",
+                CreatedAt = DateTime.UtcNow
+            },
+            new Achievement
+            {
+                Id = Guid.Parse("10000000-0000-0000-0000-000000000008"),
+                Type = AchievementType.AllCareTasksCompleted,
+                Name = "无微不至",
+                Description = "完成所有类型的养护任务（浇水、施肥、修剪、换盆）",
+                IconUrl = "https://example.com/achievements/all-tasks.png",
+                Points = 60,
+                Category = "养护",
+                CreatedAt = DateTime.UtcNow
+            },
+            new Achievement
+            {
+                Id = Guid.Parse("10000000-0000-0000-0000-000000000009"),
+                Type = AchievementType.CommunityHelper,
+                Name = "社区热心人",
+                Description = "在社区帮助他人解决问题",
+                IconUrl = "https://example.com/achievements/community-helper.png",
+                Points = 35,
+                Category = "社区",
+                CreatedAt = DateTime.UtcNow
+            }
+        };
+
+        await context.Achievements.AddRangeAsync(achievements, cancellationToken);
         await context.SaveChangesAsync(cancellationToken);
     }
 }

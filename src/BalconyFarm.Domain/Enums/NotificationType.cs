@@ -4,5 +4,6 @@ public enum NotificationType
 {
     DayBeforeReminder,
     SameDayReminder,
-    SeedExpiryReminder
+    SeedExpiryReminder,
+    AchievementUnlocked
 }

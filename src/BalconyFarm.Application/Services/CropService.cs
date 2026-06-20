@@ -15,15 +15,18 @@ public class CropService : ICropService
     private readonly IUnitOfWork _unitOfWork;
     private readonly ILogger<CropService> _logger;
     private readonly IPlantingPlanTemplateDataProvider _templateDataProvider;
+    private readonly IAchievementService _achievementService;
 
     public CropService(
         IUnitOfWork unitOfWork,
         ILogger<CropService> logger,
-        IPlantingPlanTemplateDataProvider templateDataProvider)
+        IPlantingPlanTemplateDataProvider templateDataProvider,
+        IAchievementService achievementService)
     {
         _unitOfWork = unitOfWork;
         _logger = logger;
         _templateDataProvider = templateDataProvider;
+        _achievementService = achievementService;
     }
 
     public async Task<ApiResponse<PagedResult<CropDto>>> GetCropsAsync(CropQueryRequestDto query, Guid? userId = null, CancellationToken cancellationToken = default)
@@ -132,6 +135,8 @@ public class CropService : ICropService
 
         _logger.LogInformation("作物创建成功: {CropId}", crop.Id);
 
+        await _achievementService.CheckAndUnlockPlantingAchievementsAsync(userId, cancellationToken);
+
         var cropDto = crop.Adapt<CropDto>();
         return ApiResponse<CropDto>.Success(cropDto, "创建成功");
     }
@@ -202,6 +207,8 @@ public class CropService : ICropService
 
         result.Crop = crop.Adapt<CropDto>();
         result.GeneratedTasks.ForEach(t => t.CropName = crop.Name);
+
+        await _achievementService.CheckAndUnlockPlantingAchievementsAsync(userId, cancellationToken);
 
         var message = result.GeneratedTaskCount > 0
             ? $"创建成功，已根据模板自动生成 {result.GeneratedTaskCount} 个养护任务"

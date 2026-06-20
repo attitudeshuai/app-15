@@ -21,6 +21,8 @@ public class AppDbContext : DbContext
     public DbSet<CommunityTag> Tags => Set<CommunityTag>();
     public DbSet<CropPhoto> CropPhotos => Set<CropPhoto>();
     public DbSet<SeedInventory> SeedInventories => Set<SeedInventory>();
+    public DbSet<Achievement> Achievements => Set<Achievement>();
+    public DbSet<UserAchievement> UserAchievements => Set<UserAchievement>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -252,6 +254,43 @@ public class AppDbContext : DbContext
 
             entity.HasIndex(t => t.Name);
             entity.HasIndex(t => t.QuestionId);
+        });
+
+        modelBuilder.Entity<Achievement>(entity =>
+        {
+            entity.HasKey(a => a.Id);
+            entity.Property(a => a.Type).IsRequired();
+            entity.Property(a => a.Name).IsRequired().HasMaxLength(100);
+            entity.Property(a => a.Description).IsRequired().HasMaxLength(500);
+            entity.Property(a => a.IconUrl).HasMaxLength(500);
+            entity.Property(a => a.Category).IsRequired().HasMaxLength(50);
+            entity.Property(a => a.Points).IsRequired();
+            entity.Property(a => a.CreatedAt).HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            entity.HasIndex(a => a.Type).IsUnique();
+        });
+
+        modelBuilder.Entity<UserAchievement>(entity =>
+        {
+            entity.HasKey(ua => ua.Id);
+            entity.Property(ua => ua.UserId).IsRequired();
+            entity.Property(ua => ua.AchievementId).IsRequired();
+            entity.Property(ua => ua.UnlockedAt).IsRequired();
+            entity.Property(ua => ua.UnlockReason).HasMaxLength(500);
+
+            entity.HasIndex(ua => ua.UserId);
+            entity.HasIndex(ua => ua.AchievementId);
+            entity.HasIndex(ua => new { ua.UserId, ua.AchievementId }).IsUnique();
+
+            entity.HasOne(ua => ua.User)
+                  .WithMany(u => u.UserAchievements)
+                  .HasForeignKey(ua => ua.UserId)
+                  .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasOne(ua => ua.Achievement)
+                  .WithMany(a => a.UserAchievements)
+                  .HasForeignKey(ua => ua.AchievementId)
+                  .OnDelete(DeleteBehavior.Cascade);
         });
     }
 

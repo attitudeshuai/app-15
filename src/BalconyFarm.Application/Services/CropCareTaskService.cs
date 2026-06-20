@@ -14,11 +14,13 @@ public class CropCareTaskService : ICropCareTaskService
 {
     private readonly IUnitOfWork _unitOfWork;
     private readonly ILogger<CropCareTaskService> _logger;
+    private readonly IAchievementService _achievementService;
 
-    public CropCareTaskService(IUnitOfWork unitOfWork, ILogger<CropCareTaskService> logger)
+    public CropCareTaskService(IUnitOfWork unitOfWork, ILogger<CropCareTaskService> logger, IAchievementService achievementService)
     {
         _unitOfWork = unitOfWork;
         _logger = logger;
+        _achievementService = achievementService;
     }
 
     public async Task<ApiResponse<PagedResult<CropCareTaskDto>>> GetCropCareTasksAsync(CropCareTaskQueryRequestDto query, Guid? userId = null, CancellationToken cancellationToken = default)
@@ -203,6 +205,12 @@ public class CropCareTaskService : ICropCareTaskService
 
         _logger.LogInformation("作物护理任务更新成功: TaskId={TaskId}", id);
 
+        if (dto.Status.HasValue && dto.Status.Value == Domain.Enums.TaskStatus.Completed)
+        {
+            await _achievementService.CheckAndUnlockWateringAchievementsAsync(userId, cancellationToken);
+            await _achievementService.CheckAndUnlockCareTaskAchievementsAsync(userId, cancellationToken);
+        }
+
         var taskDto = task.Adapt<CropCareTaskDto>();
         taskDto.CropName = crop.Name;
         SetOverdueInfo(taskDto);
@@ -266,6 +274,12 @@ public class CropCareTaskService : ICropCareTaskService
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
         _logger.LogInformation("任务状态更新成功: TaskId={TaskId}", id);
+
+        if (dto.Status == TaskStatus.Completed)
+        {
+            await _achievementService.CheckAndUnlockWateringAchievementsAsync(userId, cancellationToken);
+            await _achievementService.CheckAndUnlockCareTaskAchievementsAsync(userId, cancellationToken);
+        }
 
         var taskDto = task.Adapt<CropCareTaskDto>();
         taskDto.CropName = crop.Name;
@@ -336,6 +350,12 @@ public class CropCareTaskService : ICropCareTaskService
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
         _logger.LogInformation("批量更新任务状态完成: 成功={SuccessCount}, 失败={FailedCount}", result.SuccessCount, result.FailedCount);
+
+        if (dto.Status == TaskStatus.Completed && result.SuccessCount > 0)
+        {
+            await _achievementService.CheckAndUnlockWateringAchievementsAsync(userId, cancellationToken);
+            await _achievementService.CheckAndUnlockCareTaskAchievementsAsync(userId, cancellationToken);
+        }
 
         var message = result.FailedCount == 0
             ? $"成功更新 {result.SuccessCount} 个任务"

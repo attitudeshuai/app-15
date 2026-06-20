@@ -11,11 +11,13 @@ public class CommunityService : ICommunityService
 {
     private readonly IUnitOfWork _unitOfWork;
     private readonly ILogger<CommunityService> _logger;
+    private readonly IAchievementService _achievementService;
 
-    public CommunityService(IUnitOfWork unitOfWork, ILogger<CommunityService> logger)
+    public CommunityService(IUnitOfWork unitOfWork, ILogger<CommunityService> logger, IAchievementService achievementService)
     {
         _unitOfWork = unitOfWork;
         _logger = logger;
+        _achievementService = achievementService;
     }
 
     public async Task<ApiResponse<PagedResult<CommunityQuestionDto>>> GetQuestionsAsync(QuestionQueryRequestDto query, CancellationToken cancellationToken = default)
@@ -367,6 +369,8 @@ public class CommunityService : ICommunityService
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
         _logger.LogInformation("回复采纳成功: {ReplyId}", replyId);
+
+        await _achievementService.CheckAndUnlockCommunityAchievementsAsync(reply.UserId, cancellationToken);
 
         var replyDto = new CommunityReplyDto
         {

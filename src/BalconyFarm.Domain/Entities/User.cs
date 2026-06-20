@@ -12,4 +12,5 @@ public class User
 
     public ICollection<Crop> Crops { get; set; } = new List<Crop>();
     public ICollection<SeedInventory> SeedInventories { get; set; } = new List<SeedInventory>();
+    public ICollection<UserAchievement> UserAchievements { get; set; } = new List<UserAchievement>();
 }

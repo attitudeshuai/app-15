@@ -23,6 +23,7 @@ public class ServiceTests
     private readonly Mock<ILogger<CropService>> _cropLoggerMock;
     private readonly Mock<ILogger<CropCareTaskService>> _taskLoggerMock;
     private readonly Mock<IPlantingPlanTemplateDataProvider> _templateDataProviderMock;
+    private readonly Mock<IAchievementService> _achievementServiceMock;
     private readonly CancellationToken _cancellationToken;
 
     public ServiceTests()
@@ -34,6 +35,7 @@ public class ServiceTests
         _cropLoggerMock = new Mock<ILogger<CropService>>();
         _taskLoggerMock = new Mock<ILogger<CropCareTaskService>>();
         _templateDataProviderMock = new Mock<IPlantingPlanTemplateDataProvider>();
+        _achievementServiceMock = new Mock<IAchievementService>();
         _cancellationToken = CancellationToken.None;
     }
 
@@ -294,7 +296,7 @@ public class ServiceTests
         _unitOfWorkMock.Setup(u => u.SaveChangesAsync(_cancellationToken))
             .ReturnsAsync(1);
 
-        var cropService = new CropService(_unitOfWorkMock.Object, _cropLoggerMock.Object, _templateDataProviderMock.Object);
+        var cropService = new CropService(_unitOfWorkMock.Object, _cropLoggerMock.Object, _templateDataProviderMock.Object, _achievementServiceMock.Object);
 
         var result = await cropService.CreateCropAsync(createDto, userId, _cancellationToken);
 
@@ -328,7 +330,7 @@ public class ServiceTests
         _unitOfWorkMock.Setup(u => u.Crops.GetByIdAsync(cropId, _cancellationToken))
             .ReturnsAsync(crop);
 
-        var cropService = new CropService(_unitOfWorkMock.Object, _cropLoggerMock.Object, _templateDataProviderMock.Object);
+        var cropService = new CropService(_unitOfWorkMock.Object, _cropLoggerMock.Object, _templateDataProviderMock.Object, _achievementServiceMock.Object);
 
         var result = await cropService.GetCropByIdAsync(cropId, userId, _cancellationToken);
 
@@ -348,7 +350,7 @@ public class ServiceTests
         _unitOfWorkMock.Setup(u => u.Crops.GetByIdAsync(cropId, _cancellationToken))
             .ReturnsAsync((Crop?)null);
 
-        var cropService = new CropService(_unitOfWorkMock.Object, _cropLoggerMock.Object, _templateDataProviderMock.Object);
+        var cropService = new CropService(_unitOfWorkMock.Object, _cropLoggerMock.Object, _templateDataProviderMock.Object, _achievementServiceMock.Object);
 
         var result = await cropService.GetCropByIdAsync(cropId, userId, _cancellationToken);
 
@@ -374,7 +376,7 @@ public class ServiceTests
         _unitOfWorkMock.Setup(u => u.Crops.GetByIdAsync(cropId, _cancellationToken))
             .ReturnsAsync(crop);
 
-        var cropService = new CropService(_unitOfWorkMock.Object, _cropLoggerMock.Object, _templateDataProviderMock.Object);
+        var cropService = new CropService(_unitOfWorkMock.Object, _cropLoggerMock.Object, _templateDataProviderMock.Object, _achievementServiceMock.Object);
 
         var result = await cropService.GetCropByIdAsync(cropId, otherUserId, _cancellationToken);
 
@@ -413,7 +415,7 @@ public class ServiceTests
         _unitOfWorkMock.Setup(u => u.SaveChangesAsync(_cancellationToken))
             .ReturnsAsync(1);
 
-        var cropService = new CropService(_unitOfWorkMock.Object, _cropLoggerMock.Object, _templateDataProviderMock.Object);
+        var cropService = new CropService(_unitOfWorkMock.Object, _cropLoggerMock.Object, _templateDataProviderMock.Object, _achievementServiceMock.Object);
 
         var result = await cropService.UpdateCropAsync(cropId, updateDto, userId, _cancellationToken);
 
@@ -439,7 +441,7 @@ public class ServiceTests
         _unitOfWorkMock.Setup(u => u.Crops.GetByIdAsync(cropId, _cancellationToken))
             .ReturnsAsync((Crop?)null);
 
-        var cropService = new CropService(_unitOfWorkMock.Object, _cropLoggerMock.Object, _templateDataProviderMock.Object);
+        var cropService = new CropService(_unitOfWorkMock.Object, _cropLoggerMock.Object, _templateDataProviderMock.Object, _achievementServiceMock.Object);
 
         var result = await cropService.UpdateCropAsync(cropId, updateDto, userId, _cancellationToken);
 
@@ -469,7 +471,7 @@ public class ServiceTests
         _unitOfWorkMock.Setup(u => u.Crops.GetByIdAsync(cropId, _cancellationToken))
             .ReturnsAsync(existingCrop);
 
-        var cropService = new CropService(_unitOfWorkMock.Object, _cropLoggerMock.Object, _templateDataProviderMock.Object);
+        var cropService = new CropService(_unitOfWorkMock.Object, _cropLoggerMock.Object, _templateDataProviderMock.Object, _achievementServiceMock.Object);
 
         var result = await cropService.UpdateCropAsync(cropId, updateDto, otherUserId, _cancellationToken);
 
@@ -502,7 +504,7 @@ public class ServiceTests
         _unitOfWorkMock.Setup(u => u.SaveChangesAsync(_cancellationToken))
             .ReturnsAsync(1);
 
-        var cropService = new CropService(_unitOfWorkMock.Object, _cropLoggerMock.Object, _templateDataProviderMock.Object);
+        var cropService = new CropService(_unitOfWorkMock.Object, _cropLoggerMock.Object, _templateDataProviderMock.Object, _achievementServiceMock.Object);
 
         var result = await cropService.DeleteCropAsync(cropId, userId, _cancellationToken);
 
@@ -523,7 +525,7 @@ public class ServiceTests
         _unitOfWorkMock.Setup(u => u.Crops.GetByIdAsync(cropId, _cancellationToken))
             .ReturnsAsync((Crop?)null);
 
-        var cropService = new CropService(_unitOfWorkMock.Object, _cropLoggerMock.Object, _templateDataProviderMock.Object);
+        var cropService = new CropService(_unitOfWorkMock.Object, _cropLoggerMock.Object, _templateDataProviderMock.Object, _achievementServiceMock.Object);
 
         var result = await cropService.DeleteCropAsync(cropId, userId, _cancellationToken);
 
@@ -550,7 +552,7 @@ public class ServiceTests
         _unitOfWorkMock.Setup(u => u.Crops.GetByIdAsync(cropId, _cancellationToken))
             .ReturnsAsync(crop);
 
-        var cropService = new CropService(_unitOfWorkMock.Object, _cropLoggerMock.Object, _templateDataProviderMock.Object);
+        var cropService = new CropService(_unitOfWorkMock.Object, _cropLoggerMock.Object, _templateDataProviderMock.Object, _achievementServiceMock.Object);
 
         var result = await cropService.DeleteCropAsync(cropId, otherUserId, _cancellationToken);
 
@@ -594,7 +596,7 @@ public class ServiceTests
         _unitOfWorkMock.Setup(u => u.SaveChangesAsync(_cancellationToken))
             .ReturnsAsync(1);
 
-        var taskService = new CropCareTaskService(_unitOfWorkMock.Object, _taskLoggerMock.Object);
+        var taskService = new CropCareTaskService(_unitOfWorkMock.Object, _taskLoggerMock.Object, _achievementServiceMock.Object);
 
         var result = await taskService.CreateCropCareTaskAsync(createDto, userId, _cancellationToken);
 
@@ -650,7 +652,7 @@ public class ServiceTests
         _unitOfWorkMock.Setup(u => u.SaveChangesAsync(_cancellationToken))
             .ReturnsAsync(1);
 
-        var taskService = new CropCareTaskService(_unitOfWorkMock.Object, _taskLoggerMock.Object);
+        var taskService = new CropCareTaskService(_unitOfWorkMock.Object, _taskLoggerMock.Object, _achievementServiceMock.Object);
 
         var result = await taskService.UpdateTaskStatusAsync(taskId, updateDto, userId, _cancellationToken);
 
@@ -706,7 +708,7 @@ public class ServiceTests
         _unitOfWorkMock.Setup(u => u.SaveChangesAsync(_cancellationToken))
             .ReturnsAsync(1);
 
-        var taskService = new CropCareTaskService(_unitOfWorkMock.Object, _taskLoggerMock.Object);
+        var taskService = new CropCareTaskService(_unitOfWorkMock.Object, _taskLoggerMock.Object, _achievementServiceMock.Object);
 
         var result = await taskService.UpdateCropCareTaskAsync(taskId, updateDto, userId, _cancellationToken);
 
@@ -757,7 +759,7 @@ public class ServiceTests
         _unitOfWorkMock.Setup(u => u.SaveChangesAsync(_cancellationToken))
             .ReturnsAsync(1);
 
-        var taskService = new CropCareTaskService(_unitOfWorkMock.Object, _taskLoggerMock.Object);
+        var taskService = new CropCareTaskService(_unitOfWorkMock.Object, _taskLoggerMock.Object, _achievementServiceMock.Object);
 
         var result = await taskService.UpdateTaskStatusAsync(taskId, updateDto, userId, _cancellationToken);
 
@@ -800,7 +802,7 @@ public class ServiceTests
         _unitOfWorkMock.Setup(u => u.Crops.GetByIdAsync(cropId, _cancellationToken))
             .ReturnsAsync(crop);
 
-        var taskService = new CropCareTaskService(_unitOfWorkMock.Object, _taskLoggerMock.Object);
+        var taskService = new CropCareTaskService(_unitOfWorkMock.Object, _taskLoggerMock.Object, _achievementServiceMock.Object);
 
         var result = await taskService.UpdateTaskStatusAsync(taskId, updateDto, otherUserId, _cancellationToken);
 

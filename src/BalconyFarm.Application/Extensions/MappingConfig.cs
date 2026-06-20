@@ -130,5 +130,12 @@ public static class MappingConfig
             .Map(dest => dest.ExpiryDate, src => src.ExpiryDate)
             .Map(dest => dest.Notes, src => src.Notes)
             .Map(dest => dest.CreatedAt, src => src.CreatedAt);
+
+        TypeAdapterConfig<Achievement, AchievementDto>.NewConfig()
+            .Map(dest => dest.IsUnlocked, src => false)
+            .Map(dest => dest.UnlockedAt, src => (DateTime?)null)
+            .Map(dest => dest.UnlockReason, src => (string?)null);
+
+        TypeAdapterConfig<UserAchievement, UserAchievementDto>.NewConfig();
     }
 }

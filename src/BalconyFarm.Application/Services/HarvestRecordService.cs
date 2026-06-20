@@ -12,11 +12,13 @@ public class HarvestRecordService : IHarvestRecordService
 {
     private readonly IUnitOfWork _unitOfWork;
     private readonly ILogger<HarvestRecordService> _logger;
+    private readonly IAchievementService _achievementService;
 
-    public HarvestRecordService(IUnitOfWork unitOfWork, ILogger<HarvestRecordService> logger)
+    public HarvestRecordService(IUnitOfWork unitOfWork, ILogger<HarvestRecordService> logger, IAchievementService achievementService)
     {
         _unitOfWork = unitOfWork;
         _logger = logger;
+        _achievementService = achievementService;
     }
 
     public async Task<ApiResponse<PagedResult<HarvestRecordDto>>> GetHarvestRecordsAsync(HarvestRecordQueryRequestDto query, Guid? userId = null, CancellationToken cancellationToken = default)
@@ -158,6 +160,8 @@ public class HarvestRecordService : IHarvestRecordService
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
         _logger.LogInformation("收获记录创建成功: {HarvestRecordId}", harvestRecord.Id);
+
+        await _achievementService.CheckAndUnlockHarvestAchievementsAsync(userId, cancellationToken);
 
         var harvestRecordDto = harvestRecord.Adapt<HarvestRecordDto>();
         harvestRecordDto.CropName = crop.Name;
