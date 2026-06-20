@@ -5,6 +5,7 @@ namespace BalconyFarm.Domain.Interfaces;
 public interface IUnitOfWork
 {
     IRepository<User> Users { get; }
+    IRepository<PlantingLocation> PlantingLocations { get; }
     IRepository<Crop> Crops { get; }
     IRepository<CropCareTask> CropCareTasks { get; }
     IRepository<HarvestRecord> HarvestRecords { get; }

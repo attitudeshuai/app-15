@@ -45,6 +45,11 @@ public class CropService : ICropService
             crops = crops.Where(c => c.Status == query.Status.Value);
         }
 
+        if (query.PlantingLocationId.HasValue)
+        {
+            crops = crops.Where(c => c.PlantingLocationId == query.PlantingLocationId.Value);
+        }
+
         if (!string.IsNullOrEmpty(query.Location))
         {
             crops = crops.Where(c => c.Location.Contains(query.Location));
@@ -86,11 +91,12 @@ public class CropService : ICropService
             crops = crops.OrderByDescending(c => c.CreatedAt);
         }
 
-        var items = crops
+        var pagedCrops = crops
             .Skip((query.PageNumber - 1) * query.PageSize)
             .Take(query.PageSize)
-            .Adapt<IEnumerable<CropDto>>()
             .ToList();
+
+        var items = await EnrichCropDtosAsync(pagedCrops, cancellationToken);
 
         var result = new PagedResult<CropDto>
         {
@@ -117,7 +123,7 @@ public class CropService : ICropService
             return ApiResponse<CropDto>.Error("无权访问此作物", 403);
         }
 
-        var cropDto = crop.Adapt<CropDto>();
+        var cropDto = await EnrichCropDtoAsync(crop, cancellationToken);
         return ApiResponse<CropDto>.Success(cropDto);
     }
 
@@ -125,10 +131,32 @@ public class CropService : ICropService
     {
         _logger.LogInformation("创建作物: {Name}, 用户: {UserId}", dto.Name, userId);
 
+        if (dto.PlantingLocationId.HasValue)
+        {
+            var location = await _unitOfWork.PlantingLocations.GetByIdAsync(dto.PlantingLocationId.Value, cancellationToken);
+            if (location == null)
+            {
+                return ApiResponse<CropDto>.Error("种植位置不存在", 404);
+            }
+            if (location.UserId != userId)
+            {
+                return ApiResponse<CropDto>.Error("无权使用此种植位置", 403);
+            }
+        }
+
         var crop = dto.Adapt<Crop>();
         crop.Id = Guid.NewGuid();
         crop.UserId = userId;
         crop.CreatedAt = DateTime.UtcNow;
+
+        if (dto.PlantingLocationId.HasValue)
+        {
+            var location = await _unitOfWork.PlantingLocations.GetByIdAsync(dto.PlantingLocationId.Value, cancellationToken);
+            if (location != null && string.IsNullOrEmpty(dto.Location))
+            {
+                crop.Location = location.Name;
+            }
+        }
 
         await _unitOfWork.Crops.AddAsync(crop, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
@@ -137,7 +165,7 @@ public class CropService : ICropService
 
         await _achievementService.CheckAndUnlockPlantingAchievementsAsync(userId, cancellationToken);
 
-        var cropDto = crop.Adapt<CropDto>();
+        var cropDto = await EnrichCropDtoAsync(crop, cancellationToken);
         return ApiResponse<CropDto>.Success(cropDto, "创建成功");
     }
 
@@ -149,10 +177,32 @@ public class CropService : ICropService
         _logger.LogInformation("创建作物并应用模板: {Name}, TemplateId={TemplateId}, 用户: {UserId}",
             dto.Name, dto.PlantingPlanTemplateId, userId);
 
+        if (dto.PlantingLocationId.HasValue)
+        {
+            var location = await _unitOfWork.PlantingLocations.GetByIdAsync(dto.PlantingLocationId.Value, cancellationToken);
+            if (location == null)
+            {
+                return ApiResponse<CreateCropWithTemplateResultDto>.Error("种植位置不存在", 404);
+            }
+            if (location.UserId != userId)
+            {
+                return ApiResponse<CreateCropWithTemplateResultDto>.Error("无权使用此种植位置", 403);
+            }
+        }
+
         var crop = dto.Adapt<Crop>();
         crop.Id = Guid.NewGuid();
         crop.UserId = userId;
         crop.CreatedAt = DateTime.UtcNow;
+
+        if (dto.PlantingLocationId.HasValue && string.IsNullOrEmpty(dto.Location))
+        {
+            var location = await _unitOfWork.PlantingLocations.GetByIdAsync(dto.PlantingLocationId.Value, cancellationToken);
+            if (location != null)
+            {
+                crop.Location = location.Name;
+            }
+        }
 
         await _unitOfWork.Crops.AddAsync(crop, cancellationToken);
 
@@ -205,7 +255,7 @@ public class CropService : ICropService
 
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-        result.Crop = crop.Adapt<CropDto>();
+        result.Crop = await EnrichCropDtoAsync(crop, cancellationToken);
         result.GeneratedTasks.ForEach(t => t.CropName = crop.Name);
 
         await _achievementService.CheckAndUnlockPlantingAchievementsAsync(userId, cancellationToken);
@@ -232,6 +282,19 @@ public class CropService : ICropService
             return ApiResponse<CropDto>.Error("无权修改此作物", 403);
         }
 
+        if (dto.PlantingLocationId.HasValue)
+        {
+            var location = await _unitOfWork.PlantingLocations.GetByIdAsync(dto.PlantingLocationId.Value, cancellationToken);
+            if (location == null)
+            {
+                return ApiResponse<CropDto>.Error("种植位置不存在", 404);
+            }
+            if (location.UserId != userId)
+            {
+                return ApiResponse<CropDto>.Error("无权使用此种植位置", 403);
+            }
+        }
+
         if (!string.IsNullOrEmpty(dto.Name))
             crop.Name = dto.Name;
         if (!string.IsNullOrEmpty(dto.Variety))
@@ -240,6 +303,18 @@ public class CropService : ICropService
             crop.PlantingDate = dto.PlantingDate.Value;
         if (!string.IsNullOrEmpty(dto.Location))
             crop.Location = dto.Location;
+        if (dto.PlantingLocationId.HasValue)
+        {
+            crop.PlantingLocationId = dto.PlantingLocationId.Value;
+            if (string.IsNullOrEmpty(dto.Location))
+            {
+                var location = await _unitOfWork.PlantingLocations.GetByIdAsync(dto.PlantingLocationId.Value, cancellationToken);
+                if (location != null)
+                {
+                    crop.Location = location.Name;
+                }
+            }
+        }
         if (!string.IsNullOrEmpty(dto.ContainerType))
             crop.ContainerType = dto.ContainerType;
         if (dto.Status.HasValue)
@@ -252,7 +327,7 @@ public class CropService : ICropService
 
         _logger.LogInformation("作物更新成功: {CropId}", id);
 
-        var cropDto = crop.Adapt<CropDto>();
+        var cropDto = await EnrichCropDtoAsync(crop, cancellationToken);
         return ApiResponse<CropDto>.Success(cropDto, "更新成功");
     }
 
@@ -301,7 +376,7 @@ public class CropService : ICropService
 
         _logger.LogInformation("作物状态更新成功: {CropId}", id);
 
-        var cropDto = crop.Adapt<CropDto>();
+        var cropDto = await EnrichCropDtoAsync(crop, cancellationToken);
         return ApiResponse<CropDto>.Success(cropDto, "状态更新成功");
     }
 
@@ -357,6 +432,54 @@ public class CropService : ICropService
         };
 
         return ApiResponse<CropShareCardDto>.Success(shareCard);
+    }
+
+    private async Task<CropDto> EnrichCropDtoAsync(Crop crop, CancellationToken cancellationToken)
+    {
+        var dto = crop.Adapt<CropDto>();
+
+        if (crop.PlantingLocationId.HasValue)
+        {
+            var location = await _unitOfWork.PlantingLocations.GetByIdAsync(crop.PlantingLocationId.Value, cancellationToken);
+            if (location != null)
+            {
+                dto.PlantingLocationName = location.Name;
+            }
+        }
+
+        return dto;
+    }
+
+    private async Task<List<CropDto>> EnrichCropDtosAsync(IEnumerable<Crop> crops, CancellationToken cancellationToken)
+    {
+        var cropList = crops.ToList();
+        var locationIds = cropList
+            .Where(c => c.PlantingLocationId.HasValue)
+            .Select(c => c.PlantingLocationId!.Value)
+            .Distinct()
+            .ToList();
+
+        var locations = new Dictionary<Guid, PlantingLocation>();
+        if (locationIds.Any())
+        {
+            var allLocations = await _unitOfWork.PlantingLocations.GetAllAsync(cancellationToken);
+            locations = allLocations
+                .Where(l => locationIds.Contains(l.Id))
+                .ToDictionary(l => l.Id);
+        }
+
+        var dtos = new List<CropDto>();
+        foreach (var crop in cropList)
+        {
+            var dto = crop.Adapt<CropDto>();
+            if (crop.PlantingLocationId.HasValue && locations.TryGetValue(crop.PlantingLocationId.Value, out var location))
+            {
+                dto.PlantingLocationName = location.Name;
+            }
+            dtos.Add(dto);
+        }
+
+        return dtos;
     }
 
     private static System.Linq.Expressions.Expression<Func<Crop, object>> GetSortProperty(string sortBy)

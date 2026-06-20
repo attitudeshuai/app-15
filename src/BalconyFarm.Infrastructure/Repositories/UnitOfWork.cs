@@ -8,6 +8,7 @@ public class UnitOfWork : IUnitOfWork
 {
     private readonly AppDbContext _context;
     private IRepository<User>? _users;
+    private IRepository<PlantingLocation>? _plantingLocations;
     private IRepository<Crop>? _crops;
     private IRepository<CropCareTask>? _cropCareTasks;
     private IRepository<HarvestRecord>? _harvestRecords;
@@ -28,6 +29,7 @@ public class UnitOfWork : IUnitOfWork
     }
 
     public IRepository<User> Users => _users ??= new Repository<User>(_context);
+    public IRepository<PlantingLocation> PlantingLocations => _plantingLocations ??= new Repository<PlantingLocation>(_context);
     public IRepository<Crop> Crops => _crops ??= new Repository<Crop>(_context);
     public IRepository<CropCareTask> CropCareTasks => _cropCareTasks ??= new Repository<CropCareTask>(_context);
     public IRepository<HarvestRecord> HarvestRecords => _harvestRecords ??= new Repository<HarvestRecord>(_context);

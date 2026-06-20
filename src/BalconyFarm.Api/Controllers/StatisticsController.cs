@@ -20,7 +20,9 @@ public class StatisticsController : ControllerBase
 
     [HttpGet("overview")]
     [Authorize]
-    public async Task<ActionResult<ApiResponse<OverviewStats>>> GetOverviewStats(CancellationToken cancellationToken)
+    public async Task<ActionResult<ApiResponse<OverviewStats>>> GetOverviewStats(
+        [FromQuery] Guid? plantingLocationId,
+        CancellationToken cancellationToken)
     {
         var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
         if (userIdClaim == null || !Guid.TryParse(userIdClaim, out var userId))
@@ -28,7 +30,7 @@ public class StatisticsController : ControllerBase
             return Unauthorized(ApiResponse.Error("用户未认证", 401));
         }
 
-        var result = await _statisticsService.GetOverviewStatsAsync(userId, cancellationToken);
+        var result = await _statisticsService.GetOverviewStatsAsync(userId, plantingLocationId, cancellationToken);
         if (result.Code != 200)
         {
             return BadRequest(result);
@@ -38,7 +40,11 @@ public class StatisticsController : ControllerBase
 
     [HttpGet("trend")]
     [Authorize]
-    public async Task<ActionResult<ApiResponse<IEnumerable<TrendData>>>> GetTrendStats([FromQuery] DateTime startDate, [FromQuery] DateTime endDate, CancellationToken cancellationToken)
+    public async Task<ActionResult<ApiResponse<IEnumerable<TrendData>>>> GetTrendStats(
+        [FromQuery] DateTime startDate,
+        [FromQuery] DateTime endDate,
+        [FromQuery] Guid? plantingLocationId,
+        CancellationToken cancellationToken)
     {
         var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
         if (userIdClaim == null || !Guid.TryParse(userIdClaim, out var userId))
@@ -46,7 +52,7 @@ public class StatisticsController : ControllerBase
             return Unauthorized(ApiResponse.Error("用户未认证", 401));
         }
 
-        var result = await _statisticsService.GetTrendStatsAsync(startDate, endDate, userId, cancellationToken);
+        var result = await _statisticsService.GetTrendStatsAsync(startDate, endDate, userId, plantingLocationId, cancellationToken);
         if (result.Code != 200)
         {
             return BadRequest(result);
@@ -56,7 +62,9 @@ public class StatisticsController : ControllerBase
 
     [HttpGet("crop-task-completion")]
     [Authorize]
-    public async Task<ActionResult<ApiResponse<IEnumerable<CropTaskCompletionItem>>>> GetCropTaskCompletionStats(CancellationToken cancellationToken)
+    public async Task<ActionResult<ApiResponse<IEnumerable<CropTaskCompletionItem>>>> GetCropTaskCompletionStats(
+        [FromQuery] Guid? plantingLocationId,
+        CancellationToken cancellationToken)
     {
         var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
         if (userIdClaim == null || !Guid.TryParse(userIdClaim, out var userId))
@@ -64,7 +72,7 @@ public class StatisticsController : ControllerBase
             return Unauthorized(ApiResponse.Error("用户未认证", 401));
         }
 
-        var result = await _statisticsService.GetCropTaskCompletionStatsAsync(userId, cancellationToken);
+        var result = await _statisticsService.GetCropTaskCompletionStatsAsync(userId, plantingLocationId, cancellationToken);
         if (result.Code != 200)
         {
             return BadRequest(result);
@@ -74,7 +82,9 @@ public class StatisticsController : ControllerBase
 
     [HttpGet("harvest-quality")]
     [Authorize]
-    public async Task<ActionResult<ApiResponse<HarvestQualityAnalysis>>> GetHarvestQualityAnalysis(CancellationToken cancellationToken)
+    public async Task<ActionResult<ApiResponse<HarvestQualityAnalysis>>> GetHarvestQualityAnalysis(
+        [FromQuery] Guid? plantingLocationId,
+        CancellationToken cancellationToken)
     {
         var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
         if (userIdClaim == null || !Guid.TryParse(userIdClaim, out var userId))
@@ -82,7 +92,7 @@ public class StatisticsController : ControllerBase
             return Unauthorized(ApiResponse.Error("用户未认证", 401));
         }
 
-        var result = await _statisticsService.GetHarvestQualityAnalysisAsync(userId, cancellationToken);
+        var result = await _statisticsService.GetHarvestQualityAnalysisAsync(userId, plantingLocationId, cancellationToken);
         if (result.Code != 200)
         {
             return BadRequest(result);

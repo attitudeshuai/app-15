@@ -23,6 +23,11 @@ public static class DbInitializer
             await SeedUsersAsync(context, passwordHashService, cancellationToken);
         }
 
+        if (!await context.PlantingLocations.AnyAsync(cancellationToken))
+        {
+            await SeedPlantingLocationsAsync(context, cancellationToken);
+        }
+
         if (!await context.Crops.AnyAsync(cancellationToken))
         {
             await SeedCropsAsync(context, cancellationToken);
@@ -94,6 +99,100 @@ public static class DbInitializer
         await context.SaveChangesAsync(cancellationToken);
     }
 
+    private static async Task SeedPlantingLocationsAsync(AppDbContext context, CancellationToken cancellationToken)
+    {
+        var locations = new List<PlantingLocation>
+        {
+            new PlantingLocation
+            {
+                Id = Guid.Parse("11111111-1111-1111-1111-111111111111"),
+                UserId = Guid.Parse("11111111-1111-1111-1111-111111111111"),
+                Name = "南阳台",
+                Description = "南向阳台，光照充足，适合种植喜光作物",
+                LocationType = "阳台",
+                SunlightCondition = "全日照",
+                Area = 5.5m,
+                PhotoUrl = "https://example.com/locations/south-balcony.jpg",
+                SortOrder = 1,
+                CreatedAt = DateTime.UtcNow.AddMonths(-3),
+                UpdatedAt = DateTime.UtcNow.AddMonths(-3)
+            },
+            new PlantingLocation
+            {
+                Id = Guid.Parse("22222222-2222-2222-2222-222222222222"),
+                UserId = Guid.Parse("11111111-1111-1111-1111-111111111111"),
+                Name = "东阳台",
+                Description = "东向阳台，上午有光照",
+                LocationType = "阳台",
+                SunlightCondition = "半日照",
+                Area = 3.2m,
+                PhotoUrl = "https://example.com/locations/east-balcony.jpg",
+                SortOrder = 2,
+                CreatedAt = DateTime.UtcNow.AddMonths(-3),
+                UpdatedAt = DateTime.UtcNow.AddMonths(-3)
+            },
+            new PlantingLocation
+            {
+                Id = Guid.Parse("33333333-3333-3333-3333-333333333333"),
+                UserId = Guid.Parse("22222222-2222-2222-2222-222222222222"),
+                Name = "北阳台",
+                Description = "北向阳台，光照较少，适合耐阴植物",
+                LocationType = "阳台",
+                SunlightCondition = "散射光",
+                Area = 4.0m,
+                PhotoUrl = "https://example.com/locations/north-balcony.jpg",
+                SortOrder = 1,
+                CreatedAt = DateTime.UtcNow.AddMonths(-2),
+                UpdatedAt = DateTime.UtcNow.AddMonths(-2)
+            },
+            new PlantingLocation
+            {
+                Id = Guid.Parse("44444444-4444-4444-4444-444444444444"),
+                UserId = Guid.Parse("22222222-2222-2222-2222-222222222222"),
+                Name = "南阳台",
+                Description = "南向大阳台，光照条件好",
+                LocationType = "阳台",
+                SunlightCondition = "全日照",
+                Area = 6.0m,
+                PhotoUrl = "https://example.com/locations/south-balcony-2.jpg",
+                SortOrder = 2,
+                CreatedAt = DateTime.UtcNow.AddMonths(-2),
+                UpdatedAt = DateTime.UtcNow.AddMonths(-2)
+            },
+            new PlantingLocation
+            {
+                Id = Guid.Parse("55555555-5555-5555-5555-555555555555"),
+                UserId = Guid.Parse("33333333-3333-3333-3333-333333333333"),
+                Name = "天台花园",
+                Description = "楼顶天台，空间开阔，光照充足",
+                LocationType = "天台",
+                SunlightCondition = "全日照",
+                Area = 20.0m,
+                PhotoUrl = "https://example.com/locations/rooftop-garden.jpg",
+                SortOrder = 1,
+                CreatedAt = DateTime.UtcNow.AddMonths(-1),
+                UpdatedAt = DateTime.UtcNow.AddMonths(-1)
+            },
+            new PlantingLocation
+            {
+                Id = Guid.Parse("66666666-6666-6666-6666-666666666666"),
+                UserId = Guid.Parse("33333333-3333-3333-3333-333333333333"),
+                Name = "西窗台",
+                Description = "西侧窗台，下午有阳光",
+                LocationType = "窗台",
+                SunlightCondition = "半日照",
+                Area = 0.8m,
+                PhotoUrl = "https://example.com/locations/west-windowsill.jpg",
+                SortOrder = 2,
+                CreatedAt = DateTime.UtcNow.AddMonths(-1),
+                UpdatedAt = DateTime.UtcNow.AddMonths(-1)
+            }
+        };
+
+        await context.PlantingLocations.AddRangeAsync(locations, cancellationToken);
+        await context.SaveChangesAsync(cancellationToken);
+    }
+
     private static async Task SeedCropsAsync(AppDbContext context, CancellationToken cancellationToken)
     {
         var crops = new List<Crop>
@@ -106,6 +205,7 @@ public static class DbInitializer
                 Variety = "千禧樱桃番茄",
                 PlantingDate = DateTime.UtcNow.AddDays(-60),
                 Location = "南阳台",
+                PlantingLocationId = Guid.Parse("11111111-1111-1111-1111-111111111111"),
                 ContainerType = "塑料花盆",
                 Status = CropStatus.Growing,
                 PhotoUrl = "https://example.com/crops/tomato1.jpg",
@@ -119,6 +219,7 @@ public static class DbInitializer
                 Variety = "甜罗勒",
                 PlantingDate = DateTime.UtcNow.AddDays(-45),
                 Location = "东阳台",
+                PlantingLocationId = Guid.Parse("22222222-2222-2222-2222-222222222222"),
                 ContainerType = "陶瓷花盆",
                 Status = CropStatus.Harvesting,
                 PhotoUrl = "https://example.com/crops/basil1.jpg",
@@ -132,6 +233,7 @@ public static class DbInitializer
                 Variety = "留兰香薄荷",
                 PlantingDate = DateTime.UtcNow.AddDays(-90),
                 Location = "北阳台",
+                PlantingLocationId = Guid.Parse("33333333-3333-3333-3333-333333333333"),
                 ContainerType = "悬挂花盆",
                 Status = CropStatus.Finished,
                 PhotoUrl = "https://example.com/crops/mint1.jpg",
@@ -145,6 +247,7 @@ public static class DbInitializer
                 Variety = "奶油生菜",
                 PlantingDate = DateTime.UtcNow.AddDays(-30),
                 Location = "南阳台",
+                PlantingLocationId = Guid.Parse("44444444-4444-4444-4444-444444444444"),
                 ContainerType = "种植箱",
                 Status = CropStatus.Growing,
                 PhotoUrl = "https://example.com/crops/lettuce1.jpg",
@@ -157,7 +260,8 @@ public static class DbInitializer
                 Name = "辣椒",
                 Variety = "小米辣",
                 PlantingDate = DateTime.UtcNow.AddDays(-75),
-                Location = "西阳台",
+                Location = "西窗台",
+                PlantingLocationId = Guid.Parse("66666666-6666-6666-6666-666666666666"),
                 ContainerType = "塑料花盆",
                 Status = CropStatus.Harvesting,
                 PhotoUrl = "https://example.com/crops/chili1.jpg",

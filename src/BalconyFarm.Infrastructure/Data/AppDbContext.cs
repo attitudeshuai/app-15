@@ -10,6 +10,7 @@ public class AppDbContext : DbContext
     }
 
     public DbSet<User> Users => Set<User>();
+    public DbSet<PlantingLocation> PlantingLocations => Set<PlantingLocation>();
     public DbSet<Crop> Crops => Set<Crop>();
     public DbSet<CropCareTask> CropCareTasks => Set<CropCareTask>();
     public DbSet<HarvestRecord> HarvestRecords => Set<HarvestRecord>();
@@ -38,6 +39,29 @@ public class AppDbContext : DbContext
             entity.Property(u => u.UpdatedAt).HasDefaultValueSql("CURRENT_TIMESTAMP");
         });
 
+        modelBuilder.Entity<PlantingLocation>(entity =>
+        {
+            entity.HasKey(l => l.Id);
+            entity.Property(l => l.UserId).IsRequired();
+            entity.Property(l => l.Name).IsRequired().HasMaxLength(100);
+            entity.Property(l => l.Description).HasMaxLength(500);
+            entity.Property(l => l.LocationType).HasMaxLength(50);
+            entity.Property(l => l.SunlightCondition).HasMaxLength(50);
+            entity.Property(l => l.Area).HasColumnType("decimal(18,2)");
+            entity.Property(l => l.PhotoUrl).HasMaxLength(500);
+            entity.Property(l => l.SortOrder).HasDefaultValue(0);
+            entity.Property(l => l.CreatedAt).HasDefaultValueSql("CURRENT_TIMESTAMP");
+            entity.Property(l => l.UpdatedAt).HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            entity.HasIndex(l => l.UserId);
+            entity.HasIndex(l => new { l.UserId, l.Name }).IsUnique();
+
+            entity.HasOne(l => l.User)
+                  .WithMany()
+                  .HasForeignKey(l => l.UserId)
+                  .OnDelete(DeleteBehavior.Cascade);
+        });
+
         modelBuilder.Entity<Crop>(entity =>
         {
             entity.HasKey(c => c.Id);
@@ -45,14 +69,23 @@ public class AppDbContext : DbContext
             entity.Property(c => c.Name).IsRequired().HasMaxLength(100);
             entity.Property(c => c.Variety).IsRequired().HasMaxLength(100);
             entity.Property(c => c.Location).IsRequired().HasMaxLength(200);
+            entity.Property(c => c.PlantingLocationId).IsRequired(false);
             entity.Property(c => c.ContainerType).IsRequired().HasMaxLength(100);
             entity.Property(c => c.Status).IsRequired();
             entity.Property(c => c.CreatedAt).HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            entity.HasIndex(c => c.UserId);
+            entity.HasIndex(c => c.PlantingLocationId);
 
             entity.HasOne(c => c.User)
                   .WithMany(u => u.Crops)
                   .HasForeignKey(c => c.UserId)
                   .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasOne(c => c.PlantingLocation)
+                  .WithMany(l => l.Crops)
+                  .HasForeignKey(c => c.PlantingLocationId)
+                  .OnDelete(DeleteBehavior.SetNull);
         });
 
         modelBuilder.Entity<CropCareTask>(entity =>
@@ -309,11 +342,19 @@ public class AppDbContext : DbContext
     private void UpdateTimestamps()
     {
         var entries = ChangeTracker.Entries()
-            .Where(e => e.Entity is User && (e.State == EntityState.Added || e.State == EntityState.Modified));
+            .Where(e => (e.Entity is User || e.Entity is PlantingLocation)
+                && (e.State == EntityState.Added || e.State == EntityState.Modified));
 
         foreach (var entry in entries)
         {
-            ((User)entry.Entity).UpdatedAt = DateTime.UtcNow;
+            if (entry.Entity is User user)
+            {
+                user.UpdatedAt = DateTime.UtcNow;
+            }
+            else if (entry.Entity is PlantingLocation location)
+            {
+                location.UpdatedAt = DateTime.UtcNow;
+            }
         }
     }
 }

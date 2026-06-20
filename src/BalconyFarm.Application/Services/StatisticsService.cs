@@ -18,11 +18,16 @@ public class StatisticsService : IStatisticsService
         _logger = logger;
     }
 
-    public async Task<ApiResponse<OverviewStats>> GetOverviewStatsAsync(Guid userId, CancellationToken cancellationToken = default)
+    public async Task<ApiResponse<OverviewStats>> GetOverviewStatsAsync(Guid userId, Guid? plantingLocationId = null, CancellationToken cancellationToken = default)
     {
-        _logger.LogInformation("获取用户总览统计: {UserId}", userId);
+        _logger.LogInformation("获取用户总览统计: {UserId}, 位置: {LocationId}", userId, plantingLocationId);
 
         var crops = (await _unitOfWork.Crops.FindAsync(c => c.UserId == userId, cancellationToken)).ToList();
+
+        if (plantingLocationId.HasValue)
+        {
+            crops = crops.Where(c => c.PlantingLocationId == plantingLocationId.Value).ToList();
+        }
         var cropIds = crops.Select(c => c.Id).ToList();
 
         var tasks = (await _unitOfWork.CropCareTasks.GetAllAsync(cancellationToken))
@@ -155,18 +160,23 @@ public class StatisticsService : IStatisticsService
         };
     }
 
-    public async Task<ApiResponse<IEnumerable<TrendData>>> GetTrendStatsAsync(DateTime startDate, DateTime endDate, Guid userId, CancellationToken cancellationToken = default)
+    public async Task<ApiResponse<IEnumerable<TrendData>>> GetTrendStatsAsync(DateTime startDate, DateTime endDate, Guid userId, Guid? plantingLocationId = null, CancellationToken cancellationToken = default)
     {
-        _logger.LogInformation("获取用户趋势统计: {UserId}, 开始日期: {StartDate}, 结束日期: {EndDate}", userId, startDate, endDate);
+        _logger.LogInformation("获取用户趋势统计: {UserId}, 开始日期: {StartDate}, 结束日期: {EndDate}, 位置: {LocationId}", userId, startDate, endDate, plantingLocationId);
 
         if (startDate > endDate)
         {
             return ApiResponse<IEnumerable<TrendData>>.Error("开始日期不能大于结束日期", 400);
         }
 
-        var cropIds = (await _unitOfWork.Crops.FindAsync(c => c.UserId == userId, cancellationToken))
-            .Select(c => c.Id)
-            .ToList();
+        var cropsQuery = (await _unitOfWork.Crops.FindAsync(c => c.UserId == userId, cancellationToken)).AsEnumerable();
+
+        if (plantingLocationId.HasValue)
+        {
+            cropsQuery = cropsQuery.Where(c => c.PlantingLocationId == plantingLocationId.Value);
+        }
+
+        var cropIds = cropsQuery.Select(c => c.Id).ToList();
 
         var crops = (await _unitOfWork.Crops.FindAsync(c => cropIds.Contains(c.Id), cancellationToken)).ToList();
         var tasks = (await _unitOfWork.CropCareTasks.GetAllAsync(cancellationToken))
@@ -231,11 +241,16 @@ public class StatisticsService : IStatisticsService
         return ApiResponse<IEnumerable<TrendData>>.Success(trendData);
     }
 
-    public async Task<ApiResponse<IEnumerable<CropTaskCompletionItem>>> GetCropTaskCompletionStatsAsync(Guid userId, CancellationToken cancellationToken = default)
+    public async Task<ApiResponse<IEnumerable<CropTaskCompletionItem>>> GetCropTaskCompletionStatsAsync(Guid userId, Guid? plantingLocationId = null, CancellationToken cancellationToken = default)
     {
-        _logger.LogInformation("获取作物任务完成率统计: {UserId}", userId);
+        _logger.LogInformation("获取作物任务完成率统计: {UserId}, 位置: {LocationId}", userId, plantingLocationId);
 
         var crops = (await _unitOfWork.Crops.FindAsync(c => c.UserId == userId, cancellationToken)).ToList();
+
+        if (plantingLocationId.HasValue)
+        {
+            crops = crops.Where(c => c.PlantingLocationId == plantingLocationId.Value).ToList();
+        }
         if (!crops.Any())
         {
             return ApiResponse<IEnumerable<CropTaskCompletionItem>>.Success(Enumerable.Empty<CropTaskCompletionItem>());
@@ -277,11 +292,16 @@ public class StatisticsService : IStatisticsService
         return ApiResponse<IEnumerable<CropTaskCompletionItem>>.Success(result);
     }
 
-    public async Task<ApiResponse<HarvestQualityAnalysis>> GetHarvestQualityAnalysisAsync(Guid userId, CancellationToken cancellationToken = default)
+    public async Task<ApiResponse<HarvestQualityAnalysis>> GetHarvestQualityAnalysisAsync(Guid userId, Guid? plantingLocationId = null, CancellationToken cancellationToken = default)
     {
-        _logger.LogInformation("获取用户收成质量分析: {UserId}", userId);
+        _logger.LogInformation("获取用户收成质量分析: {UserId}, 位置: {LocationId}", userId, plantingLocationId);
 
         var crops = (await _unitOfWork.Crops.FindAsync(c => c.UserId == userId, cancellationToken)).ToList();
+
+        if (plantingLocationId.HasValue)
+        {
+            crops = crops.Where(c => c.PlantingLocationId == plantingLocationId.Value).ToList();
+        }
         if (!crops.Any())
         {
             return ApiResponse<HarvestQualityAnalysis>.Success(new HarvestQualityAnalysis());

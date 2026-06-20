@@ -137,5 +137,17 @@ public static class MappingConfig
             .Map(dest => dest.UnlockReason, src => (string?)null);
 
         TypeAdapterConfig<UserAchievement, UserAchievementDto>.NewConfig();
+
+        TypeAdapterConfig<CreatePlantingLocationRequestDto, PlantingLocation>.NewConfig()
+            .Map(dest => dest.Name, src => src.Name)
+            .Map(dest => dest.Description, src => src.Description)
+            .Map(dest => dest.LocationType, src => src.LocationType)
+            .Map(dest => dest.SunlightCondition, src => src.SunlightCondition)
+            .Map(dest => dest.Area, src => src.Area)
+            .Map(dest => dest.PhotoUrl, src => src.PhotoUrl)
+            .Map(dest => dest.SortOrder, src => src.SortOrder);
+
+        TypeAdapterConfig<PlantingLocation, PlantingLocationDto>.NewConfig()
+            .Map(dest => dest.CropCount, src => src.Crops.Count);
     }
 }

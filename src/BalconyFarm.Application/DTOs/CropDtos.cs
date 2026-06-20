@@ -11,6 +11,8 @@ public class CropDto
     public string Variety { get; set; } = string.Empty;
     public DateTime PlantingDate { get; set; }
     public string Location { get; set; } = string.Empty;
+    public Guid? PlantingLocationId { get; set; }
+    public string? PlantingLocationName { get; set; }
     public string ContainerType { get; set; } = string.Empty;
     public CropStatus Status { get; set; }
     public string? PhotoUrl { get; set; }
@@ -24,6 +26,7 @@ public class CreateCropRequestDto
     public string Variety { get; set; } = string.Empty;
     public DateTime PlantingDate { get; set; }
     public string Location { get; set; } = string.Empty;
+    public Guid? PlantingLocationId { get; set; }
     public string ContainerType { get; set; } = string.Empty;
     public CropStatus Status { get; set; } = CropStatus.Growing;
     public string? PhotoUrl { get; set; }
@@ -46,6 +49,7 @@ public class UpdateCropRequestDto
     public string? Variety { get; set; }
     public DateTime? PlantingDate { get; set; }
     public string? Location { get; set; }
+    public Guid? PlantingLocationId { get; set; }
     public string? ContainerType { get; set; }
     public CropStatus? Status { get; set; }
     public string? PhotoUrl { get; set; }
@@ -60,6 +64,7 @@ public class CropQueryRequestDto : PagedRequest
 {
     public CropStatus? Status { get; set; }
     public string? Location { get; set; }
+    public Guid? PlantingLocationId { get; set; }
     public string? ContainerType { get; set; }
     public DateTime? PlantingDateFrom { get; set; }
     public DateTime? PlantingDateTo { get; set; }
