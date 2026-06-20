@@ -19,4 +19,5 @@ public class Crop
     public ICollection<CropCareTask> CareTasks { get; set; } = new List<CropCareTask>();
     public ICollection<HarvestRecord> HarvestRecords { get; set; } = new List<HarvestRecord>();
     public ICollection<PestRecord> PestRecords { get; set; } = new List<PestRecord>();
+    public ICollection<CropPhoto> Photos { get; set; } = new List<CropPhoto>();
 }

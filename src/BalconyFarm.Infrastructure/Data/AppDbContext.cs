@@ -19,6 +19,7 @@ public class AppDbContext : DbContext
     public DbSet<CommunityQuestion> Questions => Set<CommunityQuestion>();
     public DbSet<CommunityReply> Replies => Set<CommunityReply>();
     public DbSet<CommunityTag> Tags => Set<CommunityTag>();
+    public DbSet<CropPhoto> CropPhotos => Set<CropPhoto>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -79,6 +80,24 @@ public class AppDbContext : DbContext
             entity.HasOne(h => h.Crop)
                   .WithMany(c => c.HarvestRecords)
                   .HasForeignKey(h => h.CropId)
+                  .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<CropPhoto>(entity =>
+        {
+            entity.HasKey(p => p.Id);
+            entity.Property(p => p.CropId).IsRequired();
+            entity.Property(p => p.PhotoDate).IsRequired();
+            entity.Property(p => p.PhotoUrl).IsRequired().HasMaxLength(500);
+            entity.Property(p => p.Description).HasMaxLength(500);
+            entity.Property(p => p.CreatedAt).HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            entity.HasIndex(p => p.CropId);
+            entity.HasIndex(p => p.PhotoDate);
+
+            entity.HasOne(p => p.Crop)
+                  .WithMany(c => c.Photos)
+                  .HasForeignKey(p => p.CropId)
                   .OnDelete(DeleteBehavior.Cascade);
         });
 

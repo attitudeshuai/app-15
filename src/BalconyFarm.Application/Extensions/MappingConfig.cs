@@ -98,5 +98,14 @@ public static class MappingConfig
 
         TypeAdapterConfig<CommunityReply, CommunityReplyDto>.NewConfig()
             .Map(dest => dest.AuthorUsername, src => src.User != null ? src.User.Username : null);
+
+        TypeAdapterConfig<CreateCropPhotoRequestDto, CropPhoto>.NewConfig()
+            .Map(dest => dest.CropId, src => src.CropId)
+            .Map(dest => dest.PhotoDate, src => src.PhotoDate)
+            .Map(dest => dest.PhotoUrl, src => src.PhotoUrl)
+            .Map(dest => dest.Description, src => src.Description);
+
+        TypeAdapterConfig<CropPhoto, CropPhotoDto>.NewConfig()
+            .Map(dest => dest.CropName, src => src.Crop != null ? src.Crop.Name : null);
     }
 }

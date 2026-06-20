@@ -14,5 +14,6 @@ public interface IUnitOfWork
     IRepository<CommunityQuestion> Questions { get; }
     IRepository<CommunityReply> Replies { get; }
     IRepository<CommunityTag> Tags { get; }
+    IRepository<CropPhoto> CropPhotos { get; }
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }
